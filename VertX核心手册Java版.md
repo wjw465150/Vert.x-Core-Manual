@@ -3149,18 +3149,18 @@ request.response()
 HttpClient client = vertx.createHttpClient();
 ```
 
-If you want to configure options for the client, you create it as follows:
+如果要为客户端配置选项，请按以下方式创建它：
 
 ```java
 HttpClientOptions options = new HttpClientOptions().setKeepAlive(false);
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-Vert.x supports HTTP/2 over TLS `h2` and over TCP `h2c`.
+Vert.x通过TLS `h2` 和TCP `h2c`支持HTTP/2。
 
-By default the http client performs HTTP/1.1 requests, to perform HTTP/2 requests the `setProtocolVersion` must be set to `HTTP_2`.
+默认情况下，http客户端执行HTTP/1.1请求，要执行HTTP/2请求，必须将`setProtocolVersion`设置为`HTTP_2`。
 
-For `h2` requests, TLS must be enabled with *Application-Layer Protocol Negotiation*:
+对于`h2`请求，必须通过 *应用层协议协商* 启用TLS：
 
 ```java
 HttpClientOptions options = new HttpClientOptions().
@@ -3180,26 +3180,26 @@ HttpClientOptions options = new HttpClientOptions().setProtocolVersion(HttpVersi
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-`h2c` connections can also be established directly, i.e connection started with a prior knowledge, when `setHttp2ClearTextUpgrade` options is set to false: after the connection is established, the client will send the HTTP/2 connection preface and expect to receive the same preface from the server.
+也可以直接建立`h2c`连接，即在`setHttp2ClearTextUpgrade`选项设置为false时开始连接:建立连接后，客户端将发送HTTP/2连接序言，并期望从服务器接收相同的序言。
 
-The http server may not support HTTP/2, the actual version can be checked with `version` when the response arrives.
+http服务器可能不支持HTTP/2，当响应到达时，可以使用`version`检查实际版本。
 
-When a clients connects to an HTTP/2 server, it sends to the server its `initial settings`. The settings define how the server can use the connection, the default initial settings for a client are the default values defined by the HTTP/2 RFC.
+当客户端连接到HTTP/2服务器时，它将“初始设置”发送到服务器。 这些设置定义服务器如何使用连接，客户端的默认初始设置是HTTP/2 RFC定义的默认值。
 
-### Logging network client activity {#Logging_network_client_activity}
-For debugging purposes, network activity can be logged.
+### 记录网络客户端活动 {#Logging_network_client_activity}
+出于调试目的，可以记录网络活动。
 
 ```java
 HttpClientOptions options = new HttpClientOptions().setLogActivity(true);
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-See the chapter on [logging network activity](https://vertx.io/docs/vertx-core/java/#logging_network_activity) for a detailed explanation.
+有关详细说明，请参见[记录网络活动](https://vertx.io/docs/vertx-core/java/#logging_network_activity) 一章。
 
-### Making requests {#Making_requests}
-The http client is very flexible and there are various ways you can make requests with it.
+### 发出请求 {#Making_requests}
+http客户端非常灵活，可以通过多种方式发出请求。
 
-Often you want to make many requests to the same host/port with an http client. To avoid you repeating the host/port every time you make a request you can configure the client with a default host/port:
+通常，您想通过http客户端向同一主机/端口发出许多请求。 为避免每次发出请求时都重复主机/端口，可以为客户端配置默认主机/端口：
 
 ```java
 HttpClientOptions options = new HttpClientOptions().setDefaultHost("wibble.com");
@@ -3210,7 +3210,7 @@ client.getNow("/some-uri", response -> {
 });
 ```
 
-Alternatively if you find yourself making lots of requests to different host/ports with the same client you can simply specify the host/port when doing the request.
+另外，如果您发现使用同一客户端向不同的主机/端口发出大量请求，则只需在执行请求时指定主机/端口即可。
 
 ```java
 HttpClient client = vertx.createHttpClient();
@@ -3226,14 +3226,14 @@ client.getNow("foo.othercompany.com", "/other-uri", response -> {
 });
 ```
 
-Both methods of specifying host/port are supported for all the different ways of making requests with the client.
+与客户端发出请求的所有不同方式都支持两种指定主机/端口的方法。
 
-#### Simple requests with no request body {#Simple_requests_with_no_request_body}
-Often, you’ll want to make HTTP requests with no request body. This is usually the case with HTTP GET, OPTIONS and HEAD requests.
+#### 没有请求正文的简单请求 {#Simple_requests_with_no_request_body}
+通常，您会希望在没有请求正文的情况下发出HTTP请求。 HTTP GET，OPTIONS和HEAD请求通常是这种情况。
 
-The simplest way to do this with the Vert.x http client is using the methods suffixed with `Now`. For example `getNow`.
+使用Vert.x http客户端执行此操作的最简单方法是使用`Now`后缀的方法。 例如`getNow`。
 
-These methods create the http request and send it in a single method call and allow you to provide a handler that will be called with the http response when it comes back.
+这些方法创建http请求并将其通过单个方法调用发送，并允许您提供一个处理程序，该处理程序将在返回时与http响应一起调用。
 
 ```java
 HttpClient client = vertx.createHttpClient();
@@ -3249,8 +3249,8 @@ client.headNow("/other-uri", response -> {
 });
 ```
 
-#### Writing general requests {#Writing_general_requests}
-At other times you don’t know the request method you want to send until run-time. For that use case we provide general purpose request methods such as `request` which allow you to specify the HTTP method at run-time:
+#### 编写一般请求 {#Writing_general_requests}
+在其他时间，直到运行时您才知道要发送的请求方法。 对于这种用例，我们提供了通用的请求方法，例如`request`，它允许您在运行时指定HTTP方法：
 
 ```java
 HttpClient client = vertx.createHttpClient();
@@ -3264,14 +3264,14 @@ client.request(HttpMethod.POST, "foo-uri", response -> {
 }).end("some-data");
 ```
 
-#### Writing request bodies {#Writing_request_bodies}
-Sometimes you’ll want to write requests which have a body, or perhaps you want to write headers to a request before sending it.
+#### 编写请求主体 {#Writing_request_bodies}
+有时，您可能希望写入具有正文的请求，或者在发送请求之前希望写入请求头。
 
-To do this you can call one of the specific request methods such as `post` or one of the general purpose request methods such as `request`.
+为此，您可以调用一种特定的请求方法（例如`post`）或一种通用请求方法（例如`request`）。
 
-These methods don’t send the request immediately, but instead return an instance of `HttpClientRequest` which can be used to write to the request body or write headers.
+这些方法不会立即发送请求，而是返回HttpClientRequest的实例，该实例可用于写入请求正文或写入标头。
 
-Here are some examples of writing a POST request with a body: m
+以下是使用正文编写POST请求的一些示例：
 
 ```java
 HttpClient client = vertx.createHttpClient();
@@ -3301,7 +3301,7 @@ client.post("some-uri", response -> {
 }).putHeader("content-type", "text/plain").end(body);
 ```
 
-Methods exist to write strings in UTF-8 encoding and in any specific encoding and to write buffers:
+存在使用UTF-8编码和任何特定编码写入字符串以及写入缓冲区的方法：
 
 ```java
 request.write("some data");
@@ -3315,7 +3315,7 @@ buffer.appendInt(123).appendLong(245l);
 request.write(buffer);
 ```
 
-If you are just writing a single string or buffer to the HTTP request you can write it and end the request in a single call to the `end` function.
+如果您只是向HTTP请求写入单个字符串或缓冲区，则可以编写该字符串或缓冲区，并在一次对`end`函数的调用中结束该请求。
 
 ```java
 request.end("some simple data");
@@ -3325,51 +3325,51 @@ Buffer buffer = Buffer.buffer().appendDouble(12.34d).appendLong(432l);
 request.end(buffer);
 ```
 
-When you’re writing to a request, the first call to `write` will result in the request headers being written out to the wire.
+当您写入请求时，第一次调用`write`会导致请求标头被写到线路中。
 
-The actual write is asynchronous and might not occur until some time after the call has returned.
+实际的写入是异步的，并且可能要等到调用返回后的一段时间才能发生。
 
-Non-chunked HTTP requests with a request body require a `Content-Length` header to be provided.
+带有请求体的非分块HTTP请求需要提供一个`Content-Length`报头。
 
-Consequently, if you are not using chunked HTTP then you must set the `Content-Length` header before writing to the request, as it will be too late otherwise.
+因此，如果您不使用chunked HTTP，那么您必须在写入请求之前设置`Content-Length`报头，否则就太晚了。
 
-If you are calling one of the `end` methods that take a string or buffer then Vert.x will automatically calculate and set the `Content-Length` header before writing the request body.
+如果您正在调用采用字符串或缓冲区的`end`方法之一，则Vert.x将在写入请求主体之前自动计算并设置`Content-Length`标头。
 
-If you are using HTTP chunking a a `Content-Length` header is not required, so you do not have to calculate the size up-front.
+如果您使用HTTP分块，则不需要`Content-Length`标头，因此不必预先计算大小。
 
-#### Writing request headers {#Writing_request_headers}
-You can write headers to a request using the `headers` multi-map as follows:
+#### 编写请求标头 {#Writing_request_headers}
+您可以使用`headers` multi-map将标头写入请求，如下所示：
 
 ```java
 MultiMap headers = request.headers();
 headers.set("content-type", "application/json").set("other-header", "foo");
 ```
 
-The headers are an instance of `MultiMap` which provides operations for adding, setting and removing entries. Http headers allow more than one value for a specific key.
+标题是`MultiMap`的实例，它提供添加，设置和删除条目的操作。 Http标头为特定键允许多个值。
 
-You can also write headers using `putHeader`
+您也可以使用`putHeader`来写标题
 
 ```java
 request.putHeader("content-type", "application/json").putHeader("other-header", "foo");
 ```
 
-If you wish to write headers to the request you must do so before any part of the request body is written.
+如果您希望将标头写入请求，则必须在写入请求正文的任何部分之前这样做。
 
-#### Non standard HTTP methods {#Non_standard_HTTP_methods}
-The `OTHER` HTTP method is used for non standard methods, when this method is used, `setRawMethod` must be used to set the raw method to send to the server.
+#### 非标准HTTP方法 {#Non_standard_HTTP_methods}
+HTTP方法的`OTHER`用于非标准方法，使用此方法时，必须使用`setRawMethod`来设置要发送到服务器的原始方法。
 
-#### Ending HTTP requests {#Ending_HTTP_requests}
-Once you have finished with the HTTP request you must end it with one of the `end` operations.
+#### 结束HTTP请求 {#Ending_HTTP_requests}
+完成HTTP请求后，必须以`end`操作之一结束它。
 
-Ending a request causes any headers to be written, if they have not already been written and the request to be marked as complete.
+结束请求将导致写入所有标头（如果尚未写入标头）并将请求标记为已完成。
 
-Requests can be ended in several ways. With no arguments the request is simply ended:
+请求可以通过几种方式结束。 没有参数，请求就简单地结束了：
 
 ```java
 request.end();
 ```
 
-Or a string or buffer can be provided in the call to `end`. This is like calling `write` with the string or buffer before calling `end` with no arguments
+或者可以在对`end`的调用中提供字符串或缓冲区。 这就像在调用不带参数的`end`之前用字符串或缓冲区调用`write`一样
 
 ```java
 request.end("some-data");
@@ -3379,14 +3379,14 @@ Buffer buffer = Buffer.buffer().appendFloat(12.3f).appendInt(321);
 request.end(buffer);
 ```
 
-#### Chunked HTTP requests {#Chunked_HTTP_requests}
-Vert.x supports [HTTP Chunked Transfer Encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) for requests.
+#### 分块的HTTP请求 {#Chunked_HTTP_requests}
+Vert.x支持[HTTP块传输编码](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) 。
 
-This allows the HTTP request body to be written in chunks, and is normally used when a large request body is being streamed to the server, whose size is not known in advance.
+这允许将HTTP请求主体分块编写，并且通常在将大型请求主体流式传输到服务器（事先不知道其大小）时使用。
 
-You put the HTTP request into chunked mode using `setChunked`.
+您可以使用`setChunked`将HTTP请求置于分块模式。
 
-In chunked mode each call to write will cause a new chunk to be written to the wire. In chunked mode there is no need to set the `Content-Length` of the request up-front.
+在分块模式下，每次写调用都将导致将一个新的分块写入线路。 在分块模式下，无需预先设置请求的`Content-Length`。
 
 ```java
 request.setChunked(true);
@@ -3399,13 +3399,13 @@ for (int i = 0; i < 10; i++) {
 request.end();
 ```
 
-#### Request timeouts {#Request_timeouts}
-You can set a timeout for a specific http request using `setTimeout`.
+#### 请求超时 {#Request_timeouts}
+您可以使用`setTimeout`为特定的HTTP请求设置超时。
 
-If the request does not return any data within the timeout period an exception will be passed to the exception handler (if provided) and the request will be closed.
+如果请求在超时时间内未返回任何数据，则将异常传递给异常处理程序（如果提供），并且该请求将被关闭。
 
-#### Handling exceptions {#Handling_exceptions}
-You can handle exceptions corresponding to a request by setting an exception handler on the `HttpClientRequest` instance:
+#### 处理异常 {#Handling_exceptions}
+您可以通过在`HttpClientRequest`实例上设置异常处理程序来处理与请求相对应的异常：
 
 ```java
 HttpClientRequest request = client.post("some-uri", response -> {
@@ -3417,7 +3417,7 @@ request.exceptionHandler(e -> {
 });
 ```
 
-This does not handle non *2xx* response that need to be handled in the `HttpClientResponse` code:
+这不会处理需要在`HttpClientResponse`代码中处理的非*2xx*响应：
 
 ```java
 HttpClientRequest request = client.post("some-uri", response -> {
@@ -3433,12 +3433,12 @@ HttpClientRequest request = client.post("some-uri", response -> {
 request.end();
 ```
 
-| IMPORTANT | `XXXNow` methods cannot receive an exception handler. |
-| --------- | ----------------------------------------------------- |
-|           |                                                       |
+------
+> **重要:** `XXXNow`方法不能接收异常处理程序。
+------
 
-#### Specifying a handler on the client request {#Specifying_a_handler_on_the_client_request}
-Instead of providing a response handler in the call to create the client request object, alternatively, you can not provide a handler when the request is created and set it later on the request object itself, using `handler`, for example:
+#### 在客户端请求上指定处理程序 {#Specifying_a_handler_on_the_client_request}
+或者，除了在创建客户端请求对象的调用中提供响应处理程序之外，还不能在创建请求时提供处理程序，以后再使用`handler`在请求对象本身上进行设置，例如：
 
 ```java
 HttpClientRequest request = client.post("some-uri");
@@ -3447,10 +3447,10 @@ request.handler(response -> {
 });
 ```
 
-#### Using the request as a stream {#Using_the_request_as_a_stream}
-The `HttpClientRequest` instance is also a `WriteStream` which means you can pump to it from any `ReadStream` instance.
+#### 将请求用作流 {#Using_the_request_as_a_stream}
+`HttpClientRequest`实例也是一个`WriteStream`，这意味着您可以从任何`ReadStream`实例中将其泵入。
 
-For, example, you could pump a file on disk to a http request body as follows:
+例如，可以将磁盘上的文件泵送到http请求正文，如下所示：
 
 ```java
 request.setChunked(true);
@@ -3459,10 +3459,10 @@ file.endHandler(v -> request.end());
 pump.start();
 ```
 
-#### Writing HTTP/2 frames {#Writing_HTTP_2_frames}
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 编写HTTP/2帧 {#Writing_HTTP_2_frames}
+HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
-To send such frames, you can use the `write` on the request. Here’s an example:
+要发送这样的帧，您可以对请求使用`write`。这里有一个例子:
 
 ```java
 int frameType = 40;
@@ -3473,24 +3473,24 @@ Buffer payload = Buffer.buffer("some data");
 request.writeCustomFrame(frameType, frameStatus, payload);
 ```
 
-#### Stream reset {#Stream_reset}
-HTTP/1.x does not allow a clean reset of a request or a response stream, for example when a client uploads a resource already present on the server, the server needs to accept the entire response.
+#### 流重置 {#Stream_reset}
+HTTP/1.x不允许对请求或响应流进行干净的重置，例如，当客户机上传服务器上已经存在的资源时，服务器需要接受整个响应。
 
-HTTP/2 supports stream reset at any time during the request/response:
+HTTP/2支持在请求/响应期间的任何时间进行流重置：
 
 ```java
 request.reset();
 ```
 
-By default the NO_ERROR (0) error code is sent, another code can sent instead:
+默认情况下NO_ERROR(0)错误代码被发送，另一个代码可以被发送:
 
 ```java
 request.reset(8);
 ```
 
-The HTTP/2 specification defines the list of [error codes](http://httpwg.org/specs/rfc7540.html#ErrorCodes) one can use.
+HTTP/2规范定义了可以使用的[错误代码](http://httpwg.org/specs/rfc7540.html#ErrorCodes)列表。
 
-The request handler are notified of stream reset events with the `request handler` and `response handler`:
+使用`request handler`和`response handler`将流重置事件通知给请求处理程序：
 
 ```java
 request.exceptionHandler(err -> {
@@ -3501,10 +3501,10 @@ request.exceptionHandler(err -> {
 });
 ```
 
-### Handling HTTP responses {#Handling_HTTP_responses}
-You receive an instance of `HttpClientResponse` into the handler that you specify in of the request methods or by setting a handler directly on the `HttpClientRequest` object.
+### 处理HTTP响应 {#Handling_HTTP_responses}
+您会在请求方法中指定的处理程序中收到`HttpClientResponse`的实例，或者直接在`HttpClientRequest`对象上设置处理程序。
 
-You can query the status code and the status message of the response with `statusCode` and `statusMessage`.
+您可以使用`statusCode`和`statusMessage`查询响应的状态码和状态消息。
 
 ```java
 client.getNow("some-uri", response -> {
