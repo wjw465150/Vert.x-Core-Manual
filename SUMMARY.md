@@ -1,0 +1,31 @@
+# Summary
+
+-----
+* [前言](README.md)
+
+-----
+* [ 第9章 Web Services](Groovy食谱9_10章节.md#Web服务)
+  * [ 9.1 Finding Your Local IP Address and Name](Groovy食谱9_10章节.md#查找您的本地IP地址和名称)
+  * [ 9.2 Finding a Remote IP Address and Domain Name](Groovy食谱9_10章节.md#查找远程IP地址和域名)
+  * [ 9.3 Making an HTTP GET Request](Groovy食谱9_10章节.md#发出HTTP GET请求)
+  * [ 9.4 Working with Query Strings](Groovy食谱9_10章节.md#使用查询字符串)
+  * [ 9.5 Making an HTTP POST Request](Groovy食谱9_10章节.md#发出HTTP POST请求)
+  * [ 9.6 Making an HTTP PUT Request](Groovy食谱9_10章节.md#发出HTTP PUT请求)
+  * [ 9.7 Making an HTTP DELETE Request](Groovy食谱9_10章节.md#发出HTTP DELETE请求)
+  * [ 9.8 Making a RESTful Request](Groovy食谱9_10章节.md#发出RESTful请求)
+  * [ 9.9 Making a CSV Request](Groovy食谱9_10章节.md#发出CSV请求)
+  * [ 9.10 Making a SOAP Request](Groovy食谱9_10章节.md#发出SOAP请求)
+  * [ 9.11 Making an XML-RPC Request](Groovy食谱9_10章节.md#发出XML-RPC请求)
+  * [ 9.12 Parsing Yahoo Search Results as XML](Groovy食谱9_10章节.md#将Yahoo搜索结果解析为XML)
+  * [ 9.14 Parsing an RSS Feed](Groovy食谱9_10章节.md#解析RSS Feed)
+* [ 第10章 Metaprogramming](Groovy食谱9_10章节.md#元编程)
+  * [ 10.1 Discovering the Class](Groovy食谱9_10章节.md#发现类)
+  * [ 10.2 Discovering the Fields of a Class](Groovy食谱9_10章节.md#发现类的字段)
+  * [ 10.3 Checking for the Existence of a Field](Groovy食谱9_10章节.md#检查字段是否存在)
+  * [ 10.4 Discovering the Methods of a Class](Groovy食谱9_10章节.md#发现类的方法)
+  * [ 10.5 Checking for the Existence of a Method](Groovy食谱9_10章节.md#检查方法是否存在)
+  * [ 10.6 Creating a Field Pointer](Groovy食谱9_10章节.md#创建字段指针)
+  * [ 10.7 Creating a Method Pointer](Groovy食谱9_10章节.md#创建方法指针)
+  * [ 10.8 Calling Methods That Don’t Exist (invokeMethod)](Groovy食谱9_10章节.md#调用不存在的方法(invokeMethod))
+  * [ 10.9 Creating an Expando](Groovy食谱9_10章节.md#创建一个Expando)
+  * [ 10.10 Adding Methods to a Class Dynamically (Categories)](Groovy食谱9_10章节.md#动态地向类添加方法(Categories))
