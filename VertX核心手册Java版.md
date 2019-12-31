@@ -3516,29 +3516,29 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-#### Using the response as a stream {#Using_the_response_as_a_stream}
-The `HttpClientResponse` instance is also a `ReadStream` which means you can pump it to any `WriteStream` instance.
+#### 将响应作为流使用 {#Using_the_response_as_a_stream}
+`HttpClientResponse`实例也是一个`ReadStream`，这意味着你可以把它泵到任何`WriteStream`实例。
 
-#### Response headers and trailers {#Response_headers_and_trailers}
-Http responses can contain headers. Use `headers` to get the headers.
+#### 响应头和trailers(尾部) {#Response_headers_and_trailers}
+Http响应可以包含标头。使用`headers`获取标头。
 
-The object returned is a `MultiMap` as HTTP headers can contain multiple values for single keys.
+返回的对象是一个`MultiMap`，因为HTTP头文件可以包含单个键的多个值。
 
 ```java
 String contentType = response.headers().get("content-type");
 String contentLength = response.headers().get("content-lengh");
 ```
 
-Chunked HTTP responses can also contain trailers - these are sent in the last chunk of the response body.
+块状HTTP响应也可以包含trailers尾部-这些尾部在响应主体的最后一块发送。
 
-You use `trailers` to get the trailers. Trailers are also a `MultiMap`.
+您可以使用`trailers`来获取Trailers。 Trailers也是`MultiMap`。
 
-#### Reading the request body {#Reading_the_request_body}
-The response handler is called when the headers of the response have been read from the wire.
+#### 读取请求正文 {#Reading_the_request_body}
+当从连线读取响应的标头时，将调用响应处理程序。
 
-If the response has a body this might arrive in several pieces some time after the headers have been read. We don’t wait for all the body to arrive before calling the response handler as the response could be very large and we might be waiting a long time, or run out of memory for large responses.
+如果响应有一个主体，那么它可能在读取标题之后的一段时间内以几部分的形式到达。我们不会在调用响应处理程序之前等待所有主体的到来，因为响应可能非常大，我们可能要等待很长时间，或者耗尽内存来处理较大的响应。
 
-As parts of the response body arrive, the `handler` is called with a `Buffer` representing the piece of the body:
+当响应体的一部分到达时，调用`handler`，并用`Buffer`表示响应体的一部分:
 
 ```java
 client.getNow("some-uri", response -> {
@@ -3549,7 +3549,7 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-If you know the response body is not very large and want to aggregate it all in memory before handling it, you can either aggregate it yourself:
+如果您知道响应体不是非常大，并希望在处理它之前在内存中聚合它，您可以自己聚合它:
 
 ```java
 client.getNow("some-uri", response -> {
@@ -3570,7 +3570,7 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-Or you can use the convenience `bodyHandler` which is called with the entire body when the response has been fully read:
+或者，您可以使用便捷的`bodyHandler`，当完全读取响应后，将在整个正文中调用它：
 
 ```java
 client.getNow("some-uri", response -> {
@@ -3582,21 +3582,21 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-#### Response end handler {#Response_end_handler}
-The response `endHandler` is called when the entire response body has been read or immediately after the headers have been read and the response handler has been called if there is no body.
+#### 响应结束处理程序 {#Response_end_handler}
+当读取了整个响应主体时，或者在读取标头之后立即调用响应`endHandler`，如果没有主体则调用响应处理程序。
 
-#### Reading cookies from the response {#Reading_cookies_from_the_response}
-You can retrieve the list of cookies from a response using `cookies`.
+#### 从响应中读取Cookie {#Reading_cookies_from_the_response}
+您可以使用`cookies`来从响应中检索Cookie列表。
 
-Alternatively you can just parse the `Set-Cookie` headers yourself in the response.
+另外，您也可以在响应中自己解析`Set-Cookie`标头。
 
-#### 30x redirection handling {#x_redirection_handling}
-The client can be configured to follow HTTP redirections provided by the `Location` response header when the client receives:
+#### 30x重定向处理 {#x_redirection_handling}
+当客户端收到以下消息时，可以将客户端配置为遵循`Location`响应标头提供的HTTP重定向：
 
-- a `301`, `302`, `307` or `308` status code along with a HTTP GET or HEAD method
-- a `303` status code, in addition the directed request perform an HTTP GET methodn
+- 一个`301`、`302`、`307`或`308`状态码，以及HTTP GET或HEAD方法
+- 一个`303`状态码，另外定向请求执行一个HTTP GET方法
 
-Here’s an example:
+这里有一个例子:
 
 ```java
 client.get("some-uri", response -> {
@@ -3604,7 +3604,7 @@ client.get("some-uri", response -> {
 }).setFollowRedirects(true).end();
 ```
 
-The maximum redirects is `16` by default and can be changed with `setMaxRedirects`.
+默认情况下，最大重定向数为`16`，可以通过`setMaxRedirects`进行更改。
 
 ```java
 HttpClient client = vertx.createHttpClient(
@@ -3616,9 +3616,9 @@ client.get("some-uri", response -> {
 }).setFollowRedirects(true).end();
 ```
 
-One size does not fit all and the default redirection policy may not be adapted to your needs.
+一种尺寸不能满足所有需求，并且默认重定向策略可能无法满足您的需求。
 
-The default redirection policy can changed with a custom implementation:
+可以使用定制实现来更改默认重定向策略：
 
 ```java
 client.redirectHandler(response -> {
@@ -3638,36 +3638,36 @@ client.redirectHandler(response -> {
 });
 ```
 
-The policy handles the original `HttpClientResponse` received and returns either `null` or a `Future`.
+该策略处理收到的原始`HttpClientResponse`，并返回`null`或`Future`。
 
-- when `null` is returned, the original response is processed
-- when a future is returned, the request will be sent on its successful completion
-- when a future is returned, the exception handler set on the request is called on its failure
+- 当返回`null`时，原始响应被处理
+- 当返回future时，请求将在成功完成后发送
+- 当返回future时，在请求失败时调用在请求上设置的异常处理程序
 
-The returned request must be unsent so the original request handlers can be sent and the client can send it after.
+返回的请求必须未发送，以便可以发送原始请求处理程序，并且客户端可以在之后发送它。
 
-Most of the original request settings will be propagated to the new request:
+大多数原始请求设置将传播到新请求：
 
-- request headers, unless if you have set some headers (including `setHost`)
-- request body unless the returned request uses a `GET` method
-- response handler
-- request exception handler
-- request timeout
+- 请求标头，除非您设置了一些标头（包括`SetHost`）
+- 请求主体，除非返回的请求使用`GET`方法
+- 响应处理程序
+- 请求异常处理程序
+- 请求超时
 
-#### 100-Continue handling {#Continue_handling}
-According to the [HTTP 1.1 specification](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) a client can set a header `Expect: 100-Continue` and send the request header before sending the rest of the request body.
+#### 100-继续处理 {#Continue_handling}
+根据[HTTP 1.1规范](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) ，客户端可以设置标头`Expect: 100-Continue` ,并在发送请求标头之前发送请求正文的其余部分。
 
-The server can then respond with an interim response status `Status: 100 (Continue)` to signify to the client that it is ok to send the rest of the body.
+然后，服务器可以使用临时响应状态`Status: 100 (Continue)` 来响应，以向客户端表示可以发送主体的其余部分。
 
-The idea here is it allows the server to authorise and accept/reject the request before large amounts of data are sent. Sending large amounts of data if the request might not be accepted is a waste of bandwidth and ties up the server in reading data that it will just discard.
+这里的想法是，它允许服务器在发送大量数据之前对请求进行授权和接受/拒绝。如果请求可能不被接受，则发送大量数据是对带宽的浪费，并且会使服务器无法读取它将丢弃的数据。
 
-Vert.x allows you to set a `continueHandler` on the client request object
+Vert.x允许您在客户端请求对象上设置`continueHandler`
 
-This will be called if the server sends back a `Status: 100 (Continue)` response to signify that it is ok to send the rest of the request.
+如果服务器发回`Status: 100 (Continue)`响应以表示可以发送其余请求，则将调用此方法。
 
-This is used in conjunction with `[sendHead](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpClientRequest.html#sendHead--)`to send the head of the request.
+它与`[sendHead](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpClientRequest.html#sendHead--)`结合使用，以发送请求的头部。
 
-Here’s an example:
+这是一个例子：
 
 ```java
 HttpClientRequest request = client.put("some-uri", response -> {
@@ -3684,11 +3684,11 @@ request.continueHandler(v -> {
 });
 ```
 
-On the server side a Vert.x http server can be configured to automatically send back 100 Continue interim responses when it receives an `Expect: 100-Continue` header.
+在服务器端，可以将Vert.x http服务器配置为在收到`Expect: 100-Continue`标头时自动发送回100 Continue临时响应。
 
-This is done by setting the option `setHandle100ContinueAutomatically`.
+这是通过设置选项`setHandle100ContinueAutomatically`完成的。
 
-If you’d prefer to decide whether to send back continue responses manually, then this property should be set to `false` (the default), then you can inspect the headers and call `writeContinue` to have the client continue sending the body:
+如果您希望决定是否手动发送回继续响应，则应将此属性设置为`false`（默认值），然后可以检查标头并调用`writeContinue`以使客户端继续发送正文：
 
 ```java
 httpServer.requestHandler(request -> {
@@ -3709,7 +3709,7 @@ httpServer.requestHandler(request -> {
 });
 ```
 
-You can also reject the request by sending back a failure status code directly: in this case the body should either be ignored or the connection should be closed (100-Continue is a performance hint and cannot be a logical protocol constraint):
+你也可以通过直接发送一个失败状态代码来拒绝请求:在这种情况下，要么忽略正文，要么关闭连接(100-Continue是一个性能提示，不能是逻辑协议约束):
 
 ```java
 httpServer.requestHandler(request -> {
@@ -3737,10 +3737,10 @@ httpServer.requestHandler(request -> {
 });
 ```
 
-#### Client push {#Client_push}
-Server push is a new feature of HTTP/2 that enables sending multiple responses in parallel for a single client request.
+#### 客户端推送 {#Client_push}
+服务器推送是HTTP/2的一个新特性，它支持为单个客户机请求并发发送多个响应。
 
-A push handler can be set on a request to receive the request/response pushed by the server:
+可以在请求上设置推送处理程序，以接收服务器推送的请求/响应：
 
 ```java
 HttpClientRequest request = client.get("/index.html", response -> {
@@ -3763,7 +3763,7 @@ request.pushHandler(pushedRequest -> {
 request.end();
 ```
 
-If the client does not want to receive a pushed request, it can reset the stream:
+如果客户端不想接收推送的请求，则可以重置流：
 
 ```java
 request.pushHandler(pushedRequest -> {
@@ -3775,12 +3775,12 @@ request.pushHandler(pushedRequest -> {
 });
 ```
 
-When no handler is set, any stream pushed will be automatically cancelled by the client with a stream reset (`8` error code).
+如果未设置任何处理程序，则推送的任何流都将由客户端通过流重置（“ 8”错误代码）自动取消。
 
-#### Receiving custom HTTP/2 frames {#Receiving_custom_HTTP_2_frames}
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 接收自定义HTTP/2帧 {#Receiving_custom_HTTP_2_frames}
+HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
-To receive custom frames, you can use the customFrameHandler on the request, this will get called every time a custom frame arrives. Here’s an example:
+要接收自定义帧，您可以对请求使用customFrameHandler，它将在每次自定义帧到达时被调用。这里有一个例子:
 
 ```java
 response.customFrameHandler(frame -> {
@@ -3790,47 +3790,47 @@ response.customFrameHandler(frame -> {
 });
 ```
 
-### Enabling compression on the client {#Enabling_compression_on_the_client}
-The http client comes with support for HTTP Compression out of the box.
+### 在客户端上启用压缩 {#Enabling_compression_on_the_client}
+http客户端开箱即用地支持HTTP压缩。
 
-This means the client can let the remote http server know that it supports compression, and will be able to handle compressed response bodies.
+这意味着客户端可以让远程http服务器知道它支持压缩，并且能够处理压缩的响应主体。
 
-An http server is free to either compress with one of the supported compression algorithms or to send the body back without compressing it at all. So this is only a hint for the Http server which it may ignore at will.
+http服务器可以随意使用一种受支持的压缩算法进行压缩，也可以将主体发送回而不进行任何压缩。 因此，这只是对它可能会随意忽略的Http服务器的提示。
 
-To tell the http server which compression is supported by the client it will include an `Accept-Encoding` header with the supported compression algorithm as value. Multiple compression algorithms are supported. In case of Vert.x this will result in the following header added:
-
+为了告诉http服务器客户端支持哪种压缩，它将包括一个`Accept-Encoding`标头，并将其支持的压缩算法作为值。 支持多种压缩算法。 如果是Vert.x，将导致添加以下标头：
+```javascript
 Accept-Encoding: gzip, deflate
-
-The server will choose then from one of these. You can detect if a server ompressed the body by checking for the `Content-Encoding` header in the response sent back from it.
-
-If the body of the response was compressed via gzip it will include for example the following header:
-
-Content-Encoding: gzip
-
-To enable compression set `setTryUseCompression` on the options used when creating the client.
-
-By default compression is disabled.
-
-### HTTP/1.x pooling and keep alive {#HTTP_1_x_pooling_and_keep_alive}
-Http keep alive allows http connections to be used for more than one request. This can be a more efficient use of connections when you’re making multiple requests to the same server.
-
-For HTTP/1.x versions, the http client supports pooling of connections, allowing you to reuse connections between requests.
-
-For pooling to work, keep alive must be true using `setKeepAlive` on the options used when configuring the client. The default value is true.
-
-When keep alive is enabled. Vert.x will add a `Connection: Keep-Alive` header to each HTTP/1.0 request sent. When keep alive is disabled. Vert.x will add a `Connection: Close` header to each HTTP/1.1 request sent to signal that the connection will be closed after completion of the response.
-
-The maximum number of connections to pool **for each server** is configured using `setMaxPoolSize`
-
-When making a request with pooling enabled, Vert.x will create a new connection if there are less than the maximum number of connections already created for that server, otherwise it will add the request to a queue.
-
-Keep alive connections will be closed by the client automatically after a timeout. The timeout can be specified by the server using the `keep-alive` header:
-
 ```
+然后，服务器将从其中之一中进行选择。 您可以通过检查服务器发回的响应中的`Content-Encoding`标头来检测服务器是否压缩了正文。
+
+如果响应的主体是通过gzip压缩的，则它将包含例如以下标头：
+```javascript
+Content-Encoding: gzip
+```
+要启用压缩，请在创建客户端时使用的选项上设置`setTryUseCompression`。
+
+默认情况下禁用压缩。
+
+### HTTP/1.x 连接池 和 保持活动状态 {#HTTP_1_x_pooling_and_keep_alive}
+Http保持活动状态允许将HTTP连接用于多个请求。 当您向同一服务器发出多个请求时，可以更有效地使用连接。
+
+对于HTTP / 1.x版本，http客户端支持连接池，从而允许您在请求之间重用连接。
+
+为了使池工作，必须在配置客户端时在选项上使用`setKeepAlive`来保持活动。 默认值是true。
+
+启用保持活动状态时。 Vert.x将向每个发送的HTTP / 1.0请求添加一个`Connection: Keep-Alive`标头。 保持活动状态时被禁用。 Vert.x将在每个发送的HTTP / 1.1请求中添加一个`Connection: Close`标头，以表明响应完成后将关闭连接。
+
+使用`setMaxPoolSize`配置**每个服务器**池的最大连接数
+
+在启用池的情况下发出请求时，如果少于为该服务器创建的最大连接数，Vert.x将创建一个新连接，否则，会将请求添加到队列中。
+
+保持活动连接将在超时后由客户端自动关闭。 服务器可以使用`keep-alive`标头指定超时时间：
+
+```javascript
 keep-alive: timeout=30
 ```
 
-You can set the default timeout using `setKeepAliveTimeout` - any connections not used within this timeout will be closed. Please note the timeout value is in seconds not milliseconds.
+您可以使用`setKeepAliveTimeout`设置默认超时-在此超时时间内未使用的所有连接都将关闭。 请注意，超时值以秒为单位，而不是毫秒。
 
 ### HTTP/1.1 pipe-lining {#HTTP_1_1_pipe_lining}
 The client also supports pipe-lining of requests on a connection.
