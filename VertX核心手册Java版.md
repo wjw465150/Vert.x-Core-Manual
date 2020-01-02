@@ -3832,25 +3832,25 @@ keep-alive: timeout=30
 
 您可以使用`setKeepAliveTimeout`设置默认超时-在此超时时间内未使用的所有连接都将关闭。 请注意，超时值以秒为单位，而不是毫秒。
 
-### HTTP/1.1 pipe-lining {#HTTP_1_1_pipe_lining}
-The client also supports pipe-lining of requests on a connection.
+### HTTP/1.1 pipe-lining(流水线) {#HTTP_1_1_pipe_lining}
+客户端还支持对连接的请求进行pipe-lining。
 
-Pipe-lining means another request is sent on the same connection before the response from the preceding one has returned. Pipe-lining is not appropriate for all requests.
+Pipe-lining表示在先前的响应返回之前，在同一连接上发送了另一个请求。 Pipe-lining不适用于所有请求。
 
-To enable pipe-lining, it must be enabled using `setPipelining`. By default pipe-lining is disabled.
+要启用pipe-lining，必须使用`setPipelining`启用它。 默认情况下，pipe-lining是禁用的。
 
-When pipe-lining is enabled requests will be written to connections without waiting for previous responses to return.
+启用pipe-lining后，请求将被写入连接，而无需等待先前的响应返回。
 
-The number of pipe-lined requests over a single connection is limited by `setPipeliningLimit`. This option defines the maximum number of http requests sent to the server awaiting for a response. This limit ensures the fairness of the distribution of the client requests over the connections to the same server.
+单个连接上的pipe-lined请求数受`setPipeliningLimit`限制。 此选项定义发送到服务器等待响应的http请求的最大数量。 此限制可确保在与同一服务器的连接上分配客户端请求的公平性。
 
-### HTTP/2 multiplexing {#HTTP_2_multiplexing}
-HTTP/2 advocates to use a single connection to a server, by default the http client uses a single connection for each server, all the streams to the same server are multiplexed over the same connection.
+### HTTP/2 多路复用 {#HTTP_2_multiplexing}
+HTTP/2提倡使用与服务器的单个连接，默认情况下，http客户端对每个服务器使用一个连接，到同一服务器的所有流都在同一连接上多路复用。
 
-When the clients needs to use more than a single connection and use pooling, the `setHttp2MaxPoolSize` shall be used.
+当客户端需要使用多个连接并使用缓冲池时，应使用`setHttp2MaxPoolSize`。
 
-When it is desirable to limit the number of multiplexed streams per connection and use a connection pool instead of a single connection, `setHttp2MultiplexingLimit` can be used.
+当需要限制每个连接的多路复用流的数量并使用连接池而不是单个连接时，可以使用`setHttp2MultiplexingLimit`。
 
-```
+```java
 HttpClientOptions clientOptions = new HttpClientOptions().
     setHttp2MultiplexingLimit(10).
     setHttp2MaxPoolSize(3);
@@ -3859,29 +3859,29 @@ HttpClientOptions clientOptions = new HttpClientOptions().
 HttpClient client = vertx.createHttpClient(clientOptions);
 ```
 
-The multiplexing limit for a connection is a setting set on the client that limits the number of streams of a single connection. The effective value can be even lower if the server sets a lower limit with the `SETTINGS_MAX_CONCURRENT_STREAMS` setting.
+连接的多路复用限制是在客户端上设置的一项设置，用于限制单个连接的流数。 如果服务器使用`SETTINGS_MAX_CONCURRENT_STREAMS`设置下限，则有效值甚至会更低。
 
-HTTP/2 connections will not be closed by the client automatically. To close them you can call `close` or close the client instance.
+客户端不会自动关闭HTTP/2连接。 要关闭它们，您可以调用`close`或关闭客户端实例。
 
-Alternatively you can set idle timeout using `setIdleTimeout` - any connections not used within this timeout will be closed. Please note the idle timeout value is in seconds not milliseconds.
+另外，您也可以使用`setIdleTimeout`设置空闲超时-在此超时时间内未使用的任何连接都将关闭。 请注意，空闲超时值以秒为单位，而不是毫秒。
 
-### HTTP connections {#HTTP_connections}
-The `HttpConnection` offers the API for dealing with HTTP connection events, lifecycle and settings.
+### HTTP 连接 {#HTTP_connections}
+`HttpConnection`提供了用于处理HTTP连接事件，生命周期和设置的API。
 
-HTTP/2 implements fully the `HttpConnection` API.
+HTTP/2完全实现了`HttpConnection` API。
 
-HTTP/1.x implements partially the `HttpConnection` API: only the close operation, the close handler and exception handler are implemented. This protocol does not provide semantics for the other operations.
+HTTP/1.x部分实现了`HttpConnection` API：仅实现了close操作，close处理程序和异常处理程序。 该协议不提供其他操作的语义。
 
-#### Server connections {#Server_connections}
-The `connection` method returns the request connection on the server:
+#### Server 连接 {#Server_connections}
+`connection`方法返回服务器上的请求连接:
 
-```
+```java
 HttpConnection connection = request.connection();
 ```
 
-A connection handler can be set on the server to be notified of any incoming connection:
+可以在服务器上设置连接处理程序，以通知任何传入的连接：
 
-```
+```java
 HttpServer server = vertx.createHttpServer(http2Options);
 
 server.connectionHandler(connection -> {
@@ -3889,37 +3889,37 @@ server.connectionHandler(connection -> {
 });
 ```
 
-#### Client connections {#Client_connections}
-The `connection` method returns the request connection on the client:
+#### Client 连接 {#Client_connections}
+`connection`方法在客户端上返回请求连接：
 
-```
+```java
 HttpConnection connection = request.connection();
 ```
 
-A connection handler can be set on the request to be notified when the connection happens:
+可以在请求上设置连接处理程序，以在发生连接时通知：
 
-```
+```java
 request.connectionHandler(connection -> {
   System.out.println("Connected to the server");
 });
 ```
 
-#### Connection settings {#Connection_settings}
-The configuration of an HTTP/2 is configured by the `Http2Settings` data object.
+#### Connection 设置 {#Connection_settings}
+HTTP/2的配置由`Http2Settings`数据对象配置。
 
-Each endpoint must respect the settings sent by the other side of the connection.
+每个端点都必须遵守连接另一端发送的设置。
 
-When a connection is established, the client and the server exchange initial settings. Initial settings are configured by `setInitialSettings` on the client and `setInitialSettings` on the server.
+建立连接后，客户端和服务器将交换初始设置。 初始设置由客户端上的`setInitialSettings`和服务器上的`setInitialSettings`配置。
 
-The settings can be changed at any time after the connection is established:
+建立连接后，可以随时更改设置：
 
-```
+```java
 connection.updateSettings(new Http2Settings().setMaxConcurrentStreams(100));
 ```
 
-As the remote side should acknowledge on reception of the settings update, it’s possible to give a callback to be notified of the acknowledgment:
+由于远程端应在收到设置更新后进行确认，因此有可能向回调发送确认通知：
 
-```
+```java
 connection.updateSettings(new Http2Settings().setMaxConcurrentStreams(100), ar -> {
   if (ar.succeeded()) {
     System.out.println("The settings update has been acknowledged ");
@@ -3927,22 +3927,22 @@ connection.updateSettings(new Http2Settings().setMaxConcurrentStreams(100), ar -
 });
 ```
 
-Conversely the `remoteSettingsHandler` is notified when the new remote settings are received:
+相反，当接收到新的远程设置时，将通知`remoteSettingsHandler`：
 
-```
+```java
 connection.remoteSettingsHandler(settings -> {
   System.out.println("Received new settings");
 });
 ```
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** 这仅适用于HTTP/2协议
+------
 
-#### Connection ping {#Connection_ping}
-HTTP/2 connection ping is useful for determining the connection round-trip time or check the connection validity: `ping` sends a {@literal PING} frame to the remote endpoint:
+#### 连接 ping {#Connection_ping}
+HTTP/2连接ping对确定连接往返时间或检查连接有效性很有用：ping将{@literal PING}帧发送到远程端点：
 
-```
+```java
 Buffer data = Buffer.buffer();
 for (byte i = 0;i < 8;i++) {
   data.appendByte(i);
@@ -3952,46 +3952,46 @@ connection.ping(data, pong -> {
 });
 ```
 
-Vert.x will send automatically an acknowledgement when a {@literal PING} frame is received, an handler can be set to be notified for each ping received:
+当收到{@literal PING}帧时，Vert.x会自动发送确认，可以将处理程序设置为针对每次收到的ping通知：
 
-```
+```java
 connection.pingHandler(ping -> {
   System.out.println("Got pinged by remote side");
 });
 ```
 
-The handler is just notified, the acknowledgement is sent whatsoever. Such feature is aimed for implementing protocols on top of HTTP/2.
+只是通知处理程序，发送确认消息。 此类功能旨在实现基于HTTP/2的协议。
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** 这仅适用于HTTP/2协议
+------
 
-#### Connection shutdown and go away {#Connection_shutdown_and_go_away}
-Calling `shutdown` will send a {@literal GOAWAY} frame to the remote side of the connection, asking it to stop creating streams: a client will stop doing new requests and a server will stop pushing responses. After the {@literal GOAWAY} frame is sent, the connection waits some time (30 seconds by default) until all current streams closed and close the connection:
+#### 连接关闭并消失 {#Connection_shutdown_and_go_away}
+调用`shutdown`会将{@literal GOAWAY}帧发送到连接的远程端，要求它停止创建流：客户端将停止发出新请求，而服务器将停止推送响应。 发送{@literal GOAWAY}帧后，连接将等待一段时间（默认为30秒），直到所有当前流关闭并关闭连接为止：
 
-```
+```java
 connection.shutdown();
 ```
 
-The `shutdownHandler` notifies when all streams have been closed, the connection is not yet closed.
+`shutdownHandler`通知当所有流都已关闭时，连接尚未关闭。
 
-It’s possible to just send a {@literal GOAWAY} frame, the main difference with a shutdown is that it will just tell the remote side of the connection to stop creating new streams without scheduling a connection close:
+可以只发送{@literal GOAWAY}帧，而关闭则主要区别在于它只会告诉连接的远程端停止创建新的流，而无需安排关闭连接：
 
-```
+```java
 connection.goAway(0);
 ```
 
-Conversely, it is also possible to be notified when {@literal GOAWAY} are received:
+反过来，也可能在收到{@literal GOAWAY}时得到通知：
 
-```
+```java
 connection.goAwayHandler(goAway -> {
   System.out.println("Received a go away frame");
 });
 ```
 
-The `shutdownHandler` will be called when all current streams have been closed and the connection can be closed:
+当所有当前流都已关闭并且连接可以关闭时，将调用`shutdownHandler`：
 
-```
+```java
 connection.goAway(0);
 connection.shutdownHandler(v -> {
 
@@ -4000,55 +4000,53 @@ connection.shutdownHandler(v -> {
 });
 ```
 
-This applies also when a {@literal GOAWAY} is received.
+当收到{@literal GOAWAY}时，这也适用。
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** this only applies to the HTTP/2 protocol
+------
 
-#### Connection close {#Connection_close}
-Connection `close` closes the connection:
+#### 连接关闭 {#Connection_close}
+连接 `close` 关闭连接:
 
-- it closes the socket for HTTP/1.x
-- a shutdown with no delay for HTTP/2, the {@literal GOAWAY} frame will still be sent before the connection is closed. *
+- 它关闭HTTP/1.x的套接字
+- 如果关闭HTTP/2没有任何延迟，则在关闭连接之前仍将发送{@literal GOAWAY}帧。 
 
-The `closeHandler` notifies when a connection is closed.
+`closeHandler`通知连接何时关闭。
 
-### HttpClient usage {#HttpClient_usage}
-The HttpClient can be used in a Verticle or embedded.
+### HttpClient 用法 {#HttpClient_usage}
+HttpClient可以在Vertical或嵌入式中使用。
 
-When used in a Verticle, the Verticle **should use its own client instance**.
+在Verticle中使用时，Verticle**应该使用其自己的客户端实例**。
 
-More generally a client should not be shared between different Vert.x contexts as it can lead to unexpected behavior.
+通常，不应在不同的Vert.x上下文之间共享客户端，因为它可能导致意外行为。
 
-For example a keep-alive connection will call the client handlers on the context of the request that opened the connection, subsequent requests will use the same context.
+例如，保持连接将在打开连接的请求的上下文中调用客户端处理程序，后续请求将使用相同的上下文。
 
-When this happen Vert.x detects it and log a warn:
+发生这种情况时，Vert.x会检测到并记录警告：
 
 ```
 Reusing a connection with a different context: an HttpClient is probably shared between different Verticles
 ```
 
-The HttpClient can be embedded in a non Vert.x thread like a unit test or a plain java `main`: the client handlers will be called by different Vert.x threads and contexts, such contexts are created as needed. For production this usage is not recommended.
+HttpClient可以嵌入在非Vert.x线程中，例如单元测试或普通的Java`main`：客户端处理程序将由不同的Vert.x线程和上下文调用，此类上下文是根据需要创建的。 对于生产，不建议使用此用法。
 
-### Server sharing {#Server_sharing}
-When several HTTP servers listen on the same port, vert.x orchestrates the request handling using a round-robin strategy.
+### Server 共享 {#Server_sharing}
+当多个HTTP服务器在同一端口上侦听时，vert.x使用循环策略来协调请求处理。
 
-Let’s take a verticle creating a HTTP server such as:
+让我们使用verticle创建一个HTTP服务器，如:`io.vertx.examples.http.sharing.HttpServerVerticle`
 
-io.vertx.examples.http.sharing.HttpServerVerticle
-
-```
+```java
 vertx.createHttpServer().requestHandler(request -> {
   request.response().end("Hello from server " + this);
 }).listen(8080);
 ```
 
-This service is listening on the port 8080. So, when this verticle is instantiated multiple times as with: `vertx run io.vertx.examples.http.sharing.HttpServerVerticle -instances 2`, what’s happening ? If both verticles would bind to the same port, you would receive a socket exception. Fortunately, vert.x is handling this case for you. When you deploy another server on the same host and port as an existing server it doesn’t actually try and create a new server listening on the same host/port. It binds only once to the socket. When receiving a request it calls the server handlers following a round robin strategy.
+该服务正在8080端口上侦听。那么，当verticle被多次实例化时，例如：`vertx run io.vertx.examples.http.sharing.HttpServerVerticle -instances 2`，这是怎么回事？ 如果两个verticle都绑定到同一端口，则会收到套接字异常。幸运的是，vert.x正在为您处理这种情况。 当您在与现有服务器相同的主机和端口上部署另一台服务时，实际上并不会尝试创建在同一主机/端口上侦听的新服务器。 它仅绑定一次到套接字。 收到请求后，它将遵循循环策略来调用服务器处理程序。
 
-Let’s now imagine a client such as:
+现在，假设有一个客户端，例如：
 
-```
+```java
 vertx.setPeriodic(100, (l) -> {
   vertx.createHttpClient().getNow(8080, "localhost", "/", resp -> {
     resp.bodyHandler(body -> {
@@ -4058,7 +4056,7 @@ vertx.setPeriodic(100, (l) -> {
 });
 ```
 
-Vert.x delegates the requests to one of the server sequentially:
+Vert.x将请求顺序地委派给其中一台服务器：
 
 ```
 Hello from i.v.e.h.s.HttpServerVerticle@1
@@ -4068,16 +4066,16 @@ Hello from i.v.e.h.s.HttpServerVerticle@2
 ...
 ```
 
-Consequently the servers can scale over available cores while each Vert.x verticle instance remains strictly single threaded, and you don’t have to do any special tricks like writing load-balancers in order to scale your server on your multi-core machine.
+因此，服务器可以扩展可用内核，而每个Vert.x Verticle实例严格保持单线程运行，并且无需执行任何特殊技巧即可编写负载平衡器，从而在多核计算机上扩展服务器。
 
-### Using HTTPS with Vert.x {#Using_HTTPS_with_Vert_x}
-Vert.x http servers and clients can be configured to use HTTPS in exactly the same way as net servers.
+### 将HTTPS与Vert.x一起使用 {#Using_HTTPS_with_Vert_x}
+可以将Vert.x http服务器和客户端配置为以与网络服务器完全相同的方式使用HTTPS。
 
-Please see [configuring net servers to use SSL](https://vertx.io/docs/vertx-core/java/#ssl) for more information.
+有关更多信息，请参见[配置网络服务器以使用SSL](https://vertx.io/docs/vertx-core/java/#ssl)。
 
-SSL can also be enabled/disabled per request with `RequestOptions` or when specifying a scheme with `requestAbs` method.
+还可以使用`RequestOptions`或通过使用`requestAbs`方法指定方案时启用/禁用SSL。
 
-```
+```java
 client.getNow(new RequestOptions()
     .setHost("localhost")
     .setPort(8080)
@@ -4087,42 +4085,42 @@ client.getNow(new RequestOptions()
 });
 ```
 
-The `setSsl` setting acts as the default client setting.
+`setSsl`设置用作默认客户端设置。
 
-The `setSsl` overrides the default client setting
+`setSsl`覆盖默认的客户端设置
 
-- setting the value to `false` will disable SSL/TLS even if the client is configured to use SSL/TLS
-- setting the value to `true` will enable SSL/TLS even if the client is configured to not use SSL/TLS, the actual client SSL/TLS (such as trust, key/certificate, ciphers, ALPN, …) will be reused
+- 将值设置为`false`将禁用SSL/TLS，即使将客户端配置为使用SSL/TLS
+- 将值设置为`true`将启用SSL/TLS，即使将客户端配置为不使用SSL/TLS，实际的客户端SSL/TLS（例如信任，密钥/证书，密码，ALPN等）也将被重用
 
-Likewise `requestAbs` scheme also overrides the default client setting.
+同样，`requestAbs`方案也将覆盖默认的客户端设置。
 
-#### Server Name Indication (SNI) {#Server_Name_Indication__SNI_}
-Vert.x http servers can be configured to use SNI in exactly the same way as {@linkplain io.vertx.core.net net servers}.
+#### 服务器名称指示 (SNI) {#Server_Name_Indication__SNI_}
+可以将Vert.x http服务器配置为使用{@linkplain io.vertx.core.net 网络服务器}完全相同的方式来使用SNI。
 
-Vert.x http client will present the actual hostname as *server name* during the TLS handshake.
+Vert.x http客户端将在TLS握手期间将实际的主机名显示为*服务器名*。
 
 ### WebSockets {#WebSockets}
-[WebSockets](https://en.wikipedia.org/wiki/WebSocket) are a web technology that allows a full duplex socket-like connection between HTTP servers and HTTP clients (typically browsers).
+[WebSockets](https://en.wikipedia.org/wiki/WebSocket)是一种Web技术，它允许HTTP服务器和HTTP客户端（通常是浏览器）之间的全双工套接字式连接。
 
-Vert.x supports WebSockets on both the client and server-side.
+Vert.x在客户端和服务器端都支持WebSocket。
 
-#### WebSockets on the server {#WebSockets_on_the_server}
-There are two ways of handling WebSockets on the server side.
+#### 服务器上的WebSocket {#WebSockets_on_the_server}
+在服务器端有两种处理WebSocket的方法。
 
-##### WebSocket handler {#WebSocket_handler}
-The first way involves providing a `websocketHandler` on the server instance.
+##### WebSocket处理程序 {#WebSocket_handler}
+第一种方法涉及在服务器实例上提供一个`websocketHandler`。
 
-When a WebSocket connection is made to the server, the handler will be called, passing in an instance of `ServerWebSocket`.
+当与服务器建立WebSocket连接时，将调用处理程序，并传入一个`ServerWebSocket`实例。
 
-```
+```java
 server.websocketHandler(websocket -> {
   System.out.println("Connected!");
 });
 ```
 
-You can choose to reject the WebSocket by calling `reject`.
+您可以通过调用`reject`选择拒绝WebSocket。
 
-```
+```java
 server.websocketHandler(websocket -> {
   if (websocket.path().equals("/myapi")) {
     websocket.reject();
@@ -4132,9 +4130,9 @@ server.websocketHandler(websocket -> {
 });
 ```
 
-You can perform an asynchronous handshake by calling `setHandshake` with a `Future`:
+您可以通过调用带有`Future`的`setHandshake`来执行异步握手：
 
-```
+```java
 server.websocketHandler(websocket -> {
   Promise<Integer> promise = Promise.promise();
   websocket.setHandshake(promise.future());
@@ -4151,14 +4149,14 @@ server.websocketHandler(websocket -> {
 });
 ```
 
-| NOTE | the WebSocket will be automatically accepted after the handler is called unless the WebSocket’s handshake has been set |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 除非已设置WebSocket的握手，否则调用处理程序后，WebSocket将被自动接受
+------
 
-##### Upgrading to WebSocket {#Upgrading_to_WebSocket}
-The second way of handling WebSockets is to handle the HTTP Upgrade request that was sent from the client, and call `upgrade` on the server request.
+##### 升级到WebSocket {#Upgrading_to_WebSocket}
+处理WebSockets的第二种方法是处理从客户端发送的HTTP升级请求，并在服务器请求上调用`upgrade`。
 
-```
+```java
 server.requestHandler(request -> {
   if (request.path().equals("/myapi")) {
 
@@ -4172,17 +4170,17 @@ server.requestHandler(request -> {
 });
 ```
 
-##### The server WebSocket {#The_server_WebSocket}
-The `ServerWebSocket` instance enables you to retrieve the `headers`, `path`, `query` and `URI` of the HTTP request of the WebSocket handshake.
+##### 服务器WebSocket {#The_server_WebSocket}
+`ServerWebSocket`实例使您能够检索WebSocket握手的HTTP请求的`headers`，`path`，`query`和`URI`。
 
-#### WebSockets on the client {#WebSockets_on_the_client}
-The Vert.x `HttpClient` supports WebSockets.
+#### 客户端上的WebSockets {#WebSockets_on_the_client}
+Vert.x的`HttpClient`支持WebSockets。
 
-You can connect a WebSocket to a server using one of the `webSocket` operations and providing a handler.
+您可以使用`webSocket`操作之一并提供处理程序将WebSocket连接到服务器。
 
-The handler will be called with an instance of `WebSocket` when the connection has been made:
+建立连接后，将使用`WebSocket`实例调用处理程序：
 
-```
+```java
 client.webSocket("/some-uri", res -> {
   if (res.succeeded()) {
     WebSocket ws = res.result();
@@ -4191,10 +4189,10 @@ client.webSocket("/some-uri", res -> {
 });
 ```
 
-#### Writing messages to WebSockets {#Writing_messages_to_WebSockets}
-If you wish to write a single WebSocket message to the WebSocket you can do this with `writeBinaryMessage` or `writeTextMessage` :
+#### 将消息写入WebSockets {#Writing_messages_to_WebSockets}
+如果您希望将单个WebSocket消息写入WebSocket，则可以使用`writeBinaryMessage`或`writeTextMessage`来实现：
 
-```
+```java
 Buffer buffer = Buffer.buffer().appendInt(123).appendFloat(1.23f);
 websocket.writeBinaryMessage(buffer);
 
@@ -4203,18 +4201,18 @@ String message = "hello";
 websocket.writeTextMessage(message);
 ```
 
-If the WebSocket message is larger than the maximum websocket frame size as configured with `setMaxWebsocketFrameSize` then Vert.x will split it into multiple WebSocket frames before sending it on the wire.
+如果WebSocket消息大于使用`setMaxWebsocketFrameSize`配置的最大Websocket帧大小，则Vert.x会将其拆分为多个WebSocket帧，然后通过网络发送。
 
-#### Writing frames to WebSockets {#Writing_frames_to_WebSockets}
-A WebSocket message can be composed of multiple frames. In this case the first frame is either a *binary* or *text* frame followed by zero or more *continuation* frames.
+#### 将frames写入WebSocket {#Writing_frames_to_WebSockets}
+WebSocket消息可以由多个frames组成。 在这种情况下，第一帧是 *binary* 或 *text* 帧，然后是零个或多个 *continuation* 帧。
 
-The last frame in the message is marked as *final*.
+消息中的最后一帧被标记为*final*。
 
-To send a message consisting of multiple frames you create frames using `WebSocketFrame.binaryFrame` , `WebSocketFrame.textFrame` or `WebSocketFrame.continuationFrame` and write them to the WebSocket using `writeFrame`.
+要发送包含多个frames的消息，您可以使用`WebSocketFrame.binaryFrame`，`WebSocketFrame.textFrame`或`WebSocketFrame.continuationFrame`创建frames，然后使用`writeFrame`将它们写入WebSocket。
 
-Here’s an example for binary frames:
+这是二进制帧的示例：
 
-```
+```java
 WebSocketFrame frame1 = WebSocketFrame.binaryFrame(buffer1, false);
 websocket.writeFrame(frame1);
 
@@ -4226,11 +4224,11 @@ WebSocketFrame frame3 = WebSocketFrame.continuationFrame(buffer2, true);
 websocket.writeFrame(frame3);
 ```
 
-In many cases you just want to send a websocket message that consists of a single final frame, so we provide a couple of shortcut methods to do that with `writeFinalBinaryFrame` and `writeFinalTextFrame`.
+在很多情况下，你只是想发送一个websocket消息，它由一个单一的final帧组成，所以我们提供了两个快捷方法来实现这一点，分别是`writeFinalBinaryFrame` 和 `writeFinalTextFrame`。
 
-Here’s an example:
+这里有一个例子:
 
-```
+```java
 websocket.writeFinalTextFrame("Geronimo!");
 
 // Send a websocket messages consisting of a single final binary frame:
@@ -4240,35 +4238,35 @@ Buffer buff = Buffer.buffer().appendInt(12).appendString("foo");
 websocket.writeFinalBinaryFrame(buff);
 ```
 
-#### Reading frames from WebSockets {#Reading_frames_from_WebSockets}
-To read frames from a WebSocket you use the `frameHandler`.
+#### 从WebSockets读取frames {#Reading_frames_from_WebSockets}
+要从WebSocket读取帧，请使用`frameHandler`。
 
-The frame handler will be called with instances of `WebSocketFrame` when a frame arrives, for example:
+当帧到达时，将使用`WebSocketFrame`实例调用帧处理程序，例如：
 
-```
+```java
 websocket.frameHandler(frame -> {
   System.out.println("Received a frame of size!");
 });
 ```
 
-#### Closing WebSockets {#Closing_WebSockets}
-Use `close` to close the WebSocket connection when you have finished with it.
+#### 关闭 WebSockets {#Closing_WebSockets}
+完成后，使用`close`关闭WebSocket连接。
 
-#### Streaming WebSockets {#Streaming_WebSockets}
-The `WebSocket` instance is also a `ReadStream` and a `WriteStream` so it can be used with pumps.
+#### 流式WebSocket {#Streaming_WebSockets}
+WebSocket实例也是`ReadStream`和`WriteStream`实例，因此可以与泵一起使用。
 
-When using a WebSocket as a write stream or a read stream it can only be used with WebSockets connections that are used with binary frames that are no split over multiple frames.
+当将WebSocket用作写入流或读取流时，它只能与WebSockets连接一起使用，该连接用于二进制帧，而二进制帧不会拆分为多个帧。
 
-### Using a proxy for HTTP/HTTPS connections {#Using_a_proxy_for_HTTP_HTTPS_connections}
-The http client supports accessing http/https URLs via a HTTP proxy (e.g. Squid) or *SOCKS4a* or *SOCKS5* proxy. The CONNECT protocol uses HTTP/1.x but can connect to HTTP/1.x and HTTP/2 servers.
+### 使用代理进行HTTP/HTTPS连接 {#Using_a_proxy_for_HTTP_HTTPS_connections}
+http客户端支持通过HTTP代理（例如Squid）或 *SOCKS4a* 或 *SOCKS5* 代理访问http/https URL。 CONNECT协议使用HTTP/1.x，但可以连接到HTTP/1.x和HTTP/2服务器。
 
-Connecting to h2c (unencrypted HTTP/2 servers) is likely not supported by http proxies since they will support HTTP/1.1 only.
+http代理可能不支持连接到h2c（未加密的HTTP/2服务器），因为它们仅支持HTTP/1.1。
 
-The proxy can be configured in the `HttpClientOptions` by setting a `ProxyOptions` object containing proxy type, hostname, port and optionally username and password.
+可以通过设置包含代理类型，主机名，端口以及用户名和密码（可选）的`ProxyOptions`对象在`HttpClientOptions`中配置代理。
 
-Here’s an example of using an HTTP proxy:
+这是使用HTTP代理的示例：
 
-```
+```java
 HttpClientOptions options = new HttpClientOptions()
     .setProxyOptions(new ProxyOptions().setType(ProxyType.HTTP)
         .setHost("localhost").setPort(3128)
@@ -4276,13 +4274,13 @@ HttpClientOptions options = new HttpClientOptions()
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-When the client connects to an http URL, it connects to the proxy server and provides the full URL in the HTTP request ("GET http://www.somehost.com/path/file.html HTTP/1.1").
+客户端连接到http URL时，它将连接到代理服务器并在HTTP请求中提供完整URL("GET http://www.somehost.com/path/file.html HTTP/1.1")。
 
-When the client connects to an https URL, it asks the proxy to create a tunnel to the remote host with the CONNECT method.
+客户端连接到https URL时，它要求代理使用CONNECT方法创建到远程主机的隧道。
 
-For a SOCKS5 proxy:
+对于SOCKS5代理：
 
-```
+```java
 HttpClientOptions options = new HttpClientOptions()
     .setProxyOptions(new ProxyOptions().setType(ProxyType.SOCKS5)
         .setHost("localhost").setPort(1080)
@@ -4290,12 +4288,12 @@ HttpClientOptions options = new HttpClientOptions()
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-The DNS resolution is always done on the proxy server, to achieve the functionality of a SOCKS4 client, it is necessary to resolve the DNS address locally.
+DNS解析始终在代理服务器上完成，为了实现SOCKS4客户端的功能，必须在本地解析DNS地址。
 
-#### Handling of other protocols {#Handling_of_other_protocols}
-The HTTP proxy implementation supports getting ftp:// urls if the proxy supports that, which isn’t available in non-proxy getAbs requests.
+#### 其他协议的处理 {#Handling_of_other_protocols}
+如果代理支持，HTTP代理实现支持获取`ftp:// urls`，这在非代理getAbs请求中不可用。
 
-```
+```java
 HttpClientOptions options = new HttpClientOptions()
     .setProxyOptions(new ProxyOptions().setType(ProxyType.HTTP));
 HttpClient client = vertx.createHttpClient(options);
@@ -4304,44 +4302,44 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", response -> {
 });
 ```
 
-Support for other protocols is not available since java.net.URL does not support them (gopher:// for example).
+对其他协议的支持是不可用的，因为`java.net.URL`不支持它们(例如gopher://)。
 
-### Automatic clean-up in verticles {#Automatic_clean_up_in_verticles}
-If you’re creating http servers and clients from inside verticles, those servers and clients will be automatically closed when the verticle is undeployed.
+### verticles自动清理 {#Automatic_clean_up_in_verticles}
+如果您是从Verticle内部创建http服务器和客户端，则取消部署Verticle时，这些服务器和客户端将自动关闭。
 
-## Using the SharedData API {#Using_the_SharedData_API}
-As its name suggests, the `SharedData` API allows you to safely share data between:
+## 使用SharedData API {#Using_the_SharedData_API}
+顾名思义，`SharedData` API可让您安全地在以下之间共享数据：
 
-- different parts of your application, or
-- different applications in the same Vert.x instance, or
-- different applications across a cluster of Vert.x instances.
+- 应用程序的不同部分，或者
+- 同一Vert.x实例中的不同应用程序，或
+- Vert.x实例群集中的不同应用程序。
 
-In practice, it provides:
+实际上，它提供：
 
-- synchronous maps (local-only)
-- asynchronous maps
-- asynchronous locks
-- asynchronous counters
+- 同步 map（仅限本地）
+- 异步 maps
+- 异步 locks
+- 异步 counters
 
-| IMPORTANT | The behavior of the distributed data structure depends on the cluster manager you use. Backup (replication) and behavior when a network partition is faced are defined by the cluster manager and its configuration. Please refer to the cluster manager documentation as well as to the underlying framework manual. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 分布式数据结构的行为取决于您使用的集群管理器。 群集管理器及其配置定义了面对网络分区时的备份（复制）和行为。 请参考集群管理器文档以及基础框架手册。
+------
 
-### Local maps {#Local_maps}
-`Local maps` allow you to share data safely between different event loops (e.g. different verticles) in the same Vert.x instance.
+### 本地 maps {#Local_maps}
+`Local maps` 可让您在同一Vert.x实例中的不同事件循环（例如，不同的verticles）之间安全地共享数据。
 
-They only allow certain data types to be used as keys and values:
+它们仅允许将某些数据类型用作键和值：
 
-- immutable types (e.g. strings, booleans, … etc), or
-- types implementing the `Shareable` interface (buffers, JSON arrays, JSON objects, or your own shareable objects).
+- 不可变的类型（例如字符串，布尔值，…等），或
+- 实现`Shareable`接口的类型（buffers，JSON数组，JSON对象或您自己的可共享对象）。
 
-In the latter case the key/value will be copied before putting it into the map.
+在后一种情况下，将先将键/值复制到map中。
 
-This way we can ensure there is no *shared access to mutable state* between different threads in your Vert.x application. And you won’t have to worry about protecting that state by synchronising access to it.
+这样，我们可以确保Vert.x应用程序中的不同线程之间没有对可变状态的共享访问。 您不必担心通过同步访问状态来保护该状态。
 
-Here’s an example of using a shared local map:
+这是使用共享local map的示例：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 LocalMap<String, String> map1 = sharedData.getLocalMap("mymap1");
@@ -4363,14 +4361,14 @@ map2 = sharedData.getLocalMap("mymap2");
 Buffer buff = map2.get("eek");
 ```
 
-### Asynchronous shared maps {#Asynchronous_shared_maps}
-`Asynchronous shared maps` allow data to be put in the map and retrieved locally or from any other node.
+### 异步 shared maps {#Asynchronous_shared_maps}
+`Asynchronous shared maps`允许将数据放入map中，并在本地或从任何其他节点检索。
 
-This makes them really useful for things like storing session state in a farm of servers hosting a Vert.x Web application.
+这使得它们对于将会话状态存储在托管Vert.x Web应用程序的服务器场中非常有用。
 
-Getting the map is asynchronous and the result is returned to you in the handler that you specify. Here’s an example:
+获取map是异步的，结果将在您指定的处理程序中返回给您。 这是一个例子：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.<String, String>getAsyncMap("mymap", res -> {
@@ -4382,15 +4380,15 @@ sharedData.<String, String>getAsyncMap("mymap", res -> {
 });
 ```
 
-When Vert.x is clustered, data that you put into the map is accessible locally as well as on any of the other cluster members.
+对Vert.x进行群集时，您可以在本地以及任何其他群集成员上访问放入map的数据。
 
-| IMPORTANT | In clustered mode, asynchronous shared maps rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared map operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，asynchronous shared maps依赖于集群管理器提供的分布式数据结构。 请注意，asynchronous shared maps操作，在集群中的延迟可能比在本地模式下高得多。
+------
 
-If your application doesn’t need data to be shared with every other node, you can retrieve a local-only map:
+如果您的应用程序不需要与其他所有节点共享数据，则可以检索仅限本地的local-only map：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.<String, String>getLocalAsyncMap("mymap", res -> {
@@ -4403,12 +4401,12 @@ sharedData.<String, String>getLocalAsyncMap("mymap", res -> {
 });
 ```
 
-#### Putting data in a map {#Putting_data_in_a_map}
-You put data in a map with `put`.
+#### 将数据放入map {#Putting_data_in_a_map}
+你用`put`把数据放到map上。
 
-The actual put is asynchronous and the handler is notified once it is complete:
+实际的放置是异步的，并且在完成后会通知处理程序：
 
-```
+```java
 map.put("foo", "bar", resPut -> {
   if (resPut.succeeded()) {
     // Successfully put the value
@@ -4418,12 +4416,12 @@ map.put("foo", "bar", resPut -> {
 });
 ```
 
-#### Getting data from a map {#Getting_data_from_a_map}
-You get data from a map with `get`.
+#### 从map获取数据 {#Getting_data_from_a_map}
+您可以通过`get`从map中获取数据。
 
-The actual get is asynchronous and the handler is notified with the result some time later:
+实际的get是异步的，并在一段时间后将结果通知处理程序：
 
-```
+```java
 map.get("foo", resGet -> {
   if (resGet.succeeded()) {
     // Successfully got the value
@@ -4434,23 +4432,23 @@ map.get("foo", resGet -> {
 });
 ```
 
-##### Other map operations {#Other_map_operations}
-You can also remove entries from an asynchronous map, clear them and get the size.
+##### 其它 map 操作 {#Other_map_operations}
+您还可以从异步map中删除条目，清除它们并获取大小。
 
-See the `API docs` for a detailed list of map operations.
+有关map操作的详细列表，请参见API文档。
 
-### Asynchronous locks {#Asynchronous_locks}
-`Asynchronous locks` allow you to obtain exclusive locks locally or across the cluster. This is useful when you want to do something or access a resource on only one node of a cluster at any one time.
+### Asynchronous 锁 {#Asynchronous_locks}
+`Asynchronous locks(异步锁)`允许您在本地或整个集群中获取排他锁。 当您想随时执行某项操作或仅在群集的一个节点上访问资源时，此功能很有用。
 
-Asynchronous locks have an asynchronous API unlike most lock APIs which block the calling thread until the lock is obtained.
+异步锁具有异步API，这与大多数锁API不同，后者会阻塞调用线程，直到获得锁为止。
 
-To obtain a lock use `getLock`. This won’t block, but when the lock is available, the handler will be called with an instance of `Lock`, signalling that you now own the lock.
+要获取锁，请使用`getLock`。 这不会阻止，但是当锁可用时，将使用`Lock`实例调用处理程序，表示您现在拥有该锁。
 
-While you own the lock, no other caller, locally or on the cluster, will be able to obtain the lock.
+当您拥有该锁时，本地或群集上的其他任何调用者都将无法获得该锁。
 
-When you’ve finished with the lock, you call `release` to release it, so another caller can obtain it:
+锁定完成后，您可以调用`release`来释放它，以便另一个调用者可以获取它：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.getLock("mylock", res -> {
@@ -4468,9 +4466,9 @@ sharedData.getLock("mylock", res -> {
 });
 ```
 
-You can also get a lock with a timeout. If it fails to obtain the lock within the timeout the handler will be called with a failure:
+您还可以获得带有超时的锁。如果在超时时间内未能获得锁，处理程序将调用一个失败:
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.getLockWithTimeout("mylock", 10000, res -> {
@@ -4484,15 +4482,15 @@ sharedData.getLockWithTimeout("mylock", 10000, res -> {
 });
 ```
 
-See the `API docs` for a detailed list of lock operations.
+有关锁操作的详细列表，请参阅`API文档`。
 
-| IMPORTANT | In clustered mode, asynchronous locks rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared lock operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，异步锁依赖于集群管理器提供的分布式数据结构。 请注意，群集中的相对于异步共享锁操作的延迟可能比本地模式下的延迟高得多。
+------
 
-If your application doesn’t need the lock to be shared with every other node, you can retrieve a local-only lock:
+如果您的应用程序不需要与其他所有节点共享该锁，则可以检索仅本地锁：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.getLocalLock("mylock", res -> {
@@ -4510,14 +4508,14 @@ sharedData.getLocalLock("mylock", res -> {
 });
 ```
 
-### Asynchronous counters {#Asynchronous_counters}
-It’s often useful to maintain an atomic counter locally or across the different nodes of your application.
+### 异步计数器 {#Asynchronous_counters}
+在本地或跨应用程序的不同节点维护原子计数器通常很有用。
 
-You can do this with `Counter`.
+你可以通过`Counter`来完成。
 
-You obtain an instance with `getCounter`:
+您可以使用`getCounter`获取实例：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.getCounter("mycounter", res -> {
@@ -4529,17 +4527,17 @@ sharedData.getCounter("mycounter", res -> {
 });
 ```
 
-Once you have an instance you can retrieve the current count, atomically increment it, decrement and add a value to it using the various methods.
+拥有实例后，您可以检索当前计数，以原子方式递增，递减并使用各种方法为其添加值。
 
-See the `API docs` for a detailed list of counter operations.
+有关计数器操作的详细列表，请参见`API文档`。
 
-| IMPORTANT | In clustered mode, asynchronous counters rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared counter operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，异步计数器依赖于集群管理器提供的分布式数据结构。 请注意，相对于异步共享计数器操作，在群集中的延迟可能比在本地模式下高得多。
+------
 
-If your application doesn’t need the counter to be shared with every other node, you can retrieve a local-only counter:
+如果您的应用程序不需要与其他节点共享计数器，则可以检索仅本地计数器：
 
-```
+```java
 SharedData sharedData = vertx.sharedData();
 
 sharedData.getLocalCounter("mycounter", res -> {
@@ -4552,16 +4550,16 @@ sharedData.getLocalCounter("mycounter", res -> {
 });
 ```
 
-## Using the file system with Vert.x {#Using_the_file_system_with_Vert_x}
-The Vert.x `FileSystem` object provides many operations for manipulating the file system.
+## 在Vert.x中使用文件系统 {#Using_the_file_system_with_Vert_x}
+Vert.x `FileSystem` 对象提供了许多操作文件系统的操作。
 
-There is one file system object per Vert.x instance, and you obtain it with `fileSystem`.
+每个Vert.x实例只有一个文件系统对象，您可以通过`fileSystem`获取它。
 
-A blocking and a non blocking version of each operation is provided. The non blocking versions take a handler which is called when the operation completes or an error occurs.
+提供了每个操作的阻塞版本和非阻塞版本。 非阻塞版本采用一个处理程序，当操作完成或发生错误时将调用该处理程序。
 
-Here’s an example of an asynchronous copy of a file:
+下面是一个文件的异步拷贝一个例子：
 
-```
+```java
 FileSystem fs = vertx.fileSystem();
 
 // Copy file from foo.txt to bar.txt
@@ -4574,22 +4572,22 @@ fs.copy("foo.txt", "bar.txt", res -> {
 });
 ```
 
-The blocking versions are named `xxxBlocking` and return the results or throw exceptions directly. In many cases, depending on the operating system and file system, some of the potentially blocking operations can return quickly, which is why we provide them, but it’s highly recommended that you test how long they take to return in your particular application before using them from an event loop, so as not to break the Golden Rule.
+阻塞版本名为`xxxBlocking`，并直接返回结果或引发异常。 在许多情况下，根据操作系统和文件系统的不同，某些可能会阻塞的操作会很快返回，这就是我们提供它们的原因，但是强烈建议您在使用它们之前测试它们返回特定应用程序需要花费多长时间。 从事件循环开始，以免破坏黄金法则。
 
-Here’s the copy using the blocking API:
+这是使用阻塞API的复制：
 
-```
+```java
 FileSystem fs = vertx.fileSystem();
 
 // Copy file from foo.txt to bar.txt synchronously
 fs.copyBlocking("foo.txt", "bar.txt");
 ```
 
-Many operations exist to copy, move, truncate, chmod and many other file operations. We won’t list them all here, please consult the `API docs` for the full list.
+存在许多操作来复制，移动，截断，chmod和许多其他文件操作。 我们不会在此处列出所有列表，请查看`API docs`以获取完整列表。
 
-Let’s see a couple of examples using asynchronous methods:
+我们来看几个使用异步方法的示例：
 
-```
+```java
 vertx.fileSystem().readFile("target/classes/readme.txt", result -> {
   if (result.succeeded()) {
     System.out.println(result.result());
@@ -4628,12 +4626,12 @@ vertx.fileSystem().exists("target/classes/junk.txt", result -> {
 });
 ```
 
-### Asynchronous files {#Asynchronous_files}
-Vert.x provides an asynchronous file abstraction that allows you to manipulate a file on the file system.
+### Asynchronous 文件 {#Asynchronous_files}
+Vert.x提供了异步文件抽象，使您可以操纵文件系统上的文件。
 
-You open an `AsyncFile` as follows:
+您可以如下打开`AsyncFile`：
 
-```
+```java
 OpenOptions options = new OpenOptions();
 fileSystem.open("myfile.txt", options, res -> {
   if (res.succeeded()) {
@@ -4644,22 +4642,22 @@ fileSystem.open("myfile.txt", options, res -> {
 });
 ```
 
-`AsyncFile` implements `ReadStream` and `WriteStream` so you can *pump* files to and from other stream objects such as net sockets, http requests and responses, and WebSockets.
+`AsyncFile`实现了`ReadStream`和`WriteStream`，因此您可以将文件与其他流对象（例如，网络套接字，http请求和响应以及WebSocket）进行*pump(泵)*。
 
-They also allow you to read and write directly to them.
+它们还允许您直接对其进行读写。
 
-#### Random access writes {#Random_access_writes}
-To use an `AsyncFile` for random access writing you use the `write` method.
+#### 随机存取写入 {#Random_access_writes}
+要将`AsyncFile`用于随机访问写入，请使用`write`方法。
 
-The parameters to the method are:
+该方法的参数为：
 
-- `buffer`: the buffer to write.
-- `position`: an integer position in the file where to write the buffer. If the position is greater or equal to the size of the file, the file will be enlarged to accommodate the offset.
-- `handler`: the result handler
+- `buffer`: 要写入的缓冲区。
+- `position`: 文件中要写入缓冲区的整数位置。 如果位置大于或等于文件的大小，则文件将被放大以容纳偏移量。
+- `handler`: 结果处理程序
 
-Here is an example of random access writes:
+这是随机访问写的示例：
 
-```
+```java
 vertx.fileSystem().open("target/classes/hello.txt", new OpenOptions(), result -> {
   if (result.succeeded()) {
     AsyncFile file = result.result();
@@ -4680,20 +4678,20 @@ vertx.fileSystem().open("target/classes/hello.txt", new OpenOptions(), result ->
 });
 ```
 
-#### Random access reads {#Random_access_reads}
-To use an `AsyncFile` for random access reads you use the `read` method.
+#### 随机读取 {#Random_access_reads}
+要将`AsyncFile`用于随机访问，请使用`read`方法。
 
-The parameters to the method are:
+该方法的参数为：
 
-- `buffer`: the buffer into which the data will be read.
-- `offset`: an integer offset into the buffer where the read data will be placed.
-- `position`: the position in the file where to read data from.
-- `length`: the number of bytes of data to read
-- `handler`: the result handler
+- `buffer`: 数据将被读入的缓冲区。
+- `offset`: 放入读取数据的缓冲区的整数偏移量。
+- `position`: 文件中从中读取数据的位置。
+- `length`: 要读取的数据字节数
+- `handler`: 结果处理程序
 
-Here’s an example of random access reads:
+这是随机读取的示例：
 
-```
+```java
 vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), result -> {
   if (result.succeeded()) {
     AsyncFile file = result.result();
@@ -4713,7 +4711,7 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 });
 ```
 
-#### Opening Options {#Opening_Options}
+#### 打开选项 {#Opening_Options}
 When opening an `AsyncFile`, you pass an `OpenOptions` instance. These options describe the behavior of the file access. For instance, you can configure the file permissions with the `setRead`, `setWrite` and `setPerms` methods.
 
 You can also configure the behavior if the open file already exists with `setCreateNew` and `setTruncateExisting`.
@@ -4728,7 +4726,7 @@ This method can also be called with an handler which will be called when the flu
 #### Using AsyncFile as ReadStream and WriteStream {#Using_AsyncFile_as_ReadStream_and_WriteStream}
 `AsyncFile` implements `ReadStream` and `WriteStream`. You can then use them with a *pump* to pump data to and from other read and write streams. For example, this would copy the content to another `AsyncFile`:
 
-```
+```java
 final AsyncFile output = vertx.fileSystem().openBlocking("target/classes/plagiary.txt", new OpenOptions());
 
 vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), result -> {
@@ -4790,7 +4788,7 @@ The benefits are that it has a lot less overhead compared to TCP, which can be h
 ### Creating a DatagramSocket {#Creating_a_DatagramSocket}
 To use UDP you first need t create a `DatagramSocket`. It does not matter here if you only want to send data or send and receive.
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 ```
 
@@ -4803,7 +4801,7 @@ This means each packet can be sent to a different remote peer.
 
 Sending packets is as easy as shown here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 Buffer buffer = Buffer.buffer("content");
 // Send a Buffer
@@ -4830,7 +4828,7 @@ The `DatagramPacket` has the following methods:
 
 So to listen on a specific address and port you would do something like shown here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 socket.listen(1234, "0.0.0.0", asyncResult -> {
   if (asyncResult.succeeded()) {
@@ -4857,7 +4855,7 @@ Sending multicast packets is not different than sending normal Datagram packets.
 
 This is show here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 Buffer buffer = Buffer.buffer("content");
 // Send a Buffer to a multicast address
@@ -4882,7 +4880,7 @@ The `DatagramPacket` has the following methods:
 
 So to listen on a specific address and port and also receive packets for the Multicast group 230.0.0.1 you would do something like shown here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 socket.listen(1234, "0.0.0.0", asyncResult -> {
   if (asyncResult.succeeded()) {
@@ -4907,7 +4905,7 @@ In this situations you can first start to listen for them and then later unliste
 
 This is shown here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 socket.listen(1234, "0.0.0.0", asyncResult -> {
     if (asyncResult.succeeded()) {
@@ -4944,7 +4942,7 @@ This an expert feature.
 
 To block multicast from a specific address you can call `blockMulticastGroup(…)` on the DatagramSocket like shown here:
 
-```
+```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 
 // Some code
@@ -4977,13 +4975,13 @@ Often you will find yourself in situations where you need to obtain DNS informat
 
 To obtain a DnsClient instance you will create a new via the Vertx instance.
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "10.0.0.1");
 ```
 
 You can also create the client with options and configure the query timeout.
 
-```
+```java
 DnsClient client = vertx.createDnsClient(new DnsClientOptions()
   .setPort(53)
   .setHost("10.0.0.1")
@@ -4993,7 +4991,7 @@ DnsClient client = vertx.createDnsClient(new DnsClientOptions()
 
 Creating the client with no arguments or omitting the server address will use the address of the server used internally for non blocking address resolution.
 
-```
+```java
 DnsClient client1 = vertx.createDnsClient();
 
 // Just the same but with a different query timeout
@@ -5005,7 +5003,7 @@ Try to lookup the A (ipv4) or AAAA (ipv6) record for a given name. The first whi
 
 To lookup the A / AAAA record for "vertx.io" you would typically use it like:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.lookup("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5021,7 +5019,7 @@ Try to lookup the A (ipv4) record for a given name. The first which is returned 
 
 To lookup the A record for "vertx.io" you would typically use it like:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.lookup4("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5037,7 +5035,7 @@ Try to lookup the AAAA (ipv6) record for a given name. The first which is return
 
 To lookup the A record for "vertx.io" you would typically use it like:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.lookup6("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5053,7 +5051,7 @@ Try to resolve all A (ipv4) records for a given name. This is quite similar to u
 
 To lookup all the A records for "vertx.io" you would typically do:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveA("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5072,7 +5070,7 @@ Try to resolve all AAAA (ipv6) records for a given name. This is quite similar t
 
 To lookup all the AAAAA records for "vertx.io" you would typically do:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveAAAA("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5091,7 +5089,7 @@ Try to resolve all CNAME records for a given name. This is quite similar to usin
 
 To lookup all the CNAME records for "vertx.io" you would typically do:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveCNAME("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5110,7 +5108,7 @@ Try to resolve all MX records for a given name. The MX records are used to defin
 
 To lookup all the MX records for "vertx.io" you would typically do:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveMX("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5128,7 +5126,7 @@ Be aware that the List will contain the `MxRecord` sorted by the priority of the
 
 The `MxRecord` allows you to access the priority and the name of the MX record by offer methods for it like:
 
-```
+```java
 record.priority();
 record.name();
 ```
@@ -5138,7 +5136,7 @@ Try to resolve all TXT records for a given name. TXT records are often used to d
 
 To resolve all the TXT records for "vertx.io" you could use something along these lines:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveTXT("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5157,7 +5155,7 @@ Try to resolve all NS records for a given name. The NS records specify which DNS
 
 To resolve all the NS records for "vertx.io" you could use something along these lines:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveNS("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5176,7 +5174,7 @@ Try to resolve all SRV records for a given name. The SRV records are used to def
 
 To lookup all the SRV records for "vertx.io" you would typically do:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolveSRV("vertx.io", ar -> {
   if (ar.succeeded()) {
@@ -5194,7 +5192,7 @@ Be aware that the List will contain the SrvRecords sorted by the priority of the
 
 The `SrvRecord` allows you to access all informations contained in the SRV record itself:
 
-```
+```java
 record.priority();
 record.name();
 record.weight();
@@ -5211,7 +5209,7 @@ Try to resolve the PTR record for a given name. The PTR record maps an ipaddress
 
 To resolve the PTR record for the ipaddress 10.0.0.1 you would use the PTR notion of "1.0.0.10.in-addr.arpa"
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.resolvePTR("1.0.0.10.in-addr.arpa", ar -> {
   if (ar.succeeded()) {
@@ -5228,7 +5226,7 @@ Try to do a reverse lookup for an ipaddress. This is basically the same as resol
 
 To do a reverse lookup for the ipaddress 10.0.0.1 do something similar like this:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
 client.reverseLookup("10.0.0.1", ar -> {
   if (ar.succeeded()) {
@@ -5264,7 +5262,7 @@ All of those errors are "generated" by the DNS Server itself.
 
 You can obtain the DnsResponseCode from the DnsException like:
 
-```
+```java
 DnsClient client = vertx.createDnsClient(53, "10.0.0.1");
 client.lookup("nonexisting.vert.xio", ar -> {
   if (ar.succeeded()) {
@@ -5302,7 +5300,7 @@ A very simple example would be reading from a `NetSocket` then writing back to t
 
 A naive way to do this would be to directly take the data that has been read and immediately write it to the `NetSocket`:
 
-```
+```java
 NetServer server = vertx.createNetServer(
     new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5318,7 +5316,7 @@ There is a problem with the example above: if data is read from the socket faste
 
 Since `NetSocket` implements `WriteStream`, we can check if the `WriteStream` is full before writing to it:
 
-```
+```java
 NetServer server = vertx.createNetServer(
     new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5334,7 +5332,7 @@ server.connectHandler(sock -> {
 
 This example won’t run out of RAM but we’ll end up losing data if the write queue gets full. What we really want to do is pause the `NetSocket` when the write queue is full:
 
-```
+```java
 NetServer server = vertx.createNetServer(
     new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5350,7 +5348,7 @@ server.connectHandler(sock -> {
 
 We’re almost there, but not quite. The `NetSocket` now gets paused when the file is full, but we also need to unpause it when the write queue has processed its backlog:
 
-```
+```java
 NetServer server = vertx.createNetServer(
     new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5371,7 +5369,7 @@ And there we have it. The `drainHandler` event handler will get called when the 
 
 Wanting to do this is quite common while writing Vert.x applications, so we added the `pipeTo` method that does all of this hard work for you. You just feed it the `WriteStream` and use it:
 
-```
+```java
 NetServer server = vertx.createNetServer(
   new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5384,7 +5382,7 @@ This does exactly the same thing as the more verbose example, plus it handles st
 
 You can be notified when the operation completes:
 
-```
+```java
 server.connectHandler(sock -> {
 
   // Pipe the socket providing an handler to be notified of the result
@@ -5400,7 +5398,7 @@ server.connectHandler(sock -> {
 
 When you deal with an asynchronous destination, you can create a `Pipe` instance that pauses the source and resumes it when the source is piped to the destination:
 
-```
+```java
 server.connectHandler(sock -> {
 
   // Create a pipe to use asynchronously
@@ -5422,7 +5420,7 @@ server.connectHandler(sock -> {
 
 When you need to abort the transfer, you need to close it:
 
-```
+```java
 vertx.createHttpServer()
   .requestHandler(request -> {
 
@@ -5457,7 +5455,7 @@ As seen above, by default the destination is always ended when the stream comple
 
 Here is a short example:
 
-```
+```java
 src.pipe()
   .endOnSuccess(false)
   .to(dst, rs -> {
@@ -5495,7 +5493,7 @@ Functions:
 ### Pump {#Pump}
 The pump exposes a subset of the pipe API and only transfers the items between streams, it does not handle the completion or failure of the transfer operation.
 
-```
+```java
 NetServer server = vertx.createNetServer(
   new NetServerOptions().setPort(1234).setHost("localhost")
 );
@@ -5540,7 +5538,7 @@ buffer3:I AM DOING OK
 
 Let’s see the associated code:
 
-```
+```java
 final RecordParser parser = RecordParser.newDelimited("\n", h -> {
   System.out.println(h.toString());
 });
@@ -5553,7 +5551,7 @@ parser.handle(Buffer.buffer("\n"));
 
 You can also produce fixed sized chunks as follows:
 
-```
+```java
 RecordParser.newFixed(4, h -> {
   System.out.println(h.toString());
 });
@@ -5566,7 +5564,7 @@ You can easily parse JSON structures but that requires to provide the JSON conte
 
 The non-blocking JSON parser is an event driven parser able to deal with very large structures. It transforms a sequence of input buffer to a sequence of JSON parse events.
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 // Set handlers for various events
@@ -5604,7 +5602,7 @@ parser.handler(event -> {
 
 The parser is non-blocking and emitted events are driven by the input buffers.
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 // start array event
@@ -5631,7 +5629,7 @@ parser.end();
 
 Event driven parsing provides more control but comes at the price of dealing with fine grained events, which can be inconvenient sometimes. The JSON parser allows you to handle JSON structures as values when it is desired:
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 parser.objectValueMode();
@@ -5656,7 +5654,7 @@ parser.end();
 
 The value mode can be set and unset during the parsing allowing you to switch between fine grained events or JSON object value events.
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 parser.handler(event -> {
@@ -5686,7 +5684,7 @@ parser.end();
 
 You can do the same with arrays as well
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 parser.handler(event -> {
@@ -5715,7 +5713,7 @@ parser.end();
 
 You can also decode POJOs
 
-```
+```java
 parser.handler(event -> {
   // Handle each object
   // Get the field in which this object was parsed
@@ -5727,7 +5725,7 @@ parser.handler(event -> {
 
 Whenever the parser fails to process a buffer, an exception will be thrown unless you set an exception handler:
 
-```
+```java
 JsonParser parser = JsonParser.newParser();
 
 parser.exceptionHandler(err -> {
@@ -5798,7 +5796,7 @@ The `vertx` command is used to interact with Vert.x from the command line. It’
 ### Run verticles {#Run_verticles}
 You can run raw Vert.x verticles directly from the command line using `vertx run`. Here is a couple of examples of the `run` *command*:
 
-```
+```bash
 vertx run my-verticle.js                                 (1)
 vertx run my-verticle.groovy                             (2)
 vertx run my-verticle.rb                                 (3)
@@ -5820,7 +5818,7 @@ As you can see in the case of Java, the name can either be the fully qualified c
 
 You can also prefix the verticle with the name of the language implementation to use. For example if the verticle is a compiled Groovy class, you prefix it with `groovy:` so that Vert.x knows it’s a Groovy class not a Java class.
 
-```
+```bash
 vertx run groovy:io.vertx.example.MyGroovyVerticle
 ```
 
@@ -5846,44 +5844,44 @@ Here are some more examples:
 
 Run a JavaScript verticle server.js with default settings
 
-```
+```bash
 vertx run server.js
 ```
 
 Run 10 instances of a pre-compiled Java verticle specifying classpath
 
-```
+```bash
 vertx run com.acme.MyVerticle -cp "classes:lib/myjar.jar" -instances 10
 ```
 
 Run 10 instances of a Java verticle by source *file*
 
-```
+```bash
 vertx run MyVerticle.java -instances 10
 ```
 
 Run 20 instances of a ruby worker verticle
 
-```
+```bash
 vertx run order_worker.rb -instances 20 -worker
 ```
 
 Run two JavaScript verticles on the same machine and let them cluster together with each other and any other servers on the network
 
-```
+```bash
 vertx run handler.js -cluster
 vertx run sender.js -cluster
 ```
 
 Run a Ruby verticle passing it some config
 
-```
+```bash
 vertx run my_verticle.rb -conf my_verticle.conf
 ```
 
 Where `my_verticle.conf` might contain something like:
 
-```
+```json
 {
 "name": "foo",
 "num_widgets": 46
@@ -5894,7 +5892,7 @@ The config will be available inside the verticle via the core API.
 
 When using the high-availability feature of vert.x you may want to create a *bare* instance of vert.x. This instance does not deploy any verticles when launched, but will receive a verticle if another node of the cluster dies. To create a *bare* instance, launch:
 
-```
+```bash
 vertx bare
 ```
 
@@ -5903,7 +5901,7 @@ Depending on your cluster configuration, you may have to append the `cluster-hos
 ### Executing a Vert.x application packaged as a fat jar {#Executing_a_Vert_x_application_packaged_as_a_fat_jar}
 A *fat jar* is an executable jar embedding its dependencies. This means you don’t have to have Vert.x pre-installed on the machine on which you execute the jar. Like any executable Java jar it can be executed with.
 
-```
+```bash
 java -jar my-application-fat.jar
 ```
 
@@ -5918,7 +5916,7 @@ To deploy your verticle in a *fatjar* like this you must have a *manifest* with:
 
 You can also provide the usual command line arguments that you would pass to `vertx run`:
 
-```
+```bash
 java -jar my-verticle-fat.jar -cluster -conf myconf.json
 java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cluster_xml
 ```
@@ -5932,7 +5930,7 @@ A fat jar executes the `run` command, by default.
 ### Displaying version of Vert.x {#Displaying_version_of_Vert_x}
 To display the vert.x version, just launch:
 
-```
+```bash
 vertx version
 ```
 
@@ -5941,7 +5939,7 @@ The `vertx` command line and the `Launcher` also provide other *commands* in add
 
 You can create a `bare` instance using:
 
-```
+```bash
 vertx bare
 # or
 java -jar my-verticle-fat.jar bare
@@ -5949,25 +5947,25 @@ java -jar my-verticle-fat.jar bare
 
 You can also start an application in background using:
 
-```
+```bash
 java -jar my-verticle-fat.jar start --vertx-id=my-app-name
 ```
 
 If `my-app-name` is not set, a random id will be generated, and printed on the command prompt. You can pass `run` options to the `start` command:
 
-```
+```bash
 java -jar my-verticle-fat.jar start —-vertx-id=my-app-name -cluster
 ```
 
 Once launched in background, you can stop it with the `stop` command:
 
-```
+```bash
 java -jar my-verticle-fat.jar stop my-app-name
 ```
 
 You can also list the vert.x application launched in background using:
 
-```
+```bash
 java -jar my-verticle-fat.jar list
 ```
 
@@ -5986,7 +5984,7 @@ The set of commands is extensible, refer to the [Extending the vert.x Launcher](
 ### Live Redeploy {#Live_Redeploy}
 When developing it may be convenient to automatically redeploy your application upon file changes. The `vertx` command line tool and more generally the `Launcher` class offers this feature. Here are some examples:
 
-```
+```bash
 vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy" --launcher-class=io.vertx.core.Launcher
 vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy,**&#47;*.rb"  --launcher-class=io.vertx.core.Launcher
 java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**&#47;*.class"  --launcher-class=io.vertx.core
@@ -6010,14 +6008,14 @@ To debug your application, create your run configuration as a remote application
 
 You can also hook your build process in the redeploy cycle:
 
-```
+```bash
 java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package"
 java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar'
 ```
 
 The "on-redeploy" option specifies a command invoked after the shutdown of the application and before the restart. So you can hook your build tool if it updates some runtime artifacts. For instance, you can launch `gulp` or `grunt` to update your resources. Don’t forget that passing parameters to your application requires the `--java-opts` param:
 
-```
+```bash
 java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package" --java-opts="-Dkey=val"
 java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
 ```
@@ -6116,7 +6114,7 @@ By default it will use the list of the system DNS server addresses from the envi
 
 DNS servers can be also configured when creating a `Vertx` instance:
 
-```
+```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
     setAddressResolverOptions(
         new AddressResolverOptions().
@@ -6148,7 +6146,7 @@ The *hosts* file of the operating system is used to perform an hostname lookup f
 
 An alternative *hosts* file can be used instead:
 
-```
+```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
     setAddressResolverOptions(
         new AddressResolverOptions().
@@ -6159,7 +6157,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 ### Search domains {#Search_domains}
 By default the resolver will use the system DNS search domains from the environment. Alternatively an explicit search domain list can be provided:
 
-```
+```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
     setAddressResolverOptions(
         new AddressResolverOptions().addSearchDomain("foo.com").addSearchDomain("bar.com"))
@@ -6176,13 +6174,13 @@ When vert.x runs with *HA* enabled, if a vert.x instance where a verticle runs f
 
 To run vert.x with the *HA* enabled, just add the `-ha` flag to the command line:
 
-```
+```bash
 vertx run my-verticle.js -ha
 ```
 
 Now for HA to work, you need more than one Vert.x instances in the cluster, so let’s say you have another Vert.x instance that you have already started, for example:
 
-```
+```bash
 vertx run my-other-verticle.js -ha
 ```
 
@@ -6198,7 +6196,7 @@ If the Vert.x instance that is running `my-verticle.js` now dies (you can test t
 
 You can also start *bare* Vert.x instances - i.e. instances that are not initially running any verticles, they will also failover for nodes in the cluster. To start a bare instance you simply do:
 
-```
+```bash
 vertx run -ha
 ```
 
@@ -6213,7 +6211,7 @@ When running a Vert.x instance with HA you can also optional specify a *HA group
 
 To specify an HA group you use the `-hagroup` switch when running the verticle, e.g.
 
-```
+```bash
 vertx run my-verticle.js -ha -hagroup my-group
 ```
 
@@ -6221,19 +6219,19 @@ Let’s look at an example:
 
 In a first terminal:
 
-```
+```bash
 vertx run my-verticle.js -ha -hagroup g1
 ```
 
 In a second terminal, let’s run another verticle using the same group:
 
-```
+```bash
 vertx run my-other-verticle.js -ha -hagroup g1
 ```
 
 Finally, in a third terminal, launch another verticle using a different group:
 
-```
+```bash
 vertx run yet-another-verticle.js -ha -hagroup g2
 ```
 
@@ -6252,7 +6250,7 @@ To run vert.x instances with a quorum you specify `-quorum` on the command line,
 
 In a first terminal:
 
-```
+```bash
 vertx run my-verticle.js -ha -quorum 3
 ```
 
@@ -6260,7 +6258,7 @@ At this point the Vert.x instance will start but not deploy the module (yet) bec
 
 In a second terminal:
 
-```
+```bash
 vertx run my-other-verticle.js -ha -quorum 3
 ```
 
@@ -6268,7 +6266,7 @@ At this point the Vert.x instance will start but not deploy the module (yet) bec
 
 In a third console, you can start another instance of vert.x:
 
-```
+```bash
 vertx run yet-another-verticle.js -ha -quorum 3
 ```
 
@@ -6281,7 +6279,7 @@ Quora can also be used in conjunction with ha groups. In that case, quora are re
 ## Native transports {#Native_transports}
 Vert.x can run with [native transports](http://netty.io/wiki/native-transports.html) (when available) on BSD (OSX) and Linux:
 
-```
+```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
   setPreferNativeTransport(true)
 );
@@ -6298,7 +6296,7 @@ System.out.println("Running with native: " + usingNative);
 ### Native Linux Transport {#Native_Linux_Transport}
 You need to add the following dependency in your classpath:
 
-```
+```xml
 <dependency>
  <groupId>io.netty</groupId>
  <artifactId>netty-transport-native-epoll</artifactId>
@@ -6314,7 +6312,7 @@ Native on Linux gives you extra networking options:
 - `TCP_CORK`
 - `TCP_FASTOPEN`
 
-```
+```java
 vertx.createHttpServer(new HttpServerOptions()
   .setTcpFastOpen(fastOpen)
   .setTcpCork(cork)
@@ -6326,7 +6324,7 @@ vertx.createHttpServer(new HttpServerOptions()
 ### Native BSD Transport {#Native_BSD_Transport}
 You need to add the following dependency in your classpath:
 
-```
+```xml
 <dependency>
  <groupId>io.netty</groupId>
  <artifactId>netty-transport-native-kqueue</artifactId>
@@ -6341,14 +6339,14 @@ Native on BSD gives you extra networking options:
 
 - `SO_REUSEPORT`
 
-```
+```java
 vertx.createHttpServer(new HttpServerOptions().setReusePort(reusePort));
 ```
 
 ### Domain sockets {#Domain_sockets}
 Natives provide domain sockets support for servers:
 
-```
+```java
 vertx.createNetServer().connectHandler(so -> {
   // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"));
@@ -6356,7 +6354,7 @@ vertx.createNetServer().connectHandler(so -> {
 
 or for http:
 
-```
+```java
 vertx.createHttpServer().requestHandler(req -> {
   // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"), ar -> {
@@ -6370,7 +6368,7 @@ vertx.createHttpServer().requestHandler(req -> {
 
 As well as clients:
 
-```
+```java
 NetClient netClient = vertx.createNetClient();
 
 // Only available on BSD and Linux
@@ -6388,7 +6386,7 @@ netClient.connect(addr, ar -> {
 
 or for http:
 
-```
+```java
 HttpClient httpClient = vertx.createHttpClient();
 
 // Only available on BSD and Linux
@@ -6442,7 +6440,7 @@ Using the CLI api is a 3-steps process:
 ### Definition Stage {#Definition_Stage}
 Each command line interface must define the set of options and arguments that will be used. It also requires a name. The CLI API uses the `Option` and `Argument` classes to describe options and arguments:
 
-```
+```java
 CLI cli = CLI.create("copy")
     .setSummary("A command line interface to copy files.")
     .addOption(new Option()
@@ -6465,7 +6463,7 @@ As you can see, you can create a new `CLI` using `CLI.create`. The passed string
 #### Options {#Options}
 An `Option` is a command line parameter identified by a *key* present in the user command line. Options must have at least a long name or a short name. Long name are generally used using a `--` prefix, while short names are used with a single `-`. Options can get a description displayed in the usage (see below). Options can receive 0, 1 or several values. An option receiving 0 values is a `flag`, and must be declared using `setFlag`. By default, options receive a single value, however, you can configure the option to receive several values using `setMultiValued`:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .setSummary("A command line interface illustrating the options valuation.")
     .addOption(new Option()
@@ -6479,7 +6477,7 @@ CLI cli = CLI.create("some-name")
 
 Options can be marked as mandatory. A mandatory option not set in the user command line throws an exception during the parsing:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .addOption(new Option()
         .setLongName("mandatory")
@@ -6489,7 +6487,7 @@ CLI cli = CLI.create("some-name")
 
 Non-mandatory options can have a *default value*. This value would be used if the user does not set the option in the command line:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .addOption(new Option()
         .setLongName("optional")
@@ -6501,7 +6499,7 @@ An option can be *hidden* using the `setHidden` method. Hidden option are not li
 
 If the option value is contrained to a fixed set, you can set the different acceptable choices:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .addOption(new Option()
         .setLongName("color")
@@ -6517,7 +6515,7 @@ Unlike options, arguments do not have a *key* and are identified by their *index
 
 Arguments do not have a name, there are identified using a 0-based index. The first parameter has the index `0`:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .addArgument(new Argument()
         .setIndex(0)
@@ -6531,7 +6529,7 @@ CLI cli = CLI.create("some-name")
 
 If you don’t set the argument indexes, it computes it automatically by using the declaration order.
 
-```
+```java
 CLI cli = CLI.create("some-name")
     // will have the index 0
     .addArgument(new Argument()
@@ -6557,7 +6555,7 @@ Arguments can also be instantiated from their JSON form.
 #### Usage generation {#Usage_generation}
 Once your `CLI` instance is configured, you can generate the *usage* message:
 
-```
+```java
 CLI cli = CLI.create("copy")
     .setSummary("A command line interface to copy files.")
     .addOption(new Option()
@@ -6580,7 +6578,7 @@ cli.usage(builder);
 
 It generates an usage message like this one:
 
-```
+```bash
 Usage: copy [-R] source target
 
 A command line interface to copy files.
@@ -6593,7 +6591,7 @@ If you need to tune the usage message, check the `UsageMessageFormatter` class.
 ### Parsing Stage {#Parsing_Stage}
 Once your `CLI` instance is configured, you can parse the user command line to evaluate each option and argument:
 
-```
+```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
 ```
 
@@ -6604,7 +6602,7 @@ You can check whether or not the `CommandLine` is valid using `isValid`.
 ### Query / Interrogation Stage {#Query___Interrogation_Stage}
 Once parsed, you can retrieve the values of the options and arguments from the `CommandLine` object returned by the `parse` method:
 
-```
+```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
 String opt = commandLine.getOptionValue("my-option");
 boolean flag = commandLine.isFlagEnabled("my-flag");
@@ -6613,7 +6611,7 @@ String arg0 = commandLine.getArgumentValue(0);
 
 One of your option can have been marked as "help". If a user command line enabled a "help" option, the validation won’t failed, but give you the opportunity to check if the user asks for help:
 
-```
+```java
 CLI cli = CLI.create("test")
     .addOption(
         new Option().setLongName("help").setShortName("h").setFlag(true).setHelp(true))
@@ -6635,7 +6633,7 @@ The described `Option` and `Argument` classes are *untyped*, meaning that the on
 
 Instead of `Option` and `Argument`, use `TypedOption` and `TypedArgument` in the `CLI` definition:
 
-```
+```java
 CLI cli = CLI.create("copy")
     .setSummary("A command line interface to copy files.")
     .addOption(new TypedOption<Boolean>()
@@ -6658,7 +6656,7 @@ CLI cli = CLI.create("copy")
 
 Then you can retrieve the converted values as follows:
 
-```
+```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
 boolean flag = commandLine.getOptionValue("R");
 File source = commandLine.getArgumentValue("source");
@@ -6673,7 +6671,7 @@ The vert.x CLI is able to convert to classes:
 
 In addition, you can implement your own `Converter` and instruct the CLI to use this converter:
 
-```
+```java
 CLI cli = CLI.create("some-name")
     .addOption(new TypedOption<Person>()
         .setType(Person.class)
@@ -6688,7 +6686,7 @@ If one of your option has an `enum` as type, it computes the set of choices auto
 ### Using annotations {#Using_annotations}
 You can also define your CLI using annotations. Definition is done using annotation on the class and on *setter* methods:
 
-```
+```java
 &#64;Name("some-name")
 &#64;Summary("some short summary.")
 &#64;Description("some long description")
@@ -6717,7 +6715,7 @@ public void setArg(String arg) {
 
 Once annotated, you can define the `CLI` and inject the values using:
 
-```
+```java
 CLI cli = CLI.create(AnnotatedCli.class);
 CommandLine commandLine = cli.parse(userCommandLineArguments);
 AnnotatedCli instance = new AnnotatedCli();
@@ -6730,7 +6728,7 @@ The vert.x `Launcher` is used in *fat jar* as main class, and by the `vertx` com
 ### Extending the vert.x Launcher {#Extending_the_vert_x_Launcher}
 You can extend the set of command by implementing your own `Command` (in Java only):
 
-```
+```java
 &#64;Name("my-command")
 &#64;Summary("A simple hello command.")
 public class MyCommand extends DefaultCommand {
@@ -6751,7 +6749,7 @@ public class MyCommand extends DefaultCommand {
 
 You also need an implementation of `CommandFactory`:
 
-```
+```java
 public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
  public HelloCommandFactory() {
   super(HelloCommand.class);
@@ -6761,7 +6759,7 @@ public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
 
 Then, create the `src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory` and add a line indicating the fully qualified name of the factory:
 
-```
+```java
 io.vertx.core.launcher.example.HelloCommandFactory
 ```
 
@@ -6769,7 +6767,7 @@ Builds the jar containing the command. Be sure to includes the SPI file (`META-I
 
 Then, place the jar containing the command into the classpath of your fat-jar (or include it inside) or in the `lib` directory of your vert.x distribution, and you would be able to execute:
 
-```
+```bash
 vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ```
@@ -6804,7 +6802,7 @@ When Vert.x needs to read a file from the classpath (embedded in a fat jar, in a
 
 First, by default, Vert.x uses `$CWD/.vertx` as cache directory. It creates a unique directory inside this one to avoid conflicts. This location can be configured by using the `vertx.cacheDirBase` system property. For instance if the current working directory is not writable (such as in an immutable container context), launch your application with:
 
-```
+```bash
 vertx run my.Verticle -Dvertx.cacheDirBase=/tmp/vertx-cache
 # or
 java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
