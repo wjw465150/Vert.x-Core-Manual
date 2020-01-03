@@ -4712,19 +4712,19 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 ```
 
 #### 打开选项 {#Opening_Options}
-When opening an `AsyncFile`, you pass an `OpenOptions` instance. These options describe the behavior of the file access. For instance, you can configure the file permissions with the `setRead`, `setWrite` and `setPerms` methods.
+当打开`AsyncFile`时，您传递`OpenOptions`实例。 这些选项描述了文件访问的行为。 例如，您可以使用`setRead`，`setWrite`和`setPerms`方法配置文件权限。
 
-You can also configure the behavior if the open file already exists with `setCreateNew` and `setTruncateExisting`.
+如果打开的文件已经存在，则您也可以配置行为：`setCreateNew`和`setTruncateExisting`。
 
-You can also mark the file to be deleted on close or when the JVM is shutdown with `setDeleteOnClose`.
+您也可以使用`setDeleteOnClose`标记关闭或关闭JVM时要删除的文件。
 
-#### Flushing data to underlying storage. {#Flushing_data_to_underlying_storage_}
-In the `OpenOptions`, you can enable/disable the automatic synchronisation of the content on every write using `setDsync`. In that case, you can manually flush any writes from the OS cache by calling the `flush` method.
+#### 数据刷新到下面的储存 {#Flushing_data_to_underlying_storage_}
+在`OpenOptions`中，您可以使用`setDsync`启用/禁用每次写入时内容的自动同步。 在这种情况下，您可以通过调用`flush`方法来手动清除OS缓存中的所有写入。
 
-This method can also be called with an handler which will be called when the flush is complete.
+也可以使用处理程序来调用此方法，该处理程序将在刷新完成后调用。
 
-#### Using AsyncFile as ReadStream and WriteStream {#Using_AsyncFile_as_ReadStream_and_WriteStream}
-`AsyncFile` implements `ReadStream` and `WriteStream`. You can then use them with a *pump* to pump data to and from other read and write streams. For example, this would copy the content to another `AsyncFile`:
+#### 使用AsyncFile作为ReadStream和WriteStream {#Using_AsyncFile_as_ReadStream_and_WriteStream}
+`AsyncFile`实现`ReadStream`和`WriteStream`。 然后，您可以将它们与*pump*一起使用，以与其他读取和写入流之间来回传输数据。 例如，这会将内容复制到另一个`AsyncFile`中：
 
 ```java
 final AsyncFile output = vertx.fileSystem().openBlocking("target/classes/plagiary.txt", new OpenOptions());
@@ -4742,7 +4742,7 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 });
 ```
 
-You can also use the *pump* to write file content into HTTP responses, or more generally in any `WriteStream`.
+您也可以使用*pump*将文件内容写入HTTP响应，或更普遍的是在任何`WriteStream`中。
 
 #### Accessing files from the classpath {#Accessing_files_from_the_classpath}
 When vert.x cannot find the file on the filesystem it tries to resolve the file from the class path. Note that classpath resource paths never start with a `/`.
@@ -5786,15 +5786,15 @@ Here is a working deployment on Apache Felix 5.2.0:
 
 On Equinox, you may want to disable the `ContextFinder` with the following framework property: `eclipse.bundle.setTCCL=false`
 
-## The 'vertx' command line {#The__vertx__command_line}
-The `vertx` command is used to interact with Vert.x from the command line. It’s main use is to run Vert.x verticles. To do this you need to download and install a Vert.x distribution, and add the `bin` directory of the installation to your `PATH` environment variable. Also make sure you have a Java 8 JDK on your `PATH`.
+## 'vertx'命令行 {#The__vertx__command_line}
+vertx命令用于从命令行与Vert.x交互。 主要用途是运行Vert.x的verticles。 为此，您需要下载并安装Vert.x发行版，并将安装的bin目录添加到环境变量`PATH`中。 还要确保您在`PATH`上有一个Java 8 JDK。
 
-| NOTE | The JDK is required to support on the fly compilation of Java code. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 需要JDK来支持Java代码的即时编译。
+------
 
-### Run verticles {#Run_verticles}
-You can run raw Vert.x verticles directly from the command line using `vertx run`. Here is a couple of examples of the `run` *command*:
+### 运行 verticles {#Run_verticles}
+您可以使用`vertx run`直接从命令行运行原始Vert.x的verticles。 这是`run`  *command*的几个例子：
 
 ```bash
 vertx run my-verticle.js                                 (1)
@@ -5807,79 +5807,79 @@ vertx run io.vertx.example.MVerticle -cp my-verticle.jar (5)
 vertx run MyVerticle.java                                (6)
 ```
 
-1. Deploys a JavaScript verticle
-2. Deploys a Groovy verticle
-3. Deploys a Ruby verticle
-4. Deploys an already compiled Java verticle. Classpath root is the current directory
-5. Deploys a verticle packaged in a Jar, the jar need to be in the classpath
-6. Compiles the Java source and deploys it
+1. 部署一个 JavaScript verticle
+2. 部署一个 Groovy verticle
+3. 部署一个 Ruby verticle
+4. 部署一个已经编译好的Java Verticle。 类路径根目录是当前目录
+5. 部署打包在Jar中的verticle，该jar必须位于类路径中
+6. 编译并部署Java源代码的verticle
 
-As you can see in the case of Java, the name can either be the fully qualified class name of the verticle, or you can specify the Java Source file directly and Vert.x compiles it for you.
+如在Java中所见，名称可以是verticle的完全限定的类名，也可以直接指定Java Source文件，然后Vert.x会为您编译它。
 
-You can also prefix the verticle with the name of the language implementation to use. For example if the verticle is a compiled Groovy class, you prefix it with `groovy:` so that Vert.x knows it’s a Groovy class not a Java class.
+您还可以在verticle上添加要使用的语言实现的名称。 例如，如果verticle是已编译的Groovy类，则可以在其前面加上`groovy:`，以便Vert.x知道它是Groovy类而不是Java类。
 
 ```bash
 vertx run groovy:io.vertx.example.MyGroovyVerticle
 ```
 
-The `vertx run` command can take a few optional parameters, they are:
+`vertx run`命令可以使用一些可选参数，它们是：
 
-- `-options ` - Provides the Vert.x options. `options` is the name of a JSON file that represents the Vert.x options, or a JSON string. This is optional.
-- `-conf ` - Provides some configuration to the verticle. `config` is the name of a JSON file that represents the configuration for the verticle, or a JSON string. This is optional.
-- `-cp ` - The path on which to search for the verticle and any other resources used by the verticle. This defaults to `.` (current directory). If your verticle references other scripts, classes or other resources (e.g. jar files) then make sure these are on this path. The path can contain multiple path entries separated by `:` (colon) or `;` (semi-colon) depending on the operating system. Each path entry can be an absolute or relative path to a directory containing scripts, or absolute or relative filenames for jar or zip files. An example path might be `-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`. Always use the path to reference any resources that your verticle requires. Do **not** put them on the system classpath as this can cause isolation issues between deployed verticles.
-- `-instances ` - The number of instances of the verticle to instantiate. Each verticle instance is strictly single threaded so to scale your application across available cores you might want to deploy more than one instance. If omitted a single instance will be deployed.
-- `-worker` - This option determines whether the verticle is a worker verticle or not.
-- `-cluster` - This option determines whether the Vert.x instance will attempt to form a cluster with other Vert.x instances on the network. Clustering Vert.x instances allows Vert.x to form a distributed event bus with other nodes. Default is `false` (not clustered).
-- `-cluster-port` - If the `cluster` option has also been specified then this determines which port will be bound for cluster communication with other Vert.x instances. Default is `0` - which means '*choose a free random port*'. You don’t usually need to specify this parameter unless you really need to bind to a specific port.
-- `-cluster-host` - If the `cluster` option has also been specified then this determines which host address will be bound for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here.
-- `-cluster-public-port` - If the `cluster` option has also been specified then this determines which port will be advertised for cluster communication with other Vert.x instances. Default is `-1`, which means same as `cluster-port`.
-- `-cluster-public-host` - If the `cluster` option has also been specified then this determines which host address will be advertised for cluster communication with other Vert.x instances. If not specified, Vert.x uses the value of `cluster-host`.
-- `-ha` - if specified the verticle will be deployed as high availability (HA) deployment. See related section for more details
-- `-quorum` - used in conjunction with `-ha`. It specifies the minimum number of nodes in the cluster for any *HA deploymentIDs* to be active. Defaults to 0.
-- `-hagroup` - used in conjunction with `-ha`. It specifies the HA group this node will join. There can be multiple HA groups in a cluster. Nodes will only failover to other nodes in the same group. The default value is ` __DEFAULT__`
+- `-options ` - 提供Vert.x选项。 `options`是表示Vert.x选项的JSON文件的名称，或者是JSON字符串。 这是可选的。
+- `-conf ` - 为verticle提供一些配置。 `conf`是表示verticle配置或JSON字符串的JSON文件的名称。 这是可选的。
+- `-cp ` - 搜索verticle和verticle使用的任何其他资源的路径。 默认为`.`（当前目录）。 如果您的Verticle引用了其他脚本，类或其他资源（例如jar文件），请确保它们在此路径上。 该路径可以包含多个路径条目，具体取决于操作系统，这些条目由`:`（冒号）或`;`（分号）分隔。 每个路径条目都可以是包含脚本的目录的绝对或相对路径，也可以是jar或zip文件的绝对或相对文件名。 示例路径可能是`-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`。 始终使用路径引用您的Verticle所需的任何资源。 请勿将它们放在系统类路径上，因为这可能导致部署的verticles之间的隔离问题。
+- `-instances ` - 要实例化的verticle的实例数。 每个verticle实例严格都是单线程的，因此要在可用核心上扩展应用程序，您可能需要部署多个实例。 如果省略，将部署一个实例。
+- `-worker` - 此选项确定该verticle是否为工作者verticle 。
+- `-cluster` - 此选项确定Vert.x实例是否将尝试与网络上的其他Vert.x实例形成集群。 集群Vert.x实例允许Vert.x与其他节点形成分布式事件总线。 默认值为`false`（不群群）。
+- `-cluster-port` - 如果还指定了`cluster`选项，那么它将确定绑定哪个端口与其他Vert.x实例进行集群通信。 默认值为'0'-表示*选择一个随机端口*。 除非确实需要绑定到特定端口，否则通常无需指定此参数。
+- `-cluster-host` - 如果还指定了`cluster`选项，那么它将确定绑定哪个主机地址与其他Vert.x实例进行集群通信。 默认情况下，它将尝试从可用接口中选择一个。 如果您有多个接口，并且想要使用特定的接口，请在此处指定。
+- `-cluster-public-port` - 如果还指定了`cluster`选项，那么这将决定通告哪个端口与其他Vert.x实例进行集群通信。 默认值为`-1`，表示与集群端口相同。
+- `-cluster-public-host` - 如果还指定了`cluster`选项，则这将确定要通告哪个主机地址以与其他Vert.x实例进行集群通信。 如果未指定，则Vert.x使用`cluster-host`的值。
+- `-ha` - 如果指定，则将以高可用性（HA）部署的方式部署该Verticle。 有关更多详细信息，请参见相关部分
+- `-quorum` - 与`-ha`结合使用。 它指定要使任何*HA deploymentIDs*处于活动状态的群集中的最小节点数。 预设为0。
+- `-hagroup` - 与`-ha`结合使用。 它指定此节点将加入的HA组。 一个群集中可以有多个HA组。 节点将仅故障转移到同一组中的其他节点。 默认值为`__DEFAULT__`
 
-You can also set system properties using: `-Dkey=value`.
+您还可以使用`-Dkey=value`设置系统属性。
 
-Here are some more examples:
+这里还有更多示例：
 
-Run a JavaScript verticle server.js with default settings
+使用默认设置运行JavaScript verticle server.js
 
 ```bash
 vertx run server.js
 ```
 
-Run 10 instances of a pre-compiled Java verticle specifying classpath
+运行指定类路径的已经编译好的Java verticle的10个实例
 
 ```bash
 vertx run com.acme.MyVerticle -cp "classes:lib/myjar.jar" -instances 10
 ```
 
-Run 10 instances of a Java verticle by source *file*
+通过源*file*运行Java verticle的10个实例
 
 ```bash
 vertx run MyVerticle.java -instances 10
 ```
 
-Run 20 instances of a ruby worker verticle
+运行20个ruby工作verticle的实例
 
 ```bash
 vertx run order_worker.rb -instances 20 -worker
 ```
 
-Run two JavaScript verticles on the same machine and let them cluster together with each other and any other servers on the network
+在同一台机器上运行两个JavaScript的verticles，让它们彼此集群在一起，以及网络上的任何其他服务器
 
 ```bash
 vertx run handler.js -cluster
 vertx run sender.js -cluster
 ```
 
-Run a Ruby verticle passing it some config
+运行一个Ruby verticle传递一些配置
 
 ```bash
 vertx run my_verticle.rb -conf my_verticle.conf
 ```
 
-Where `my_verticle.conf` might contain something like:
+其中`my_verticle.conf`可能包含以下内容：
 
 ```json
 {
@@ -5888,56 +5888,56 @@ Where `my_verticle.conf` might contain something like:
 }
 ```
 
-The config will be available inside the verticle via the core API.
+可以通过核心API在verticle内部使用该配置。
 
-When using the high-availability feature of vert.x you may want to create a *bare* instance of vert.x. This instance does not deploy any verticles when launched, but will receive a verticle if another node of the cluster dies. To create a *bare* instance, launch:
+使用vert.x的高可用性功能时，您可能需要创建vert.x的“bare”实例。 该实例在启动时不会部署任何Verticle，但是如果集群的另一个节点死亡，则会收到一个Verticle。 要创建一个*bare*实例，请启动：
 
 ```bash
 vertx bare
 ```
 
-Depending on your cluster configuration, you may have to append the `cluster-host` and `cluster-port` parameters.
+根据您的集群配置，您可能必须附加`cluster-host`和`cluster-port`参数。
 
-### Executing a Vert.x application packaged as a fat jar {#Executing_a_Vert_x_application_packaged_as_a_fat_jar}
-A *fat jar* is an executable jar embedding its dependencies. This means you don’t have to have Vert.x pre-installed on the machine on which you execute the jar. Like any executable Java jar it can be executed with.
+### 执行打包为fat jar的Vert.x应用程序 {#Executing_a_Vert_x_application_packaged_as_a_fat_jar}
+*fat jar*是嵌入了全部依赖项的可执行jar。 这意味着您无需在执行jar的计算机上预安装Vert.x。 像任何可执行的Java jar一样，可以使用它来执行。
 
 ```bash
 java -jar my-application-fat.jar
 ```
 
-There is nothing really Vert.x specific about this, you could do this with any Java application
+真正的Vert.x并没有什么特别的，您可以使用任何Java应用程序来完成
 
-You can either create your own main class and specify that in the manifest, but it’s recommended that you write your code as verticles and use the Vert.x `Launcher` class (`io.vertx.core.Launcher`) as your main class. This is the same main class used when running Vert.x at the command line and therefore allows you to specify command line arguments, such as `-instances` in order to scale your application more easily.
+您可以创建自己的主类并在manifest中指定它，但是建议您将代码编写为verticles，并使用Vert.x `Launcher`类（`io.vertx.core.Launcher`）作为主类。这与在命令行上运行Vert.x时使用的主类相同，因此允许您指定命令行参数，例如`-instances`，以便更轻松地扩展应用程序。
 
-To deploy your verticle in a *fatjar* like this you must have a *manifest* with:
+要将verticle放置在这样的*fat jar*中，您必须具有*manifest*，并具有：
 
-- `Main-Class` set to `io.vertx.core.Launcher`
-- `Main-Verticle` specifying the main verticle (fully qualified class name or script file name)
+- `Main-Class` 设置成 `io.vertx.core.Launcher`
+- `Main-Verticle` 指定主Verticle（完全限定的类名或脚本文件名）
 
-You can also provide the usual command line arguments that you would pass to `vertx run`:
+您还可以提供传递给`vertx run`的常用命令行参数：
 
 ```bash
 java -jar my-verticle-fat.jar -cluster -conf myconf.json
 java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cluster_xml
 ```
 
-| NOTE | Please consult the Maven/Gradle simplest and Maven/Gradle verticle examples in the examples repository for examples of building applications as fatjars. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 请参考示例存储库中的Maven/Gradle最简单的Maven/Gradle verticle示例，以获取将应用程序构建为fatjars的示例。
+------
 
-A fat jar executes the `run` command, by default.
+默认情况下，fat jar执行`run`命令。
 
-### Displaying version of Vert.x {#Displaying_version_of_Vert_x}
-To display the vert.x version, just launch:
+### 显示Vert.x的版本 {#Displaying_version_of_Vert_x}
+要显示vert.x版本，只需启动：
 
 ```bash
 vertx version
 ```
 
-### Other commands {#Other_commands}
-The `vertx` command line and the `Launcher` also provide other *commands* in addition to `run` and `version`:
+### 其他命令 {#Other_commands}
+除了`run` 和 `version`之外，`vertx`命令行和`Launcher`还提供其他*command*：
 
-You can create a `bare` instance using:
+您可以使用以下方法创建一个`bare`实例：
 
 ```bash
 vertx bare
@@ -5945,109 +5945,108 @@ vertx bare
 java -jar my-verticle-fat.jar bare
 ```
 
-You can also start an application in background using:
+您还可以使用以下方法在后台启动应用程序：
 
 ```bash
 java -jar my-verticle-fat.jar start --vertx-id=my-app-name
 ```
 
-If `my-app-name` is not set, a random id will be generated, and printed on the command prompt. You can pass `run` options to the `start` command:
+如果未设置`my-app-name`，则会生成一个随机ID，并将其打印在命令提示符下。 您可以将`—-vertx-id`选项传递给`start`命令：
 
 ```bash
 java -jar my-verticle-fat.jar start —-vertx-id=my-app-name -cluster
 ```
 
-Once launched in background, you can stop it with the `stop` command:
+一旦在后台启动，您可以使用`stop`命令停止它：
 
 ```bash
 java -jar my-verticle-fat.jar stop my-app-name
 ```
 
-You can also list the vert.x application launched in background using:
+您还可以使用以下命令列出在后台启动的vert.x应用程序：
 
 ```bash
 java -jar my-verticle-fat.jar list
 ```
 
-The `start`, `stop` and `list` command are also available from the `vertx` tool. The start` command supports a couple of options:
+也可以从`vertx`工具中获得`start`，`stop`和`list`命令。 `start`命令支持两个选项：
 
-- `vertx-id` : the application id, uses a random UUID if not set
-- `java-opts` : the Java Virtual Machine options, uses the `JAVA_OPTS` environment variable if not set.
-- `redirect-output` : redirect the spawned process output and error streams to the parent process streams.
+- `vertx-id` : 应用程序ID，如果未设置，则使用随机UUID
+- `java-opts` : Java虚拟机选项，如果未设置，则使用JAVA_OPTS环境变量。
+- `redirect-output` : 将产生的流程输出和错误流重定向到父流程流。
 
-If option values contain spaces, don’t forget to wrap the value between `""` (double-quotes).
+如果选项值包含空格，请不要忘了将值包装在`""`（双引号）之间。
 
-As the `start` command spawns a new process, the java options passed to the JVM are not propagated, so you **must** use `java-opts` to configure the JVM (`-X`, `-D`…). If you use the `CLASSPATH` environment variable, be sure it contains all the required jars (vertx-core, your jars and all the dependencies).
+当`start`命令产生一个新进程时，传递给JVM的Java选项不会传播，因此您必须使用`java-opts`来配置JVM (`-X`, `-D`…)。 如果您使用`CLASSPATH`环境变量，请确保它包含所有必需的jar（vertx-core，您的jar和所有依赖项）。
 
-The set of commands is extensible, refer to the [Extending the vert.x Launcher](https://vertx.io/docs/vertx-core/java/#_extending_the_vert_x_launcher) section.
+该命令集是可扩展的，请参阅[扩展vert.x启动器](https://vertx.io/docs/vertx-core/java/#_extending_the_vert_x_launcher)部分。
 
-### Live Redeploy {#Live_Redeploy}
-When developing it may be convenient to automatically redeploy your application upon file changes. The `vertx` command line tool and more generally the `Launcher` class offers this feature. Here are some examples:
-
-```bash
-vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy" --launcher-class=io.vertx.core.Launcher
-vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy,**&#47;*.rb"  --launcher-class=io.vertx.core.Launcher
-java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**&#47;*.class"  --launcher-class=io.vertx.core
-.Launcher -cp ...
-```
-
-The redeployment process is implemented as follows. First your application is launched as a background application (with the `start` command). On matching file changes, the process is stopped and the application is restarted. This avoids leaks, as the process is restarted.
-
-To enable the live redeploy, pass the `--redeploy` option to the `run` command. The `--redeploy` indicates the set of file to *watch*. This set can use Ant-style patterns (with `**`, `*` and `?`). You can specify several sets by separating them using a comma (`,`). Patterns are relative to the current working directory.
-
-Parameters passed to the `run` command are passed to the application. Java Virtual Machine options can be configured using `--java-opts`. For instance, to pass the the `conf` parameter or a system property, you need to use: `--java-opts="-conf=my-conf.json -Dkey=value"`
-
-The `--launcher-class` option determine with with *main* class the application is launcher. It’s generally `Launcher`, but you have use you own *main*.
-
-The redeploy feature can be used in your IDE:
-
-- Eclipse - create a *Run* configuration, using the `io.vertx.core.Launcher` class a *main class*. In the *Program arguments* area (in the *Arguments* tab), write `run your-verticle-fully-qualified-name --redeploy=**/*.java --launcher-class=io.vertx.core.Launcher`. You can also add other parameters. The redeployment works smoothly as Eclipse incrementally compiles your files on save.
-- IntelliJ - create a *Run* configuration (*Application*), set the *Main class* to `io.vertx.core.Launcher`. In the Program arguments write: `run your-verticle-fully-qualified-name --redeploy=**/*.class --launcher-class=io.vertx.core.Launcher`. To trigger the redeployment, you need to *make* the project or the module explicitly (*Build* menu → *Make project*).
-
-To debug your application, create your run configuration as a remote application and configure the debugger using `--java-opts`. However, don’t forget to re-plug the debugger after every redeployment as a new process is created every time.
-
-You can also hook your build process in the redeploy cycle:
+### 实时重新部署 {#Live_Redeploy}
+开发时，在文件更改后自动重新部署应用程序可能会很方便。 `vertx`命令行工具，更一般地讲，`Launcher`类提供此功能。 这里有些例子：
 
 ```bash
-java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package"
-java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar'
+vertx run MyVerticle.groovy --redeploy="**/*.groovy" --launcher-class=io.vertx.core.Launcher
+vertx run MyVerticle.groovy --redeploy="**/*.groovy,**/*.rb"  --launcher-class=io.vertx.core.Launcher
+java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**/*.class"  --launcher-class=io.vertx.core.Launcher -cp ...
 ```
 
-The "on-redeploy" option specifies a command invoked after the shutdown of the application and before the restart. So you can hook your build tool if it updates some runtime artifacts. For instance, you can launch `gulp` or `grunt` to update your resources. Don’t forget that passing parameters to your application requires the `--java-opts` param:
+重新部署过程的实现如下。 首先，您的应用程序将作为后台应用程序启动（使用`start`命令）。 匹配文件更改后，该过程将停止并重新启动应用程序。 这样可以避免泄漏，因为重新启动了进程。
+
+要启用实时重新部署，请将`--redeploy`选项传递给`run`命令。 `--redeploy`表示要监视的文件集。 这个集合可以使用Ant样式的模式（带有`**`，`*`和`?`）。 您可以使用逗号（`,`）将它们分开来指定多个集合。 模式是相对于当前工作目录的。
+
+传递给`run`命令的参数传递给应用程序。 可以使用`--java-opts`来配置Java虚拟机选项。 例如，要传递`conf`参数或系统属性，您需要使用：`--java-opts="-conf=my-conf.json -Dkey=value"`
+
+`--launcher-class`选项通过*main*类确定应用程序是启动器。 通常是`Launcher`，但是您可以使用自己的*main*。
+
+可以在您的IDE中使用重新部署功能：
+
+- Eclipse - 使用`io.vertx.core.Launcher`类作为**main类**创建一个`Run`配置。 在“Program arguments”区域（在“Arguments”选项卡中），写成`run your-verticle-fully-qualified-name --redeploy=**/*.java --launcher-class=io.vertx.core.Launcher`。 您还可以添加其他参数。 当Eclipse在保存时逐步编译文件时，重新部署可以顺利进行。
+- IntelliJ - 创建一个*Run*配置（*Application*），将*Main class*设置为`io.vertx.core.Launcher`。 在程序参数中写：`run your-verticle-fully-qualified-name --redeploy=**/*.class --launcher-class=io.vertx.core.Launcher`。 要触发重新部署，您需要*使*项目或模块显式（*Build*菜单→*Make project*）。
+
+要调试您的应用程序，请将您的运行配置创建为远程应用程序，并使用`--java-opts`配置调试器。 但是，不要忘记在每次重新部署后都重新插入调试器，因为每次都会创建一个新进程。
+
+您还可以在重新部署周期中挂钩构建过程：
 
 ```bash
-java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package" --java-opts="-Dkey=val"
-java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
+java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn package"
+java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar'
 ```
 
-The redeploy feature also supports the following settings:
+“on-redeploy”选项指定在应用程序关闭之后和重新启动之前调用的命令。 因此，如果构建工具更新了某些运行时构件，则可以将其挂钩。 例如，您可以启动`gulp`或`grunt`来更新您的资源。 不要忘记，将参数传递给应用程序需要`--java-opts`参数：
 
-- `redeploy-scan-period` : the file system check period (in milliseconds), 250ms by default
-- `redeploy-grace-period` : the amount of time (in milliseconds) to wait between 2 re-deployments, 1000ms by default
-- `redeploy-termination-period` : the amount of time to wait after having stopped the application (before launching user command). This is useful on Windows, where the process is not killed immediately. The time is given in milliseconds. 0 ms by default.
+```bash
+java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn package" --java-opts="-Dkey=val"
+java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
+```
 
-## Cluster Managers {#Cluster_Managers}
-In Vert.x a cluster manager is used for various functions including:
+重新部署功能还支持以下设置：
 
-- Discovery and group membership of Vert.x nodes in a cluster
-- Maintaining cluster wide topic subscriber lists (so we know which nodes are interested in which event bus addresses)
-- Distributed Map support
-- Distributed Locks
-- Distributed Counters
+- `redeploy-scan-period` : 文件系统检查周期（以毫秒为单位），默认为250ms
+- `redeploy-grace-period` : 2次重新部署之间等待的时间（以毫秒为单位），默认为1000ms
+- `redeploy-termination-period` : 停止应用程序后（启动用户命令之前）要等待的时间。 这在Windows上非常有用，因为Windows不会立即终止该进程。 时间以毫秒为单位。 默认为0毫秒。
 
-Cluster managers *do not* handle the event bus inter-node transport, this is done directly by Vert.x with TCP connections.
+## 集群管理器 {#Cluster_Managers}
+在Vert.x中，群集管理器用于各种功能，包括：
 
-The default cluster manager used in the Vert.x distributions is one that uses [Hazelcast](http://hazelcast.com/) but this can be easily replaced by a different implementation as Vert.x cluster managers are pluggable.
+- 集群中Vert.x节点的发现和组成员关系
+- 维护集群范围的主题订户列表（因此我们知道哪些节点对哪些事件总线地址感兴趣）
+- 分布式Map支持
+- 分布式锁
+- 分布式计数器
 
-A cluster manager must implement the interface `ClusterManager`. Vert.x locates cluster managers at run-time by using the Java [Service Loader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) functionality to locate instances of `ClusterManager` on the classpath.
+群集管理器*不*处理事件总线节点间的传输，这是由Vert.x使用TCP连接直接完成的。
 
-If you are using Vert.x at the command line and you want to use clustering you should make sure the `lib` directory of the Vert.x installation contains your cluster manager jar.
+Vert.x发行版中使用的默认集群管理器是使用[Hazelcast](http://hazelcast.com/)的集群管理器，但是由于可以插入Vert.x集群管理器，因此可以很容易地用其他实现替换。
 
-If you are using Vert.x from a Maven or Gradle project just add the cluster manager jar as a dependency of your project.
+集群管理器必须实现接口`ClusterManager`。 Vert.x通过使用Java [Service Loader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) 功能来在运行时查找类路径上的`ClusterManager`集群管理器。
 
-You can also specify cluster managers programmatically if embedding Vert.x using `setClusterManager`.
+如果您在命令行上使用Vert.x，并且想要使用集群，则应确保Vert.x安装的`lib`目录包含您的集群管理器jar。
 
-## Logging {#Logging}
+如果您从Maven或Gradle项目中使用Vert.x，则只需添加群集管理器jar作为项目的依赖项即可。
+
+如果使用`setClusterManager`嵌入Vert.x，也可以通过编程方式指定集群管理器。
+
+## 日志记录 {#Logging}
 Vert.x logs using it’s in-built logging API. The default implementation uses the JDK (JUL) logging so no extra logging dependencies are needed.
 
 ### Configuring JUL logging {#Configuring_JUL_logging}
@@ -6687,26 +6686,26 @@ If one of your option has an `enum` as type, it computes the set of choices auto
 You can also define your CLI using annotations. Definition is done using annotation on the class and on *setter* methods:
 
 ```java
-&#64;Name("some-name")
-&#64;Summary("some short summary.")
-&#64;Description("some long description")
+@Name("some-name")
+@Summary("some short summary.")
+@Description("some long description")
 public class AnnotatedCli {
 
  private boolean flag;
  private String name;
  private String arg;
 
-&#64;Option(shortName = "f", flag = true)
+@Option(shortName = "f", flag = true)
 public void setFlag(boolean flag) {
   this.flag = flag;
 }
 
-&#64;Option(longName = "name")
+@Option(longName = "name")
 public void setName(String name) {
   this.name = name;
 }
 
-&#64;Argument(index = 0)
+@Argument(index = 0)
 public void setArg(String arg) {
  this.arg = arg;
 }
@@ -6729,18 +6728,18 @@ The vert.x `Launcher` is used in *fat jar* as main class, and by the `vertx` com
 You can extend the set of command by implementing your own `Command` (in Java only):
 
 ```java
-&#64;Name("my-command")
-&#64;Summary("A simple hello command.")
+@Name("my-command")
+@Summary("A simple hello command.")
 public class MyCommand extends DefaultCommand {
 
  private String name;
 
- &#64;Option(longName = "name", required = true)
+ @Option(longName = "name", required = true)
  public void setName(String n) {
    this.name = n;
  }
 
- &#64;Override
+ @Override
  public void run() throws CLIException {
    System.out.println("Hello " + name);
  }
