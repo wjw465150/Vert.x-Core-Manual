@@ -4744,62 +4744,62 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 
 您也可以使用*pump*将文件内容写入HTTP响应，或更普遍的是在任何`WriteStream`中。
 
-#### Accessing files from the classpath {#Accessing_files_from_the_classpath}
-When vert.x cannot find the file on the filesystem it tries to resolve the file from the class path. Note that classpath resource paths never start with a `/`.
+#### 从类路径访问文件 {#Accessing_files_from_the_classpath}
+当vert.x在文件系统上找不到文件时，它将尝试从类路径中解析文件。 注意，类路径资源路径从不以`/`开头。
 
-Due to the fact that Java does not offer async access to classpath resources, the file is copied to the filesystem in a worker thread when the classpath resource is accessed the very first time and served from there asynchronously. When the same resource is accessed a second time, the file from the filesystem is served directly from the filesystem. The original content is served even if the classpath resource changes (e.g. in a development system).
+由于Java不提供对类路径资源的异步访问的事实，因此，当首次访问类路径资源并从那里异步提供服务时，该文件将被复制到工作线程中的文件系统中。 第二次访问同一资源时，来自文件系统的文件将直接从文件系统提供服务。 即使类路径资源发生变化（例如，在开发系统中），原始内容仍会提供。
 
-This caching behaviour can be set on the `setFileCachingEnabled` option. The default value of this option is `true` unless the system property `vertx.disableFileCaching` is defined.
+可以在`setFileCachingEnabled`选项上设置这种缓存行为。 除非定义了系统属性`vertx.disableFileCaching`，否则该选项的默认值为`true`。
 
-The path where the files are cached is `.vertx` by default and can be customized by setting the system property `vertx.cacheDirBase`.
+缓存文件的路径默认为`.vertx`，可以通过设置系统属性`vertx.cacheDirBase`进行自定义。
 
-The whole classpath resolving feature can be disabled system-wide by setting the system property `vertx.disableFileCPResolving` to `true`.
+通过将系统属性`vertx.disableFileCPCPResolving`设置为`true`，可以在整个系统范围内禁用整个类路径解析功能。
 
-| NOTE | these system properties are evaluated once when the the `io.vertx.core.file.FileSystemOptions` class is loaded, so these properties should be set before loading this class or as a JVM system property when launching it. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 加载`io.vertx.core.file.FileSystemOptions`类时，将对这些系统属性进行求值一次，因此，应在加载此类之前设置这些属性，或在启动它时将其设置为JVM系统属性。
+------
 
-If you want to disable classpath resolving for a particular application but keep it enabled by default system-wide, you can do so via the `setClassPathResolvingEnabled` option.
+如果要禁用特定应用程序的类路径解析，但默认情况下在系统范围内将其保持启用状态，则可以通过`setClassPathResolvingEnabled`选项来启用。
 
-#### Closing an AsyncFile {#Closing_an_AsyncFile}
-To close an `AsyncFile` call the `close` method. Closing is asynchronous and if you want to be notified when the close has been completed you can specify a handler function as an argument.
+#### 关闭一个AsyncFile {#Closing_an_AsyncFile}
+要关闭`AsyncFile`，请调用`close`方法。 关闭是异步的，如果您希望在关闭完成时收到通知，则可以将处理函数指定为参数。
 
-## Datagram sockets (UDP) {#Datagram_sockets__UDP_}
-Using User Datagram Protocol (UDP) with Vert.x is a piece of cake.
+## 数据报套接字(UDP) {#Datagram_sockets__UDP_}
+将用户数据报协议（UDP）与Vert.x结合使用很容易。
 
-UDP is a connection-less transport which basically means you have no persistent connection to a remote peer.
+UDP是无连接传输，这基本上意味着您没有与远程对等方的持久连接。
 
-Instead you can send and receive packages and the remote address is contained in each of them.
+相反，您可以发送和接收程序包，并且每个程序包中都包含远程地址。
 
-Beside this UDP is not as safe as TCP to use, which means there are no guarantees that a send Datagram packet will receive it’s endpoint at all.
+除此之外，UDP使用起来不如TCP安全，这意味着根本不能保证发送的数据报包会收到它的端点。
 
-The only guarantee is that it will either receive complete or not at all.
+唯一可以保证的是，它要么接收完整，要么完全接收不到。
 
-Also you usually can’t send data which is bigger then the MTU size of your network interface, this is because each packet will be send as one packet.
+另外，您通常不能发送比网络接口的MTU大小更大的数据，这是因为每个包将作为一个包发送。
 
-But be aware even if the packet size is smaller then the MTU it may still fail.
+但是请注意，即使包的大小小于MTU，它仍然可能失败。
 
-At which size it will fail depends on the Operating System etc. So rule of thumb is to try to send small packets.
+失败的规模取决于操作系统等。所以经验法则是尽量发送小数据包。
 
-Because of the nature of UDP it is best fit for Applications where you are allowed to drop packets (like for example a monitoring application).
+由于UDP的特性，它最适合允许您丢弃数据包的应用程序(例如监视应用程序)。
 
-The benefits are that it has a lot less overhead compared to TCP, which can be handled by the NetServer and NetClient (see above).
+其优点是与TCP相比，它的开销要小得多，而TCP可以由NetServer和NetClient来处理(参见上面)。
 
-### Creating a DatagramSocket {#Creating_a_DatagramSocket}
-To use UDP you first need t create a `DatagramSocket`. It does not matter here if you only want to send data or send and receive.
+### 创建一个DatagramSocket {#Creating_a_DatagramSocket}
+要使用UDP，你首先需要创建一个`DatagramSocket`。在这里，您是否只想发送数据或发送和接收数据并不重要。
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 ```
 
-The returned `DatagramSocket` will not be bound to a specific port. This is not a problem if you only want to send data (like a client), but more on this in the next section.
+返回的`DatagramSocket`将不会绑定到特定的端口。如果您只想发送数据(如客户端)，这不是问题，但在下一节中会详细介绍。
 
-### Sending Datagram packets {#Sending_Datagram_packets}
-As mentioned before, User Datagram Protocol (UDP) sends data in packets to remote peers but is not connected to them in a persistent fashion.
+### 发送 Datagram packets {#Sending_Datagram_packets}
+如前所述，用户数据报协议(User Datagram Protocol, UDP)以数据包的形式向远程对等方发送数据，但不以持久的方式连接到它们。
 
-This means each packet can be sent to a different remote peer.
+这意味着每个包可以发送到不同的远程对等点。
 
-Sending packets is as easy as shown here:
+发送数据包很简单，如下图所示:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4814,19 +4814,19 @@ socket.send("A string used as content", 1234, "10.0.0.1", asyncResult -> {
 });
 ```
 
-### Receiving Datagram packets {#Receiving_Datagram_packets}
-If you want to receive packets you need to bind the `DatagramSocket` by calling `listen(…)}` on it.
+### 接收 Datagram packets {#Receiving_Datagram_packets}
+如果你想接收数据包，你需要绑定`DatagramSocket`通过调用`listen(…)`。
 
-This way you will be able to receive `DatagramPacket`s that were sent to the address and port on which the `DatagramSocket` listens.
+通过这种方式，您将能够接收发送到`DatagramSocket`侦听的地址和端口的`DatagramPacket`。
 
-Beside this you also want to set a `Handler` which will be called for each received `DatagramPacket`.
+除此之外，您还需要设置一个`Handler`，它将为每个接收到的`DatagramPacket`调用。
 
-The `DatagramPacket` has the following methods:
+`DatagramPacket`有以下方法:
 
-- `sender`: The InetSocketAddress which represent the sender of the packet
-- `data`: The Buffer which holds the data which was received.
+- `sender`: 代表包的发送者的InetSocketAddress
+- `data`: 保存接收到的数据的缓冲区。
 
-So to listen on a specific address and port you would do something like shown here:
+因此，要监听特定的地址和端口，您需要做如下操作:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4841,19 +4841,19 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 });
 ```
 
-Be aware that even if the {code AsyncResult} is successed it only means it might be written on the network stack, but gives no guarantee that it ever reached or will reach the remote peer at all.
+注意，即使{code AsyncResult}成功了，也只意味着它可能被写在网络堆栈上，而不能保证它曾经或将要到达远程对等点。
 
-If you need such a guarantee then you want to use TCP with some handshaking logic build on top.
+如果您需要这样的保证，那么您需要使用TCP，并在其上构建一些握手逻辑。
 
-### Multicast {#Multicast}
-#### Sending Multicast packets {#Sending_Multicast_packets}
-Multicast allows multiple sockets to receive the same packets. This works by having the sockets join the same multicast group to which you can then send packets.
+### 多播 {#Multicast}
+#### 发送多播数据包 {#Sending_Multicast_packets}
+多播允许多个套接字接收相同的数据包。这是通过让套接字加入相同的多播组来实现的，然后您可以向该组发送数据包。
 
-We will look at how you can join a Multicast Group and receive packets in the next section.
+我们将在下一节讨论如何加入多播组并接收数据包。
 
-Sending multicast packets is not different than sending normal Datagram packets. The difference is that you pass in a multicast group address to the send method.
+发送多播包与发送正常的数据报包没有什么不同。不同之处在于，您将多播组地址传递给send方法。
 
-This is show here:
+这里显示的是:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4864,21 +4864,21 @@ socket.send(buffer, 1234, "230.0.0.1", asyncResult -> {
 });
 ```
 
-All sockets that have joined the multicast group 230.0.0.1 will receive the packet.
+所有加入组播组`230.0.0.1`的套接字都将收到数据包。
 
-##### Receiving Multicast packets {#Receiving_Multicast_packets}
-If you want to receive packets for specific Multicast group you need to bind the `DatagramSocket` by calling `listen(…)` on it to join the Multicast group.
+##### 接收多播数据包 {#Receiving_Multicast_packets}
+如果您想接收特定多播组的数据包，您需要通过调用`listen(…)`绑定`DatagramSocket`以加入多播组。
 
-This way you will receive DatagramPackets that were sent to the address and port on which the `DatagramSocket` listens and also to those sent to the Multicast group.
+这样，您将收到发送到`DatagramSocket`侦听的地址和端口的`DatagramPackets`，以及发送到`Multicast`组的数据报。
 
-Beside this you also want to set a Handler which will be called for each received DatagramPacket.
+除此之外，您还需要为每个接收到的DatagramPacket设置一个处理程序。
 
-The `DatagramPacket` has the following methods:
+`DatagramPacket`有以下方法:
 
-- `sender()`: The InetSocketAddress which represent the sender of the packet
-- `data()`: The Buffer which holds the data which was received.
+- `sender()`: 代表包的发送者的InetSocketAddress
+- `data()`: 保存接收到的数据的缓冲区。
 
-So to listen on a specific address and port and also receive packets for the Multicast group 230.0.0.1 you would do something like shown here:
+因此，要监听特定的地址和端口，并接收多播组`230.0.0.1`的数据包，您需要做如下操作:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4898,12 +4898,12 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 });
 ```
 
-##### Unlisten / leave a Multicast group {#Unlisten___leave_a_Multicast_group}
-There are sometimes situations where you want to receive packets for a Multicast group for a limited time.
+##### 取消收听/离开多播组 {#Unlisten___leave_a_Multicast_group}
+有时，您希望在有限的时间内接收多播组的数据包。
 
-In this situations you can first start to listen for them and then later unlisten.
+在这种情况下，您可以先开始收听它们，然后再取消收听。
 
-This is shown here:
+如下所示:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4933,14 +4933,14 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 });
 ```
 
-##### Blocking multicast {#Blocking_multicast}
-Beside unlisten a Multicast address it’s also possible to just block multicast for a specific sender address.
+##### 阻塞多播 {#Blocking_multicast}
+除了取消监听多播地址之外，还可以阻止特定发送方地址的多播。
 
-Be aware this only work on some Operating Systems and kernel versions. So please check the Operating System documentation if it’s supported.
+注意，这只适用于某些操作系统和内核版本。因此，请检查操作系统文档是否受支持。
 
-This an expert feature.
+这是一个专家特性。
 
-To block multicast from a specific address you can call `blockMulticastGroup(…)` on the DatagramSocket like shown here:
+要阻止来自特定地址的多播，你可以在DatagramSocket上调用`blockMulticastGroup(…)`，如下图所示:
 
 ```java
 DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
@@ -4953,33 +4953,33 @@ socket.blockMulticastGroup("230.0.0.1", "10.0.0.2", asyncResult -> {
 });
 ```
 
-#### DatagramSocket properties {#DatagramSocket_properties}
-When creating a `DatagramSocket` there are multiple properties you can set to change it’s behaviour with the `DatagramSocketOptions` object. Those are listed here:
+#### DatagramSocket 属性 {#DatagramSocket_properties}
+在创建`DatagramSocket`对象时，可以设置多个属性来更改`DatagramSocketOptions`对象的行为。这些都列在这里:
 
-- `setSendBufferSize` Sets the send buffer size in bytes.
-- `setReceiveBufferSize` Sets the TCP receive buffer size in bytes.
-- `setReuseAddress` If true then addresses in TIME_WAIT state can be reused after they have been closed.
+- `setSendBufferSize` 设置发送缓冲区的大小(以字节为单位)。
+- `setReceiveBufferSize` 设置TCP接收缓冲区的大小(以字节为单位)。
+- `setReuseAddress` 如果为true，则TIME_WAIT状态下的地址可以在关闭后重新使用。
 - `setTrafficClass`
-- `setBroadcast` Sets or clears the SO_BROADCAST socket option. When this option is set, Datagram (UDP) packets may be sent to a local interface’s broadcast address.
-- `setMulticastNetworkInterface` Sets or clears the IP_MULTICAST_LOOP socket option. When this option is set, multicast packets will also be received on the local interface.
-- `setMulticastTimeToLive` Sets the IP_MULTICAST_TTL socket option. TTL stands for "Time to Live," but in this context it specifies the number of IP hops that a packet is allowed to go through, specifically for multicast traffic. Each router or gateway that forwards a packet decrements the TTL. If the TTL is decremented to 0 by a router, it will not be forwarded.
+- `setBroadcast` 设置或清除SO_BROADCAST套接字选项。设置此选项后，可以将数据报(UDP)数据包发送到本地接口的广播地址。
+- `setMulticastNetworkInterface` 设置或清除IP_MULTICAST_LOOP套接字选项。设置此选项后，还将在本地接口上接收多播包。
+- `setMulticastTimeToLive` 设置IP_MULTICAST_TTL套接字选项。TTL表示“生存时间”，但是在这个上下文中，它指定了允许数据包通过的IP跳数，特别是对于多播流量。每一个转发包的路由器或网关都会降低TTL。如果TTL被路由器减少到0，它将不会被转发。
 
-#### DatagramSocket Local Address {#DatagramSocket_Local_Address}
-You can find out the local address of the socket (i.e. the address of this side of the UDP Socket) by calling `localAddress`. This will only return an `InetSocketAddress` if you bound the `DatagramSocket` with `listen(…)` before, otherwise it will return null.
+#### DatagramSocket本地地址 {#DatagramSocket_Local_Address}
+你可以找到本地地址的套接字(即UDP套接字的这一边的地址)调用`localAddress`。这将只返回一个`InetSocketAddress`，如果你之前绑定了`DatagramSocket`和`listen(…)`，否则它将返回null。
 
-#### Closing a DatagramSocket {#Closing_a_DatagramSocket}
-You can close a socket by invoking the `close` method. This will close the socket and release all resources
+#### 关闭DatagramSocket {#Closing_a_DatagramSocket}
+您可以通过调用`close`方法来关闭套接字。这将关闭套接字并释放所有资源
 
-## DNS client {#DNS_client}
-Often you will find yourself in situations where you need to obtain DNS informations in an asynchronous fashion. Unfortunally this is not possible with the API that is shipped with the Java Virtual Machine itself. Because of this Vert.x offers it’s own API for DNS resolution which is fully asynchronous.
+## DNS 客户端 {#DNS_client}
+通常，您会遇到需要以异步方式获取DNS信息的情况。 不幸的是，Java虚拟机本身附带的API无法做到这一点。 因此，Vert.x提供了自己的用于DNS解析的API，该API是完全异步的。
 
-To obtain a DnsClient instance you will create a new via the Vertx instance.
+要获取DnsClient实例，您将通过Vertx创建一个新实例。
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "10.0.0.1");
 ```
 
-You can also create the client with options and configure the query timeout.
+您还可以使用选项创建客户端并配置查询超时。
 
 ```java
 DnsClient client = vertx.createDnsClient(new DnsClientOptions()
@@ -4989,7 +4989,7 @@ DnsClient client = vertx.createDnsClient(new DnsClientOptions()
 );
 ```
 
-Creating the client with no arguments or omitting the server address will use the address of the server used internally for non blocking address resolution.
+创建没有参数的客户端或省略服务器地址将使用内部用于非阻塞地址解析的服务器地址。
 
 ```java
 DnsClient client1 = vertx.createDnsClient();
@@ -4998,10 +4998,10 @@ DnsClient client1 = vertx.createDnsClient();
 DnsClient client2 = vertx.createDnsClient(new DnsClientOptions().setQueryTimeout(10000));
 ```
 
-### lookup {#lookup}
-Try to lookup the A (ipv4) or AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找 {#lookup}
+尝试查找给定名称的A (ipv4)或AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A / AAAA record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A / AAAA记录。你通常会这样使用它:
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5014,10 +5014,10 @@ client.lookup("vertx.io", ar -> {
 });
 ```
 
-### lookup4 {#lookup4}
-Try to lookup the A (ipv4) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找4 {#lookup4}
+尝试查找给定名称的A (ipv4)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A记录。你通常会这样使用它:
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5030,10 +5030,10 @@ client.lookup4("vertx.io", ar -> {
 });
 ```
 
-### lookup6 {#lookup6}
-Try to lookup the AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找6 {#lookup6}
+尝试查找给定名称的AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A记录。你通常会这样使用它:
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5046,10 +5046,10 @@ client.lookup6("vertx.io", ar -> {
 });
 ```
 
-### resolveA {#resolveA}
-Try to resolve all A (ipv4) records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析A {#resolveA}
+尝试解析给定名称的所有A（ipv4）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the A records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有A记录，通常需要执行以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5065,10 +5065,10 @@ client.resolveA("vertx.io", ar -> {
 });
 ```
 
-### resolveAAAA {#resolveAAAA}
-Try to resolve all AAAA (ipv6) records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析AAAA {#resolveAAAA}
+尝试解析给定名称的所有AAAA（ipv6）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the AAAAA records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有AAAAA记录，通常需要执行以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5084,10 +5084,10 @@ client.resolveAAAA("vertx.io", ar -> {
 });
 ```
 
-### resolveCNAME {#resolveCNAME}
-Try to resolve all CNAME records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析CNAME {#resolveCNAME}
+尝试解析给定名称的所有CNAME记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the CNAME records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有CNAME记录，通常需要执行以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5103,10 +5103,10 @@ client.resolveCNAME("vertx.io", ar -> {
 });
 ```
 
-### resolveMX {#resolveMX}
-Try to resolve all MX records for a given name. The MX records are used to define which Mail-Server accepts emails for a given domain.
+### 解析MX {#resolveMX}
+尝试解析给定名称的所有MX记录。 MX记录用于定义哪个邮件服务器接受给定域的电子邮件。
 
-To lookup all the MX records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有MX记录，通常需要执行以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5122,19 +5122,19 @@ client.resolveMX("vertx.io", ar -> {
 });
 ```
 
-Be aware that the List will contain the `MxRecord` sorted by the priority of them, which means MX records with smaller priority coming first in the List.
+请注意，列表将包含按优先级排序的`MxRecord`，这意味着优先级较小的MX记录在列表中排在首位。
 
-The `MxRecord` allows you to access the priority and the name of the MX record by offer methods for it like:
+`MxRecord`允许您通过提供方法来访问MX记录的优先级和名称，例如：
 
 ```java
 record.priority();
 record.name();
 ```
 
-### resolveTXT {#resolveTXT}
-Try to resolve all TXT records for a given name. TXT records are often used to define extra informations for a domain.
+### 解析TXT {#resolveTXT}
+尝试解析给定名称的所有TXT记录。 TXT记录通常用于定义域的其他信息。
 
-To resolve all the TXT records for "vertx.io" you could use something along these lines:
+要解析“vertx.io”的所有TXT记录，可以使用以下几行：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5150,10 +5150,10 @@ client.resolveTXT("vertx.io", ar -> {
 });
 ```
 
-### resolveNS {#resolveNS}
-Try to resolve all NS records for a given name. The NS records specify which DNS Server hosts the DNS informations for a given domain.
+### 解析NS {#resolveNS}
+尝试解析给定名称的所有NS记录。 NS记录指定哪个DNS服务器托管给定域的DNS信息。
 
-To resolve all the NS records for "vertx.io" you could use something along these lines:
+要为“vertx.io”解析所有NS记录，可以使用以下方式：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5169,10 +5169,10 @@ client.resolveNS("vertx.io", ar -> {
 });
 ```
 
-### resolveSRV {#resolveSRV}
-Try to resolve all SRV records for a given name. The SRV records are used to define extra informations like port and hostname of services. Some protocols need this extra informations.
+### 解析SRV {#resolveSRV}
+尝试解析给定名称的所有SRV记录。 SRV记录用于定义其他信息，例如服务的端口和主机名。 一些协议需要这些额外的信息。
 
-To lookup all the SRV records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有SRV记录，通常需要执行以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5188,9 +5188,9 @@ client.resolveSRV("vertx.io", ar -> {
 });
 ```
 
-Be aware that the List will contain the SrvRecords sorted by the priority of them, which means SrvRecords with smaller priority coming first in the List.
+请注意，列表将包含按优先级排序的SrvRecords，这意味着优先级较小的SrvRecords在列表中排在首位。
 
-The `SrvRecord` allows you to access all informations contained in the SRV record itself:
+`SrvRecord`允许您访问SRV记录本身包含的所有信息：
 
 ```java
 record.priority();
@@ -5202,12 +5202,12 @@ record.service();
 record.target();
 ```
 
-Please refer to the API docs for the exact details.
+请参阅API文档以获取确切的详细信息。
 
-### resolvePTR {#resolvePTR}
-Try to resolve the PTR record for a given name. The PTR record maps an ipaddress to a name.
+### 解析PTR {#resolvePTR}
+尝试解析给定名称的PTR记录。 PTR记录将ip地址映射到名称。
 
-To resolve the PTR record for the ipaddress 10.0.0.1 you would use the PTR notion of "1.0.0.10.in-addr.arpa"
+要解析ipaddress 10.0.0.1的PTR记录，可以使用PTR概念"1.0.0.10.in-addr.arpa"
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5221,10 +5221,10 @@ client.resolvePTR("1.0.0.10.in-addr.arpa", ar -> {
 });
 ```
 
-### reverseLookup {#reverseLookup}
-Try to do a reverse lookup for an ipaddress. This is basically the same as resolve a PTR record, but allows you to just pass in the ipaddress and not a valid PTR query string.
+### 解析Lookup {#reverseLookup}
+尝试对IP地址进行反向查找。 这基本上与解析PTR记录相同，但是允许您仅传入IP地址而不是有效的PTR查询字符串。
 
-To do a reverse lookup for the ipaddress 10.0.0.1 do something similar like this:
+要对ipaddress 10.0.0.1进行反向查找，请执行类似以下操作：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "9.9.9.9");
@@ -5238,29 +5238,29 @@ client.reverseLookup("10.0.0.1", ar -> {
 });
 ```
 
-### Error handling {#Error_handling}
-As you saw in previous sections the DnsClient allows you to pass in a Handler which will be notified with an AsyncResult once the query was complete. In case of an error it will be notified with a DnsException which will hole a `DnsResponseCode` that indicate why the resolution failed. This DnsResponseCode can be used to inspect the cause in more detail.
+### 错误处理 {#Error_handling}
+如前几节所述，DnsClient允许您传入一个处理程序，一旦查询完成，该处理程序将通过AsyncResult通知。 如果发生错误，将通过DnsException通知该错误，该错误将在`DnsResponseCode`中指出解析失败的原因。 此DnsResponseCode可用于更详细地检查原因。
 
-Possible DnsResponseCodes are:
+可能的DnsResponseCodes为：
 
-- `NOERROR` No record was found for a given query
-- `FORMERROR` Format error
-- `SERVFAIL` Server failure
-- `NXDOMAIN` Name error
-- `NOTIMPL` Not implemented by DNS Server
-- `REFUSED` DNS Server refused the query
-- `YXDOMAIN` Domain name should not exist
-- `YXRRSET` Resource record should not exist
-- `NXRRSET` RRSET does not exist
-- `NOTZONE` Name not in zone
-- `BADVERS` Bad extension mechanism for version
-- `BADSIG` Bad signature
-- `BADKEY` Bad key
-- `BADTIME` Bad timestamp
+- `NOERROR` 找不到给定查询的记录
+- `FORMERROR` 格式错误
+- `SERVFAIL` 服务器故障
+- `NXDOMAIN` 名称错误
+- `NOTIMPL` DNS服务器没有实现
+- `REFUSED` DNS服务器拒绝查询
+- `YXDOMAIN` 域名不应该存在
+- `YXRRSET` 资源记录不应该存在
+- `NXRRSET` RRSET不存在
+- `NOTZONE` 名称不在区域中
+- `BADVERS` 版本的错误扩展机制
+- `BADSIG` 签名错误
+- `BADKEY` 坏的键
+- `BADTIME` 时间戳错误
 
-All of those errors are "generated" by the DNS Server itself.
+所有这些错误都是由DNS服务器本身“生成”的。
 
-You can obtain the DnsResponseCode from the DnsException like:
+您可以从DnsException获得DnsResponseCode，例如：
 
 ```java
 DnsClient client = vertx.createDnsClient(53, "10.0.0.1");
@@ -5281,10 +5281,10 @@ client.lookup("nonexisting.vert.xio", ar -> {
 });
 ```
 
-## Streams {#Streams}
-There are several objects in Vert.x that allow items to be read from and written.
+## 流 {#Streams}
+Vert.x中有几个对象，它们可以读取和写入项目。
 
-In previous versions the `io.vertx.core.streams` package was manipulating `Buffer` objects exclusively. From now, streams are not coupled to buffers anymore and they work with any kind of objects.
+在以前的版本中，`io.vertx.core.streams`包是专门处理`Buffer`对象的。 从现在开始，流不再与缓冲区耦合，并且可以与任何类型的对象一起使用。
 
 In Vert.x, write calls return immediately, and writes are queued internally.
 
