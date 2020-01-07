@@ -5286,19 +5286,19 @@ Vert.x中有几个对象，它们可以读取和写入项目。
 
 在以前的版本中，`io.vertx.core.streams`包是专门处理`Buffer`对象的。 从现在开始，流不再与缓冲区耦合，并且可以与任何类型的对象一起使用。
 
-In Vert.x, write calls return immediately, and writes are queued internally.
+在Vert.x中，写调用立即返回，写操作在内部排队。
 
-It’s not hard to see that if you write to an object faster than it can actually write the data to its underlying resource, then the write queue can grow unbounded - eventually resulting in memory exhaustion.
+不难看出，如果写入对象的速度快于将对象实际写入其底层资源的速度，那么写入队列可能会无限增长，最终导致内存耗尽。
 
-To solve this problem a simple flow control (*back-pressure*) capability is provided by some objects in the Vert.x API.
+为了解决此问题，Vert.x API中的某些对象提供了一种简单的流量控制（*back-pressure背压*）功能。
 
-Any flow control aware object that can be *written-to* implements `WriteStream`, while any flow control object that can be *read-from* is said to implement `ReadStream`.
+任何可*written-to*的流控制对象实现`WriteStream`，而任何可*read-from*的流控制对象实现`ReadStream`。
 
-Let’s take an example where we want to read from a `ReadStream` then write the data to a `WriteStream`.
+让我们举一个例子，我们想要从`ReadStream`读取数据，然后将数据写入`WriteStream`。
 
-A very simple example would be reading from a `NetSocket` then writing back to the same `NetSocket` - since `NetSocket` implements both `ReadStream` and `WriteStream`. Note that this works between any `ReadStream` and `WriteStream` compliant object, including HTTP requests, HTTP responses, async files I/O, WebSockets, etc.
+一个非常简单的例子是，从一个`NetSocket`读取数据，然后写回同一个`NetSocket`——因为`NetSocket`同时实现了`ReadStream`和`WriteStream`。注意，这在任何`ReadStream`和`WriteStream`兼容对象之间都可以工作，包括HTTP请求、HTTP响应、异步文件I/O、WebSockets等。
 
-A naive way to do this would be to directly take the data that has been read and immediately write it to the `NetSocket`:
+一种简单的方法是直接获取已读取的数据，并立即将其写入`NetSocket`:
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5312,9 +5312,9 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-There is a problem with the example above: if data is read from the socket faster than it can be written back to the socket, it will build up in the write queue of the `NetSocket`, eventually running out of RAM. This might happen, for example if the client at the other end of the socket wasn’t reading fast enough, effectively putting back-pressure on the connection.
+上面的例子有一个问题:如果从套接字读取数据的速度比将数据写回套接字的速度快，那么它将在`NetSocket`的写队列中累积，最终耗尽RAM。这可能会发生，例如，如果套接字另一端的客户端读取速度不够快，有效地对连接施加了被压。
 
-Since `NetSocket` implements `WriteStream`, we can check if the `WriteStream` is full before writing to it:
+由于`NetSocket`实现了`WriteStream`，我们可以在写入之前检查`WriteStream`是否已满:
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5330,7 +5330,7 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-This example won’t run out of RAM but we’ll end up losing data if the write queue gets full. What we really want to do is pause the `NetSocket` when the write queue is full:
+这个示例不会耗尽RAM，但是如果写队列满了，我们将丢失数据。我们真正想做的是暂停`NetSocket`当写队列满了:
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5346,7 +5346,7 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-We’re almost there, but not quite. The `NetSocket` now gets paused when the file is full, but we also need to unpause it when the write queue has processed its backlog:
+我们快到了，但还没到。 现在，当文件已满时，`NetSocket`会暂停，但是当写队列处理了其积压后，我们还需要取消暂停它：
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5365,9 +5365,9 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-And there we have it. The `drainHandler` event handler will get called when the write queue is ready to accept more data, this resumes the `NetSocket` that allows more data to be read.
+我们终于得到它了。 当写队列准备好接受更多数据时，将调用`drainHandler`事件处理程序，这将恢复允许读取更多数据的`NetSocket`。
 
-Wanting to do this is quite common while writing Vert.x applications, so we added the `pipeTo` method that does all of this hard work for you. You just feed it the `WriteStream` and use it:
+在编写Vert.x应用程序时，这样做很常见，因此我们添加了`pipeTo`方法，可以为您完成所有这些艰苦的工作。 您只需向其提供`WriteStream`并使用它：
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5378,9 +5378,9 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-This does exactly the same thing as the more verbose example, plus it handles stream failures and termination: the destination `WriteStream` is ended when the pipe completes with success or a failure.
+这与更详细的示例完全相同，此外它还处理流失败和终止：当管道成功完成或失败时，目标`WriteStream`将结束。
 
-You can be notified when the operation completes:
+操作完成时会通知您：
 
 ```java
 server.connectHandler(sock -> {
@@ -5396,7 +5396,7 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-When you deal with an asynchronous destination, you can create a `Pipe` instance that pauses the source and resumes it when the source is piped to the destination:
+当处理异步目标时，您可以创建一个`Pipe`实例，该实例暂停源并在将源通过管道传输到目标时恢复它：
 
 ```java
 server.connectHandler(sock -> {
@@ -5418,7 +5418,7 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-When you need to abort the transfer, you need to close it:
+当需要中止传输时，需要关闭它：
 
 ```java
 vertx.createHttpServer()
@@ -5445,15 +5445,15 @@ vertx.createHttpServer()
   }).listen(8080);
 ```
 
-When the pipe is closed, the streams handlers are unset and the `ReadStream` resumed.
+当管道关闭时，将取消流处理程序的设置并恢复`ReadStream`。
 
-As seen above, by default the destination is always ended when the stream completes, you can control this behavior on the pipe object:
+如上所示，默认情况下，目的地总是在流完成时结束，您可以在管道对象上控制此行为：
 
-- `endOnFailure` controls the behavior when a failure happens
-- `endOnSuccess` controls the behavior when the read stream ends
-- `endOnComplete` controls the behavior in all cases
+- `endOnFailure` 控制故障发生时的行为
+- `endOnSuccess` 控制读取流结束时的行为
+- `endOnComplete` 控制所有情况下的行为
 
-Here is a short example:
+这是一个简短的示例：
 
 ```java
 src.pipe()
@@ -5464,34 +5464,34 @@ src.pipe()
 });
 ```
 
-Let’s now look at the methods on `ReadStream` and `WriteStream` in more detail:
+现在，让我们更详细地了解`ReadStream`和`WriteStream`上的方法：
 
 ### ReadStream {#ReadStream}
-`ReadStream` is implemented by `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
+`ReadStream` 被这些类实现 `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
 
-Functions:
+功能介绍:
 
-- `handler`: set a handler which will receive items from the ReadStream.
-- `pause`: pause the handler. When paused no items will be received in the handler.
-- `resume`: resume the handler. The handler will be called if any item arrives.
-- `exceptionHandler`: Will be called if an exception occurs on the ReadStream.
-- `endHandler`: Will be called when end of stream is reached. This might be when EOF is reached if the ReadStream represents a file, or when end of request is reached if it’s an HTTP request, or when the connection is closed if it’s a TCP socket.
+- `handler`: 设置一个处理程序，该处理程序将从ReadStream接收项目。
+- `pause`: 暂停处理程序。 暂停时，处理程序中不会收到任何内容。
+- `resume`: 恢复处理程序。 如果有任何内容到达，处理程序将被调用。
+- `exceptionHandler`: 如果ReadStream发生异常，将被调用。
+- `endHandler`: 到达流结束时将被调用。 如果ReadStream表示一个文件，则达到EOF；如果是HTTP请求，则达到请求结束；或者，如果它是TCP套接字，则关闭连接。
 
 ### WriteStream {#WriteStream}
-```
-WriteStream` is implemented by `HttpClientRequest`, `HttpServerResponse` `WebSocket`, `NetSocket`, `AsyncFile`, and `MessageProducer
-```
 
-Functions:
+`WriteStream` 被这些类实现 `HttpClientRequest`, `HttpServerResponse`, `WebSocket`, `NetSocket`, `AsyncFile`, `MessageProducer`
 
-- `write`: write an object to the WriteStream. This method will never block. Writes are queued internally and asynchronously written to the underlying resource.
-- `setWriteQueueMaxSize`: set the number of object at which the write queue is considered *full*, and the method `writeQueueFull` returns `true`. Note that, when the write queue is considered full, if write is called the data will still be accepted and queued. The actual number depends on the stream implementation, for `Buffer` the size represents the actual number of bytes written and not the number of buffers.
-- `writeQueueFull`: returns `true` if the write queue is considered full.
-- `exceptionHandler`: Will be called if an exception occurs on the `WriteStream`.
-- `drainHandler`: The handler will be called if the `WriteStream` is considered no longer full.
 
-### Pump {#Pump}
-The pump exposes a subset of the pipe API and only transfers the items between streams, it does not handle the completion or failure of the transfer operation.
+功能介绍:
+
+- `write`: 将对象写入WriteStream。 此方法将永远不会阻塞。 写入在内部排队，并异步写入基础资源。
+- `setWriteQueueMaxSize`: 设置将写队列视为*full已满*的对象的数量，方法`writeQueueFull`返回`true`。 请注意，当写入队列被认为已满时，如果调用写入，则数据仍将被接受并排队。 实际数量取决于流的实现，对于`Buffer`，size表示实际写入的字节数，而不是缓冲区的number。
+- `writeQueueFull`: 如果认为写入队列已满，则返回`true`。
+- `exceptionHandler`: 如果`riteStream`发生异常，将被调用。
+- `drainHandler`: 如果认为`WriteStream`不再满，则将调用处理程序。
+
+### Pump(水泵) {#Pump}
+泵公开了管道API的子集，仅在流之间传输项目，它不处理传输操作的完成或失败。
 
 ```java
 NetServer server = vertx.createNetServer(
@@ -5502,24 +5502,24 @@ server.connectHandler(sock -> {
 }).listen();
 ```
 
-| IMPORTANT | Before Vert.x 3.7 the `Pump` was the advocated API for transferring a read stream to a write stream. Since 3.7 the pipe API supersedes the pump API. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在Vert.x 3.7之前，`Pump`是提倡将读取流传输到写入流的API。 从3.7开始，pipe API取代了pump API。
+------
 
-Instances of Pump have the following methods:
+Pump实例具有以下方法：
 
-- `start`: Start the pump.
-- `stop`: Stops the pump. When the pump starts it is in stopped mode.
-- `setWriteQueueMaxSize`: This has the same meaning as `setWriteQueueMaxSize` on the `WriteStream`.
+- `start`:开始 pump.
+- `stop`: 停止pump。当泵启动时，它处于停止模式。
+- `setWriteQueueMaxSize`: 与`WriteStream`上的`setWriteQueueMaxSize`具有相同的含义。
 
-A pump can be started and stopped multiple times.
+pump可以多次启动和停止。
 
-When a pump is first created it is *not* started. You need to call the `start()` method to start it.
+首次创建pump时，它*不会*启动。 您需要调用`start()`方法来启动它。
 
-## Record Parser {#Record_Parser}
-The record parser allows you to easily parse protocols which are delimited by a sequence of bytes, or fixed size records. It transforms a sequence of input buffer to a sequence of buffer structured as configured (either fixed size or separated records).
+## 记录解析器 {#Record_Parser}
+记录解析器使您可以轻松地解析由字节序列或固定大小记录分隔的协议。 它将输入缓冲区的序列转换为按配置结构构造的缓冲区序列（固定大小或分隔的记录）。
 
-For example, if you have a simple ASCII text protocol delimited by '\n' and the input is the following:
+例如，如果您有一个以`\n`分隔的简单ASCII文本协议，并且输入如下：
 
 ```
 buffer1:HELLO\nHOW ARE Y
@@ -5528,7 +5528,7 @@ buffer3: DOING OK
 buffer4:\n
 ```
 
-The record parser would produce
+记录解析器将产生
 
 ```
 buffer1:HELLO
@@ -5536,7 +5536,7 @@ buffer2:HOW ARE YOU?
 buffer3:I AM DOING OK
 ```
 
-Let’s see the associated code:
+让我们看一下相关代码：
 
 ```java
 final RecordParser parser = RecordParser.newDelimited("\n", h -> {
@@ -5549,7 +5549,7 @@ parser.handle(Buffer.buffer("DOING OK"));
 parser.handle(Buffer.buffer("\n"));
 ```
 
-You can also produce fixed sized chunks as follows:
+您还可以生成固定大小的块，如下所示：
 
 ```java
 RecordParser.newFixed(4, h -> {
@@ -5557,12 +5557,12 @@ RecordParser.newFixed(4, h -> {
 });
 ```
 
-For more details, check out the `RecordParser` class.
+有关更多详细信息，请查看`RecordParser`类。
 
-## Json Parser {#Json_Parser}
-You can easily parse JSON structures but that requires to provide the JSON content at once, but it may not be convenient when you need to parse very large structures.
+## Json解析器 {#Json_Parser}
+您可以轻松地解析JSON结构，但这需要立即提供JSON内容，但在需要解析非常大的结构时可能不太方便。
 
-The non-blocking JSON parser is an event driven parser able to deal with very large structures. It transforms a sequence of input buffer to a sequence of JSON parse events.
+非阻塞JSON解析器是一个事件驱动的解析器，能够处理非常大的结构。 它将输入缓冲区的序列转换为JSON解析事件的序列。
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5600,7 +5600,7 @@ parser.handler(event -> {
 });
 ```
 
-The parser is non-blocking and emitted events are driven by the input buffers.
+解析器是非阻塞的，发出的事件由输入缓冲区驱动。
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5627,7 +5627,7 @@ parser.handle(Buffer.buffer("]"));
 parser.end();
 ```
 
-Event driven parsing provides more control but comes at the price of dealing with fine grained events, which can be inconvenient sometimes. The JSON parser allows you to handle JSON structures as values when it is desired:
+事件驱动的解析提供了更多的控制权，但代价是要处理细粒度的事件，这有时会带来不便。 JSON解析器允许您在需要时将JSON结构作为值处理：
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5652,7 +5652,7 @@ parser.handle(Buffer.buffer("[{\"firstName\":\"Bob\"},\"lastName\":\"Morane\"),.
 parser.end();
 ```
 
-The value mode can be set and unset during the parsing allowing you to switch between fine grained events or JSON object value events.
+可以在解析期间设置和取消设置值模式，从而允许您在细粒度事件或JSON对象值事件之间切换。
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5682,7 +5682,7 @@ parser.handle(Buffer.buffer("{\"39877483847\":{\"firstName\":\"Bob\"},\"lastName
 parser.end();
 ```
 
-You can do the same with arrays as well
+你也可以对数组做同样的事情
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5711,7 +5711,7 @@ parser.handle(Buffer.buffer("[0,1,2,3,4,...]"));
 parser.end();
 ```
 
-You can also decode POJOs
+您还可以解码POJO
 
 ```java
 parser.handler(event -> {
@@ -5723,7 +5723,7 @@ parser.handler(event -> {
 });
 ```
 
-Whenever the parser fails to process a buffer, an exception will be thrown unless you set an exception handler:
+每当解析器无法处理缓冲区时，除非您设置了异常处理程序，否则都会引发异常：
 
 ```java
 JsonParser parser = JsonParser.newParser();
@@ -5733,29 +5733,29 @@ parser.exceptionHandler(err -> {
 });
 ```
 
-The parser also parses json streams:
+解析器还解析json流：
 
-- concatenated json streams: `{"temperature":30}{"temperature":50}`
-- line delimited json streams: `{"an":"object"}\r\n3\r\n"a string"\r\nnull`
+- 串联的json流: `{"temperature":30}{"temperature":50}`
+- 行分隔的json流: `{"an":"object"}\r\n3\r\n"a string"\r\nnull`
 
-For more details, check out the `JsonParser` class.
+有关更多详细信息，请查看`JsonParser`类。
 
 ## Thread safety {#Thread_safety}
-Most Vert.x objects are safe to access from different threads. *However* performance is optimised when they are accessed from the same context they were created from.
+大多数Vert.x对象可以从不同线程安全访问。 *但是*当从创建它们的相同上下文访问它们时，性能会得到优化。
 
-For example if you have deployed a verticle which creates a `NetServer` which provides `NetSocket` instances in it’s handler, then it’s best to always access that socket instance from the event loop of the verticle.
+例如，如果您部署了一个创建了`NetServer`的Verticle，并在其处理程序中提供了`NetSocket`实例，那么最好始终从该Verticle的事件循环访问该套接字实例。
 
-If you stick to the standard Vert.x verticle deployment model and avoid sharing objects between verticles then this should be the case without you having to think about it.
+如果您坚持使用标准的Vert.x的verticle 部署模型，并避免在verticles之间共享对象，则无需考虑即可。
 
-## Metrics SPI {#Metrics_SPI}
-By default Vert.x does not record any metrics. Instead it provides an SPI for others to implement which can be added to the classpath. The metrics SPI is an advanced feature which allows implementers to capture events from Vert.x in order to gather metrics. For more information on this, please consult the `API Documentation`.
+## 指标SPI {#Metrics_SPI}
+默认情况下，Vert.x不记录任何指标。 相反，它为其他人提供了一个SPI，可以将其添加到类路径中。 指标SPI是一项高级功能，允许实施者从Vert.x捕获事件以收集指标。 有关此的更多信息，请查阅API文档。
 
-You can also specify a metrics factory programmatically if embedding Vert.x using `setFactory`.
+如果使用`setFactory`嵌入Vert.x，您还可以通过编程方式指定指标工厂。
 
 ## OSGi {#OSGi}
-Vert.x Core is packaged as an OSGi bundle, so can be used in any OSGi R4.2+ environment such as Apache Felix or Eclipse Equinox. The bundle exports `io.vertx.core*`.
+Vert.x Core打包为OSGi捆绑包，因此可以在任何OSGi R4.2 +环境中使用，例如Apache Felix或Eclipse Equinox。 捆绑包导出`io.vertx.core*`。
 
-However, the bundle has some dependencies on Jackson and Netty. To get the vert.x core bundle resolved deploy:
+但是，捆绑软件对Jackson和Netty有一定的依赖性。 要解决vert.x核心捆绑的部署：
 
 - Jackson Annotation [2.6.0,3)
 - Jackson Core [2.6.2,3)
@@ -5767,7 +5767,7 @@ However, the bundle has some dependencies on Jackson and Netty. To get the vert.
 - Netty Codec/Handler [4.0.31,5)
 - Netty Codec/Transport [4.0.31,5)
 
-Here is a working deployment on Apache Felix 5.2.0:
+这是Apache Felix 5.2.0上的有效部署：
 
 ```
 14|Active     |    1|Jackson-annotations (2.6.0)
@@ -5784,7 +5784,7 @@ Here is a working deployment on Apache Felix 5.2.0:
 26|Active     |    1|Vert.x Core (3.1.0)
 ```
 
-On Equinox, you may want to disable the `ContextFinder` with the following framework property: `eclipse.bundle.setTCCL=false`
+在Equinox上，您可能要禁用具有以下框架属性的`ContextFinder`：`eclipse.bundle.setTCCL=false`
 
 ## 'vertx'命令行 {#The__vertx__command_line}
 vertx命令用于从命令行与Vert.x交互。 主要用途是运行Vert.x的verticles。 为此，您需要下载并安装Vert.x发行版，并将安装的bin目录添加到环境变量`PATH`中。 还要确保您在`PATH`上有一个Java 8 JDK。
@@ -6047,39 +6047,39 @@ Vert.x发行版中使用的默认集群管理器是使用[Hazelcast](http://haze
 如果使用`setClusterManager`嵌入Vert.x，也可以通过编程方式指定集群管理器。
 
 ## 日志记录 {#Logging}
-Vert.x logs using it’s in-built logging API. The default implementation uses the JDK (JUL) logging so no extra logging dependencies are needed.
+Vert.x使用其内置的日志记录API进行日志记录。 默认实现使用JDK（JUL）日志记录，因此不需要额外的日志记录依赖项。
 
-### Configuring JUL logging {#Configuring_JUL_logging}
-A JUL logging configuration file can be specified in the normal JUL way by providing a system property called: `java.util.logging.config.file` with the value being your configuration file. For more information on this and the structure of a JUL config file please consult the JUL logging documentation.
+### 配置 JUL 日志 {#Configuring_JUL_logging}
+可以通过提供一个名为`java.util.logging.config.file`的系统属性（其值为配置文件）来以普通的JUL方式指定JUL日志记录配置文件。 有关此内容和JUL配置文件的结构的更多信息，请查阅JUL日志记录文档。
 
-Vert.x also provides a slightly more convenient way to specify a configuration file without having to set a system property. Just provide a JUL config file with the name `vertx-default-jul-logging.properties` on your classpath (e.g. inside your fatjar) and Vert.x will use that to configure JUL.
+Vert.x还提供了一种更便捷的方式来指定配置文件，而无需设置系统属性。 只需在类路径上提供一个名为`vertx-default-jul-logging.properties`的JUL配置文件（例如，在fatjar中），Vert.x将使用该文件来配置JUL。
 
-### Using another logging framework {#Using_another_logging_framework}
-If you don’t want Vert.x to use JUL for it’s own logging you can configure it to use another logging framework, e.g. Log4J or SLF4J.
+### 使用其它的日志框架 {#Using_another_logging_framework}
+如果您不希望Vert.x使用JUL进行自己的日志记录，则可以将其配置为使用其他日志记录框架，例如 Log4J或SLF4J。
 
-To do this you should set a system property called `vertx.logger-delegate-factory-class-name` with the name of a Java class which implements the interface `LogDelegateFactory`. We provide pre-built implementations for Log4J (version 1), Log4J 2 and SLF4J with the class names `io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` and `io.vertx.core.logging.SLF4JLogDelegateFactory` respectively. If you want to use these implementations you should also make sure the relevant Log4J or SLF4J jars are on your classpath.
+为此，您应该设置一个名为`vertx.logger-delegate-factory-class-name`的系统属性，该属性带有实现`LogDelegateFactory`接口的Java类的名称。 我们提供了Log4J(版本1)、Log4J 2和SLF4J的预构建实现，类名为`io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` 和 `io.vertx.core.logging.SLF4JLogDelegateFactory`。如果要使用这些实现，则还应确保相关的Log4J或SLF4J jar在您的类路径中。
 
-Notice that, the provided delegate for Log4J 1 does not support parameterized message. The delegate for Log4J 2 uses the `{}` syntax like the SLF4J delegate. JUL delegate uses the `{x}` syntax.
+注意，Log4J 1提供的委托不支持参数化消息。Log4J 2的委托像SLF4J委托一样使用`{}`语法。JUL委托使用`{x}`语法。
 
-### Netty logging {#Netty_logging}
-When configuring logging, you should care about configuring Netty logging as well.
+### Netty 日志 {#Netty_logging}
+配置日志记录时，还应注意配置Netty日志记录。
 
-Netty does not rely on external logging configuration (e.g system properties) and instead implements a logging configuration based on the logging libraries visible from the Netty classes:
+Netty不依赖外部日志记录配置（例如系统属性），而是基于Netty类可见的日志记录库实现日志记录配置：
 
-- use `SLF4J` library if it is visible
-- otherwise use `Log4j` if it is visible
-- otherwise fallback `java.util.logging`
+- 如果可见则使用`SLF4J`库
+- 否则使用`Log4j`（如果可见）
+- 否则使用`java.util.logging`
 
-The logger implementation can be forced to a specific implementation by setting Netty’s internal logger implementation directly on `io.netty.util.internal.logging.InternalLoggerFactory`:
+通过直接在`io.netty.util.internal.logger.internalloggerfactory`上设置Netty的内部日志实现，可以强制日志实现为特定的实现:
 
-```
+```java
 // Force logging to Log4j
 InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
 ```
 
-### Troubleshooting {#Troubleshooting}
-#### SLF4J warning at startup {#SLF4J_warning_at_startup}
-If, when you start your application, you see the following message:
+### 故障排除 {#Troubleshooting}
+#### 启动时的SLF4J警告 {#SLF4J_warning_at_startup}
+如果，当你开始你的应用程序，你看到以下消息:
 
 ```
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
@@ -6087,31 +6087,31 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
 ```
 
-It means that you have SLF4J-API in your classpath but no actual binding. Messages logged with SLF4J will be dropped. You should add a binding to your classpath. Check https://www.slf4j.org/manual.html#swapping to pick a binding and configure it.
+这意味着您的类路径中有SLF4J-API，但没有实际的绑定。 用SLF4J记录的消息将被丢弃。 您应该将绑定添加到类路径。 检查`https://www.slf4j.org/manual.html#swapping`以选择绑定并进行配置。
 
-Be aware that Netty looks for the SLF4-API jar and uses it by default.
+请注意，Netty会查找SLF4-API jar，并默认使用它。
 
-#### Connection reset by peer {#Connection_reset_by_peer}
-If your logs show a bunch of:
+#### 对等连接重置 {#Connection_reset_by_peer}
+如果您的日志显示以下内容：
 
 ```
 io.vertx.core.net.impl.ConnectionBase
 SEVERE: java.io.IOException: Connection reset by peer
 ```
 
-It means that the client is resetting the HTTP connection instead of closing it. This message also indicates that you may have not consumed the complete payload (the connection was cut before you were able to).
+这意味着客户端正在重置HTTP连接，而不是关闭它。 此消息还表明您可能没有消耗完完整的有效负载（连接已被切断，然后才能够使用）。
 
-## Host name resolution {#Host_name_resolution}
-Vert.x uses an an address resolver for resolving host name into IP addresses instead of the JVM built-in blocking resolver.
+## 主机名解析 {#Host_name_resolution}
+Vert.x使用地址解析器将主机名解析为IP地址，而不是JVM内置的阻塞解析器。
 
-An host name resolves to an IP address using:
+主机名使用以下方式解析为IP地址：
 
-- the *hosts* file of the operating system
-- otherwise DNS queries against a list of servers
+- 操作系统的*hosts*文件
+- 否则对服务器列表进行DNS查询
 
-By default it will use the list of the system DNS server addresses from the environment, if that list cannot be retrieved it will use Google’s public DNS servers `"8.8.8.8"` and `"8.8.4.4"`.
+默认情况下，它将使用环境中的系统DNS服务器地址列表，如果无法检索到该列表，它将使用Google的公共DNS服务器`8.8.8.8`和`8.8.4.4`。
 
-DNS servers can be also configured when creating a `Vertx` instance:
+创建`Vertx`实例时，也可以配置DNS服务器：
 
 ```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
@@ -6122,11 +6122,11 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 );
 ```
 
-The default port of a DNS server is `53`, when a server uses a different port, this port can be set using a colon delimiter: `192.168.0.2:40000`.
+DNS服务器的默认端口为53，当服务器使用其他端口时，可以使用冒号分隔符`192.168.0.2:40000`来设置此端口。
 
-| NOTE | sometimes it can be desirable to use the JVM built-in resolver, the JVM system property *-Dvertx.disableDnsResolver=true* activates this behavior |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 有时可能需要使用JVM内置解析器，JVM系统属性*-Dvertx.disableDnsResolver=true*会激活此行为
+------
 
 ### Failover {#Failover}
 When a server does not reply in a timely manner, the resolver will try the next one from the list, the search is limited by `setMaxQueries` (the default value is `4` queries).
