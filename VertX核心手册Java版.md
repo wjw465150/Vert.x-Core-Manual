@@ -6128,22 +6128,22 @@ DNS服务器的默认端口为53，当服务器使用其他端口时，可以使
 > **注意:** 有时可能需要使用JVM内置解析器，JVM系统属性*-Dvertx.disableDnsResolver=true*会激活此行为
 ------
 
-### Failover {#Failover}
-When a server does not reply in a timely manner, the resolver will try the next one from the list, the search is limited by `setMaxQueries` (the default value is `4` queries).
+### 故障转移 {#Failover}
+当服务器未及时答复时，解析器将尝试列表中的下一个，搜索将受到`setMaxQueries`的限制（默认值为`4`个查询）。
 
-A DNS query is considered as failed when the resolver has not received a correct answer within `getQueryTimeout` milliseconds (the default value is `5` seconds).
+如果解析器未在`getQueryTimeout`毫秒（默认值为`5`秒）内收到正确答案，则认为DNS查询失败。
 
-### Server list rotation {#Server_list_rotation}
-By default the dns server selection uses the first one, the remaining servers are used for failover.
+### 服务器列表轮换 {#Server_list_rotation}
+默认情况下，dns服务器选择使用第一个，其余服务器用于故障转移。
 
-You can configure `setRotateServers` to `true` to let the resolver perform a round-robin selection instead. It spreads the query load among the servers and avoids all lookup to hit the first server of the list.
+您可以将`setRotateServers`设置为`true`，以使解析器执行循环选择。 它将查询负载分散到服务器之间，并避免所有查找都到达列表中的第一台服务器。
 
-Failover still applies and will use the next server in the list.
+故障转移仍然适用，并将使用列表中的下一个服务器。
 
-### Hosts mapping {#Hosts_mapping}
-The *hosts* file of the operating system is used to perform an hostname lookup for an ipaddress.
+### 主机映射 {#Hosts_mapping}
+操作系统的*hosts*文件用于执行ipaddress的主机名查找。
 
-An alternative *hosts* file can be used instead:
+可以使用替代的*hosts*文件：
 
 ```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
@@ -6153,8 +6153,8 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 );
 ```
 
-### Search domains {#Search_domains}
-By default the resolver will use the system DNS search domains from the environment. Alternatively an explicit search domain list can be provided:
+### 搜索域 {#Search_domains}
+默认情况下，解析器将使用环境中的系统DNS搜索域。 或者，可以提供一个明确的搜索域列表：
 
 ```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
@@ -6163,120 +6163,120 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 );
 ```
 
-When a search domain list is used, the threshold for the number of dots is `1` or loaded from `/etc/resolv.conf` on Linux, it can be configured to a specific value with `setNdots`.
+当使用搜索域列表时，点数的阈值为`1`或在Linux上从`/etc/resolv.conf`加载，可以使用`setNdots`将其配置为特定值。
 
-## High Availability and Fail-Over {#High_Availability_and_Fail_Over}
-Vert.x allows you to run your verticles with high availability (HA) support. In that case, when a vert.x instance running a verticle dies abruptly, the verticle is migrated to another vertx instance. The vert.x instances must be in the same cluster.
+## 高可用性和故障转移 {#High_Availability_and_Fail_Over}
+Vert.x允许您在具有高可用性（HA）支持的情况下运行自己的verticles。 在这种情况下，当运行某个verticle的vert.x实例突然死亡时，该verticle将被迁移到另一个verticle实例。 vert.x实例必须位于同一集群中。
 
-### Automatic failover {#Automatic_failover}
-When vert.x runs with *HA* enabled, if a vert.x instance where a verticle runs fails or dies, the verticle is redeployed automatically on another vert.x instance of the cluster. We call this *verticle fail-over*.
+### 自动故障转移 {#Automatic_failover}
+在启用*HA*的情况下运行vert.x时，如果运行某个verticle的vert.x实例发生故障或死亡，该verticle将自动重新部署到集群的另一个vert.x实例上。 我们称此为“verticle故障转移”。
 
-To run vert.x with the *HA* enabled, just add the `-ha` flag to the command line:
+要在启用*H *的情况下运行vert.x，只需在命令行中添加`-ha`标志即可：
 
 ```bash
 vertx run my-verticle.js -ha
 ```
 
-Now for HA to work, you need more than one Vert.x instances in the cluster, so let’s say you have another Vert.x instance that you have already started, for example:
+现在，要使HA正常工作，集群中需要多个Vert.x实例，因此，假设您已经启动了另一个Vert.x实例，例如：
 
 ```bash
 vertx run my-other-verticle.js -ha
 ```
 
-If the Vert.x instance that is running `my-verticle.js` now dies (you can test this by killing the process with `kill -9`), the Vert.x instance that is running `my-other-verticle.js` will automatic deploy `my-verticle .js` so now that Vert.x instance is running both verticles.
+如果运行`my-verticle.js`的Vert.x实例现在死亡（您可以通过使用`kill -9`杀死该进程来测试），则运行`my-other-verticle.js`的Vert.x实例将自动部署`my-verticle.js`，因此，现在Vert.x实例正在同时运行两verticles。
 
-| NOTE | the migration is only possible if the second vert.x instance has access to the verticle file (here `my-verticle.js`). |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 仅当第二个vert.x实例有权访问verticle文件（此处为`my-verticle.js`）时，才可以进行迁移。
+------
 
-| IMPORTANT | Please note that cleanly closing a Vert.x instance will not cause failover to occur, e.g. `CTRL-C` or `kill -SIGINT` |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 请注意，完全关闭Vert.x实例不会导致发生故障转移，例如`CTRL-C` 或 `kill -SIGINT`
+------
 
-You can also start *bare* Vert.x instances - i.e. instances that are not initially running any verticles, they will also failover for nodes in the cluster. To start a bare instance you simply do:
+您也可以启动 *裸* Vert.x实例--即最初没有运行任何verticle的实例，它们也将针对集群中的节点进行故障转移。 要启动一个裸实例，您只需执行以下操作：
 
 ```bash
 vertx run -ha
 ```
 
-When using the `-ha` switch you do not need to provide the `-cluster` switch, as a cluster is assumed if you want HA.
+当使用`-ha`开关时，您不需要提供`-cluster`开关，因为如果您想要HA，则假定为集群。
 
-| NOTE | depending on your cluster configuration, you may need to customize the cluster manager configuration (Hazelcast by default), and/or add the `cluster-host` and `cluster-port` parameters. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 根据您的集群配置，您可能需要自定义集群管理器配置（默认为Hazelcast）和/或添加`cluster-host`和`cluster-port`参数。
+------
 
-### HA groups {#HA_groups}
-When running a Vert.x instance with HA you can also optional specify a *HA group*. A HA group denotes a logical group of nodes in the cluster. Only nodes with the same HA group will failover onto one another. If you don’t specify a HA group the default group `__DEFAULT__` is used.
+### HA 组 {#HA_groups}
+当使用HA运行Vert.x实例时，您还可以可选地指定*HA组*。 HA组表示集群中节点的逻辑组。 只有具有相同HA组的节点才能彼此故障转移。 如果您未指定HA组，则使用默认组`__DEFAULT__`。
 
-To specify an HA group you use the `-hagroup` switch when running the verticle, e.g.
+要指定HA组，请在运行verticle时使用`-group`开关，例如:
 
 ```bash
 vertx run my-verticle.js -ha -hagroup my-group
 ```
 
-Let’s look at an example:
+让我们看一个例子：
 
-In a first terminal:
+在第一个终端中：
 
 ```bash
 vertx run my-verticle.js -ha -hagroup g1
 ```
 
-In a second terminal, let’s run another verticle using the same group:
+在第二个终端中，让我们使用相同的组运行另一个verticle：
 
 ```bash
 vertx run my-other-verticle.js -ha -hagroup g1
 ```
 
-Finally, in a third terminal, launch another verticle using a different group:
+最后，在第三个终端中，使用不同的组启动另一个verticle：
 
 ```bash
 vertx run yet-another-verticle.js -ha -hagroup g2
 ```
 
-If we kill the instance in terminal 1, it will fail over to the instance in terminal 2, not the instance in terminal 3 as that has a different group.
+如果我们杀死终端1中的实例，它将故障转移到终端2中的实例，而不是终端3中的实例，因为该实例具有不同的组。
 
-If we kill the instance in terminal 3, it won’t get failed over as there is no other vert.x instance in that group.
+如果我们在终端3杀死了该实例，则该实例将不会进行故障转移，因为该组中没有其他vert.x实例。
 
-### Dealing with network partitions - Quora {#Dealing_with_network_partitions___Quora}
-The HA implementation also supports quora. A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system.
+### 处理网络分区-Quora {#Dealing_with_network_partitions___Quora}
+HA实现还支持法定人数。 quorum (法定人数)是为了允许在分布式系统中执行操作而必须获得的分布式事务的最小投票数。
 
-When starting a Vert.x instance you can instruct it that it requires a `quorum` before any HA deployments will be deployed. In this context, a quorum is a minimum number of nodes for a particular group in the cluster. Typically you chose your quorum size to `Q = 1 + N/2` where `N` is the number of nodes in the group. If there are less than `Q` nodes in the cluster the HA deployments will undeploy. They will redeploy again if/when a quorum is re-attained. By doing this you can prevent against network partitions, a.k.a. *split brain*.
+启动Vert.x实例时，您可以指示它要求`quorum`，然后才能部署任何HA。 在这种情况下，quorum是集群中特定组的最小节点数。 通常，您将quorum大小选择为`Q = 1 + N/2`，其中`N`是组中的节点数。 如果集群中的节点少于`Q`个，则HA部署将取消。 如果重新达到法定人数，他们将重新部署。 这样可以防止网络分区，也就是“split brain(裂脑)”。
 
-There is more information on quora [here](https://en.wikipedia.org/wiki/Quorum_(distributed_computing)).
+有关quora的更多信息，请参见[此处](https://en.wikipedia.org/wiki/Quorum_(distributed_computing))。
 
-To run vert.x instances with a quorum you specify `-quorum` on the command line, e.g.
+要使用quorum运行vert.x实例，请在命令行上指定`-quorum'，例如
 
-In a first terminal:
+在第一个终端中：
 
 ```bash
 vertx run my-verticle.js -ha -quorum 3
 ```
 
-At this point the Vert.x instance will start but not deploy the module (yet) because there is only one node in the cluster, not 3.
+此时，Vert.x实例将启动，但尚未部署模块（尚未），因为集群中只有一个节点，而不是3个。
 
-In a second terminal:
+在第二个终端中：
 
 ```bash
 vertx run my-other-verticle.js -ha -quorum 3
 ```
 
-At this point the Vert.x instance will start but not deploy the module (yet) because there are only two nodes in the cluster, not 3.
+此时，Vert.x实例将启动，但尚未部署模块，因为集群中只有两个节点，而不是3个。
 
-In a third console, you can start another instance of vert.x:
+在第三个终端中，您可以启动vert.x的另一个实例：
 
 ```bash
 vertx run yet-another-verticle.js -ha -quorum 3
 ```
 
-Yay! - we have three nodes, that’s a quorum. At this point the modules will automatically deploy on all instances.
+好极了！ --我们有三个节点，这是一个法定人数。 此时，模块将自动部署在所有实例上。
 
-If we now close or kill one of the nodes the modules will automatically undeploy on the other nodes, as there is no longer a quorum.
+如果现在关闭或杀死其中一个节点，则模块将自动在其他节点上取消部署，因为不再有仲裁。
 
-Quora can also be used in conjunction with ha groups. In that case, quora are resolved for each particular group.
+Quora也可以与ha组结合使用。 在这种情况下，将为每个特定组解决法定人数。
 
-## Native transports {#Native_transports}
-Vert.x can run with [native transports](http://netty.io/wiki/native-transports.html) (when available) on BSD (OSX) and Linux:
+## 本地传输 {#Native_transports}
+Vert.x可以与[本地传输](http://netty.io/wiki/native-transports.html)（如果可用）一起在BSD（OSX）和Linux上运行：
 
 ```java
 Vertx vertx = Vertx.vertx(new VertxOptions().
@@ -6288,12 +6288,12 @@ boolean usingNative = vertx.isNativeTransportEnabled();
 System.out.println("Running with native: " + usingNative);
 ```
 
-| NOTE | preferring native transport will not prevent the application to execute (for example if a JAR is missing). If your application requires native transport, you need to check `isNativeTransportEnabled`. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 首选本地传输不会阻止应用程序执行（例如，如果缺少JAR）。 如果您的应用程序需要本地传输，则需要检查`isNativeTransportEnabled`。
+------
 
-### Native Linux Transport {#Native_Linux_Transport}
-You need to add the following dependency in your classpath:
+### 本地Linux传输 {#Native_Linux_Transport}
+您需要在类路径中添加以下依赖项：
 
 ```xml
 <dependency>
@@ -6304,7 +6304,7 @@ You need to add the following dependency in your classpath:
 </dependency>
 ```
 
-Native on Linux gives you extra networking options:
+Linux上的Native可以为您提供额外的联网选项：
 
 - `SO_REUSEPORT`
 - `TCP_QUICKACK`
@@ -6320,8 +6320,8 @@ vertx.createHttpServer(new HttpServerOptions()
 );
 ```
 
-### Native BSD Transport {#Native_BSD_Transport}
-You need to add the following dependency in your classpath:
+### 本地BSDLinuxNative {#Native_BSD_Transport}
+您需要在类路径中添加以下依赖项：
 
 ```xml
 <dependency>
@@ -6332,9 +6332,9 @@ You need to add the following dependency in your classpath:
 </dependency>
 ```
 
-MacOS Sierra and above are supported.
+支持MacOS Sierra及更高版本。
 
-Native on BSD gives you extra networking options:
+BSD上的Native可以为您提供其他网络选项：
 
 - `SO_REUSEPORT`
 
@@ -6342,8 +6342,8 @@ Native on BSD gives you extra networking options:
 vertx.createHttpServer(new HttpServerOptions().setReusePort(reusePort));
 ```
 
-### Domain sockets {#Domain_sockets}
-Natives provide domain sockets support for servers:
+### 域套接字 {#Domain_sockets}
+本机为服务器提供域套接字支持:
 
 ```java
 vertx.createNetServer().connectHandler(so -> {
@@ -6351,7 +6351,7 @@ vertx.createNetServer().connectHandler(so -> {
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"));
 ```
 
-or for http:
+或者http:
 
 ```java
 vertx.createHttpServer().requestHandler(req -> {
@@ -6365,7 +6365,7 @@ vertx.createHttpServer().requestHandler(req -> {
 });
 ```
 
-As well as clients:
+以及客户端:
 
 ```java
 NetClient netClient = vertx.createNetClient();
@@ -6383,7 +6383,7 @@ netClient.connect(addr, ar -> {
 });
 ```
 
-or for http:
+或者http:
 
 ```java
 HttpClient httpClient = vertx.createHttpClient();
@@ -6397,47 +6397,47 @@ httpClient.request(HttpMethod.GET, addr, 8080, "localhost", "/", resp -> {
 }).end();
 ```
 
-## Security notes {#Security_notes}
-Vert.x is a toolkit, not an opinionated framework where we force you to do things in a certain way. This gives you great power as a developer but with that comes great responsibility.
+## 安全提示 {#Security_notes}
+Vert.x是一个工具包，而不是一个固执己见的框架，我们在其中强迫您以某种方式做事。 这为您提供了强大的开发能力，但随之而来的是巨大的责任。
 
-As with any toolkit, it’s possible to write insecure applications, so you should always be careful when developing your application especially if it’s exposed to the public (e.g. over the internet).
+与任何工具包一样，也可以编写不安全的应用程序，因此在开发应用程序时应特别小心，尤其是在公开（例如通过互联网）的应用程序中。
 
-### Web applications {#Web_applications}
-If writing a web application it’s highly recommended that you use Vert.x-Web instead of Vert.x core directly for serving resources and handling file uploads.
+### Web 应用程序 {#Web_applications}
+如果编写网络应用程序，强烈建议您直接使用Vert.x-Web而不是Vert.x core来提供资源和处理文件上传。
 
-Vert.x-Web normalises the path in requests to prevent malicious clients from crafting URLs to access resources outside of the web root.
+Vert.x-Web规范了请求中的路径，以防止恶意客户端制作URL来访问Web根以外的资源。
 
-Similarly for file uploads Vert.x-Web provides functionality for uploading to a known place on disk and does not rely on the filename provided by the client in the upload which could be crafted to upload to a different place on disk.
+同样，对于文件上载，Vert.x-Web提供了用于上载到磁盘上已知位置的功能，并且不依赖于客户端在上载中提供的文件名，可以将其设计成上载到磁盘上的其他位置。
 
-Vert.x core itself does not provide such checks so it would be up to you as a developer to implement them yourself.
+Vert.x核心本身不提供此类检查，因此，作为开发人员，您可以自己实施这些检查。
 
-### Clustered event bus traffic {#Clustered_event_bus_traffic}
-When clustering the event bus between different Vert.x nodes on a network, the traffic is sent un-encrypted across the wire, so do not use this if you have confidential data to send and your Vert.x nodes are not on a trusted network.
+### 集群事件总线流量 {#Clustered_event_bus_traffic}
+在网络上不同Vert.x节点之间对事件总线进行集群时，流量将以非加密方式通过网络发送，因此，如果要发送的机密数据且Vert.x节点不在受信任的网络上，请不要使用此功能 。
 
-### Standard security best practices {#Standard_security_best_practices}
-Any service can have potentially vulnerabilities whether it’s written using Vert.x or any other toolkit so always follow security best practice, especially if your service is public facing.
+### 标准安全最佳做法 {#Standard_security_best_practices}
+无论是使用Vert.x或任何其他工具包编写的任何服务，都可能存在潜在的漏洞，因此请始终遵循最佳安全实践，尤其是当您的服务面向公众时。
 
-For example you should always run them in a DMZ and with an user account that has limited rights in order to limit the extent of damage in case the service was compromised.
+例如，您应该始终在DMZ中使用具有有限权限的用户帐户运行它们，以限制服务受到损害时的损坏程度。
 
-## Vert.x Command Line Interface API {#Vert_x_Command_Line_Interface_API}
-Vert.x Core provides an API for parsing command line arguments passed to programs. It’s also able to print help messages detailing the options available for a command line tool. Even if such features are far from the Vert.x core topics, this API is used in the `Launcher` class that you can use in *fat-jar* and in the `vertx` command line tools. In addition, it’s polyglot (can be used from any supported language) and is used in Vert.x Shell.
+## Vert.x命令行界面API {#Vert_x_Command_Line_Interface_API}
+Vert.x Core提供了一个API，用于解析传递给程序的命令行参数。 它还可以打印帮助消息，其中详细说明了命令行工具可用的选项。 即使这些功能与Vert.x核心主题相距甚远，该API仍可以在`Launcher`类中使用，您可以在*fat-jar*和`vertx`命令行工具中使用。 此外，它是多语言的（可以从任何受支持的语言中使用），并在Vert.x Shell中使用。
 
-Vert.x CLI provides a model to describe your command line interface, but also a parser. This parser supports different types of syntax:
+Vert.x CLI提供了一个模型来描述您的命令行界面，还提供了一个解析器。 该解析器支持不同类型的语法：
 
-- POSIX like options (ie. `tar -zxvf foo.tar.gz`)
-- GNU like long options (ie. `du --human-readable --max-depth=1`)
-- Java like properties (ie. `java -Djava.awt.headless=true -Djava.net.useSystemProxies=true Foo`)
-- Short options with value attached (ie. `gcc -O2 foo.c`)
-- Long options with single hyphen (ie. `ant -projecthelp`)
+- POSIX类型的选项（例如: `tar -zxvf foo.tar.gz`）
+- GNU类型的长选项（例如: `du --human-readable --max-depth=1`）
+- Java类型的属性 (例如: `java -Djava.awt.headless=true -Djava.net.useSystemProxies=true Foo`)
+- 附带值的短选项 (例如: `gcc -O2 foo.c`)
+- 单连字符的长选项 (例如: `ant -projecthelp`)
 
-Using the CLI api is a 3-steps process:
+使用CLI api的过程分为3个步骤：
 
-1. The definition of the command line interface
-2. The parsing of the user command line
-3. The query / interrogation
+1. 命令行界面的定义
+2. 用户命令行解析
+3. 查询/询问
 
-### Definition Stage {#Definition_Stage}
-Each command line interface must define the set of options and arguments that will be used. It also requires a name. The CLI API uses the `Option` and `Argument` classes to describe options and arguments:
+### 定义阶段 {#Definition_Stage}
+每个命令行界面必须定义将要使用的选项和参数集。 它还需要一个名称。 CLI API使用`Option`和`Argument`类来描述选项和参数：
 
 ```java
 CLI cli = CLI.create("copy")
@@ -6457,10 +6457,10 @@ CLI cli = CLI.create("copy")
         .setArgName("target"));
 ```
 
-As you can see, you can create a new `CLI` using `CLI.create`. The passed string is the name of the CLI. Once created you can set the summary and description. The summary is intended to be short (one line), while the description can contain more details. Each option and argument are also added on the `CLI` object using the `addArgument` and `addOption` methods.
+如您所见，您可以使用`CLI.create`创建一个新的`CLI`。 传递的字符串是CLI的名称。 创建后，您可以设置摘要和描述。 摘要旨在简短（一行），而描述可以包含更多详细信息。 每个选项和参数也使用`addArgument`和`addOption`方法添加到CLI对象。
 
-#### Options {#Options}
-An `Option` is a command line parameter identified by a *key* present in the user command line. Options must have at least a long name or a short name. Long name are generally used using a `--` prefix, while short names are used with a single `-`. Options can get a description displayed in the usage (see below). Options can receive 0, 1 or several values. An option receiving 0 values is a `flag`, and must be declared using `setFlag`. By default, options receive a single value, however, you can configure the option to receive several values using `setMultiValued`:
+#### 选项 {#Options}
+“ Option”是一个命令行参数，由用户命令行中的*key*标识。 选项必须至少具有长名或短名。 长名称通常使用`--`前缀，而短名称则使用单个`-`。 选项可以在用法中显示说明（请参阅下文）。 选项可以接收0、1或几个值。 接收到0个值的选项是一个`flag`，必须使用`setFlag`声明。 默认情况下，选项接收单个值，但是，您可以使用`setMultiValued`将选项配置为接收多个值：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6474,7 +6474,7 @@ CLI cli = CLI.create("some-name")
         .setDescription("a multi-valued option"));
 ```
 
-Options can be marked as mandatory. A mandatory option not set in the user command line throws an exception during the parsing:
+选项可以标记为强制性。 用户命令行中未设置的强制选项在解析过程中会引发异常：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6484,7 +6484,7 @@ CLI cli = CLI.create("some-name")
         .setDescription("a mandatory option"));
 ```
 
-Non-mandatory options can have a *default value*. This value would be used if the user does not set the option in the command line:
+非强制选项可以具有*默认值*。 如果用户未在命令行中设置选项，则将使用此值：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6494,9 +6494,9 @@ CLI cli = CLI.create("some-name")
         .setDescription("an optional option with a default value"));
 ```
 
-An option can be *hidden* using the `setHidden` method. Hidden option are not listed in the usage, but can still be used in the user command line (for power-users).
+可以使用`setHidden`方法将选项“隐藏”。 用法中未列出“隐藏”选项，但仍可以在用户命令行中使用（对于高级用户）。
 
-If the option value is contrained to a fixed set, you can set the different acceptable choices:
+如果选项值限制为固定值，则可以设置不同的可接受选项：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6507,12 +6507,12 @@ CLI cli = CLI.create("some-name")
         .setDescription("a color"));
 ```
 
-Options can also be instantiated from their JSON form.
+还可以从JSON格式实例化选项。
 
-#### Arguments {#Arguments}
-Unlike options, arguments do not have a *key* and are identified by their *index*. For example, in `java com.acme.Foo`, `com.acme.Foo` is an argument.
+#### 参数 {#Arguments}
+与选项不同，参数没有*key*，而是由*index*标识。 例如，在`java com.acme.Foo`中，`com.acme.Foo`是一个参数。
 
-Arguments do not have a name, there are identified using a 0-based index. The first parameter has the index `0`:
+参数没有名称，使用基于0的索引进行标识。 第一个参数的索引为`0`：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6526,7 +6526,7 @@ CLI cli = CLI.create("some-name")
         .setArgName("arg2"));
 ```
 
-If you don’t set the argument indexes, it computes it automatically by using the declaration order.
+如果您未设置参数索引，它将使用声明顺序自动计算。
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6540,19 +6540,19 @@ CLI cli = CLI.create("some-name")
         .setArgName("arg2"));
 ```
 
-The `argName` is optional and used in the usage message.
+`argName`是可选的，在用法消息中使用。
 
-As options, `Argument` can:
+`Argument`可以有一下选项：
 
-- be hidden using `setHidden`
-- be mandatory using `setRequired`
-- have a default value using `setDefaultValue`
-- receive several values using `setMultiValued` - only the last argument can be multi-valued.
+- 被`setHidden`隐藏
+- 使用`setRequired`说明是强制性的
+- 使用`setDefaultValue`设置默认值
+- 使用`setMultiValued`接收多个值--只有最后一个参数可以是多值的。
 
-Arguments can also be instantiated from their JSON form.
+还可以从JSON格式实例化选项。
 
-#### Usage generation {#Usage_generation}
-Once your `CLI` instance is configured, you can generate the *usage* message:
+#### 用法生成 {#Usage_generation}
+一旦您的`CLI`实例被配置，您可以生成*usage*消息：
 
 ```java
 CLI cli = CLI.create("copy")
@@ -6575,7 +6575,7 @@ StringBuilder builder = new StringBuilder();
 cli.usage(builder);
 ```
 
-It generates an usage message like this one:
+它生成如下用法消息：
 
 ```bash
 Usage: copy [-R] source target
@@ -6585,21 +6585,21 @@ A command line interface to copy files.
  -R,--directory   enables directory support
 ```
 
-If you need to tune the usage message, check the `UsageMessageFormatter` class.
+如果需要调整用法消息，请查看`UsageMessageFormatter`类。
 
-### Parsing Stage {#Parsing_Stage}
-Once your `CLI` instance is configured, you can parse the user command line to evaluate each option and argument:
+### 解析阶段 {#Parsing_Stage}
+配置完`CLI`实例后，您可以解析用户命令行以评估每个选项和参数：
 
 ```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
 ```
 
-The `parse` method returns a `CommandLine` object containing the values. By default, it validates the user command line and checks that each mandatory options and arguments have been set as well as the number of values received by each option. You can disable the validation by passing `false` as second parameter of `parse`. This is useful if you want to check an argument or option is present even if the parsed command line is invalid.
+`parse`方法返回一个包含值的`CommandLine`对象。 默认情况下，它会验证用户命令行，并检查是否已设置每个强制性选项和参数以及每个选项接收的值数量。 您可以通过传递`false`作为parse的第二个参数来禁用验证。 如果您想检查参数或选项是否存在，即使已解析的命令行无效，这也很有用。
 
-You can check whether or not the `CommandLine` is valid using `isValid`.
+您可以使用`isValid`检查`CommandLine`是否有效。
 
-### Query / Interrogation Stage {#Query___Interrogation_Stage}
-Once parsed, you can retrieve the values of the options and arguments from the `CommandLine` object returned by the `parse` method:
+### 查询/讯问阶段 {#Query___Interrogation_Stage}
+解析后，您可以从parse方法返回的CommandLine对象中检索选项和参数的值：
 
 ```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
@@ -6608,7 +6608,7 @@ boolean flag = commandLine.isFlagEnabled("my-flag");
 String arg0 = commandLine.getArgumentValue(0);
 ```
 
-One of your option can have been marked as "help". If a user command line enabled a "help" option, the validation won’t failed, but give you the opportunity to check if the user asks for help:
+您的选项之一可以被标记为“help”。 如果用户命令行启用了“help”选项，则验证不会失败，但是可以让您检查用户是否寻求帮助：
 
 ```java
 CLI cli = CLI.create("test")
@@ -6627,10 +6627,10 @@ if (!line.isValid() && line.isAskingForHelp()) {
 }
 ```
 
-### Typed options and arguments {#Typed_options_and_arguments}
-The described `Option` and `Argument` classes are *untyped*, meaning that the only get String values. `TypedOption` and `TypedArgument` let you specify a *type*, so the (String) raw value is converted to the specified type.
+### 类型化选项和参数 {#Typed_options_and_arguments}
+所描述的`Option`和`Argument`类是*untyped*，这意味着只能获取String值。 使用`TypedOption`和`TypedArgument`可以指定*type*，以便将（String）原始值转换为指定的类型。
 
-Instead of `Option` and `Argument`, use `TypedOption` and `TypedArgument` in the `CLI` definition:
+在`CLI`定义中使用`TypedOption`和`TypedArgument`代替`Option`和`Argument`：
 
 ```java
 CLI cli = CLI.create("copy")
@@ -6653,7 +6653,7 @@ CLI cli = CLI.create("copy")
         .setArgName("target"));
 ```
 
-Then you can retrieve the converted values as follows:
+然后，您可以按以下方式检索转换后的值：
 
 ```java
 CommandLine commandLine = cli.parse(userCommandLineArguments);
@@ -6662,11 +6662,11 @@ File source = commandLine.getArgumentValue("source");
 File target = commandLine.getArgumentValue("target");
 ```
 
-The vert.x CLI is able to convert to classes:
+vert.x CLI可以转换为类：
 
-- having a constructor with a single `String` argument, such as `File` or `JsonObject`
-- with a static `from` or `fromString` method
-- with a static `valueOf` method, such as primitive types and enumeration
+- 具有一个带有单个`String`参数的构造函数，例如`File`或`JsonObject`
+- 使用静态的`from`或`fromString`方法
+- 使用静态的`valueOf`方法，例如原始类型和枚举
 
 In addition, you can implement your own `Converter` and instruct the CLI to use this converter:
 
@@ -6678,9 +6678,9 @@ CLI cli = CLI.create("some-name")
         .setLongName("person"));
 ```
 
-For booleans, the boolean values are evaluated to `true`: `on`, `yes`, `1`, `true`.
+对于`on`, `yes`, `1`, `true`，布尔值将被赋值为`true`。
 
-If one of your option has an `enum` as type, it computes the set of choices automatically.
+如果其中一个选项的类型是`enum`，它将自动计算选择集。
 
 ### Using annotations {#Using_annotations}
 You can also define your CLI using annotations. Definition is done using annotation on the class and on *setter* methods:
