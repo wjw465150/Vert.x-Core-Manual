@@ -6668,7 +6668,7 @@ vert.x CLI可以转换为类：
 - 使用静态的`from`或`fromString`方法
 - 使用静态的`valueOf`方法，例如原始类型和枚举
 
-In addition, you can implement your own `Converter` and instruct the CLI to use this converter:
+另外，您可以实现自己的`Converter`，并指示CLI使用此转换器：
 
 ```java
 CLI cli = CLI.create("some-name")
@@ -6682,8 +6682,8 @@ CLI cli = CLI.create("some-name")
 
 如果其中一个选项的类型是`enum`，它将自动计算选择集。
 
-### Using annotations {#Using_annotations}
-You can also define your CLI using annotations. Definition is done using annotation on the class and on *setter* methods:
+### 使用注解 {#Using_annotations}
+您也可以使用注解定义CLI。 定义使用类和*setter*方法上的注解完成：
 
 ```java
 @Name("some-name")
@@ -6712,7 +6712,7 @@ public void setArg(String arg) {
 }
 ```
 
-Once annotated, you can define the `CLI` and inject the values using:
+注解后，您可以定义`CLI`并使用以下方法注入值：
 
 ```java
 CLI cli = CLI.create(AnnotatedCli.class);
@@ -6721,11 +6721,11 @@ AnnotatedCli instance = new AnnotatedCli();
 CLIConfigurator.inject(commandLine, instance);
 ```
 
-## The vert.x Launcher {#The_vert_x_Launcher}
-The vert.x `Launcher` is used in *fat jar* as main class, and by the `vertx` command line utility. It executes a set of *commands* such as *run*, *bare*, *start*…
+## vert.x启动器 {#The_vert_x_Launcher}
+vert.x的`Launcher`在*fat jar*中用作主类，并由`vertx`命令行实用程序使用。 它执行一组*命令*，例如*run*，*bare*，*start* ...
 
-### Extending the vert.x Launcher {#Extending_the_vert_x_Launcher}
-You can extend the set of command by implementing your own `Command` (in Java only):
+### 扩展vert.x启动器 {#Extending_the_vert_x_Launcher}
+您可以通过实现自己的`Command`（仅适用于Java）来扩展命令集：
 
 ```java
 @Name("my-command")
@@ -6746,7 +6746,7 @@ public class MyCommand extends DefaultCommand {
 }
 ```
 
-You also need an implementation of `CommandFactory`:
+您还需要实现`CommandFactory`：
 
 ```java
 public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
@@ -6756,50 +6756,50 @@ public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
 }
 ```
 
-Then, create the `src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory` and add a line indicating the fully qualified name of the factory:
+然后，创建`src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory`并添加一行指示工厂的全限定名称：
 
 ```java
 io.vertx.core.launcher.example.HelloCommandFactory
 ```
 
-Builds the jar containing the command. Be sure to includes the SPI file (`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`).
+构建包含命令的jar。 确保包含SPI文件(`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`)。
 
-Then, place the jar containing the command into the classpath of your fat-jar (or include it inside) or in the `lib` directory of your vert.x distribution, and you would be able to execute:
+然后，将包含命令的jar放入fat-jar的类路径（或将其包含在里面）或vert.x发行版的`lib`目录中，您将可以执行：
 
 ```bash
 vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ```
 
-### Using the Launcher in fat jars {#Using_the_Launcher_in_fat_jars}
-To use the `Launcher` class in a *fat-jar* just set the `Main-Class` of the *MANIFEST* to `io.vertx.core.Launcher`. In addition, set the `Main-Verticle` *MANIFEST* entry to the name of your main verticle.
+### 在fat jars中使用启动器 {#Using_the_Launcher_in_fat_jars}
+要在*fat-jar*中使用`Launcher`类，只需将*MANIFEST*的`Main-Class`设置为`io.vertx.core.Launcher`。 另外，将`Main-Verticle`  *MANIFEST*条目设置为主verticle的名称。
 
-By default, it executed the `run` command. However, you can configure the default command by setting the `Main-Command` *MANIFEST* entry. The default command is used if the *fat jar* is launched without a command.
+默认情况下，它执行`run`命令。 但是，您可以通过设置`Main-Command` *MANIFEST*条目来配置默认命令。 如果在没有命令的情况下启动*fat jar*，则使用默认命令。
 
-### Sub-classing the Launcher {#Sub_classing_the_Launcher}
-You can also create a sub-class of `Launcher` to start your application. The class has been designed to be easily extensible.
+### 对启动器进行子类化 {#Sub_classing_the_Launcher}
+您也可以创建`Launcher`的子类来启动您的应用程序。 该类已被设计为易于扩展。
 
-A `Launcher` sub-class can:
+`Launcher`子类可以：
 
-- customize the vert.x configuration in `beforeStartingVertx`
-- retrieve the vert.x instance created by the "run" or "bare" command by overriding `afterStartingVertx`
-- configure the default verticle and command with `getMainVerticle` and `getDefaultCommand`
-- add / remove commands using `register` and `unregister`
+- 在`beforeStartingVertx`中自定义vert.x配置
+- 通过覆盖`afterStartingVertx`来检索由“run”或“bare”命令创建的vert.x实例。
+- 使用`getMainVerticle`和`getDefaultCommand`配置默认的verticle和命令
+- 使用`register`和`unregister`添加/删除命令
 
-### Launcher and exit code {#Launcher_and_exit_code}
-When you use the `Launcher` class as main class, it uses the following exit code:
+### 启动器和退出代码 {#Launcher_and_exit_code}
+当您使用`Launcher`类作为主类时，它使用以下退出代码：
 
-- `0` if the process ends smoothly, or if an uncaught error is thrown
-- `1` for general purpose error
-- `11` if Vert.x cannot be initialized
-- `12` if a spawn process cannot be started, found or stopped. This error code is used by the `start` and `stop` command
-- `14` if the system configuration is not meeting the system requirement (shc as java not found)
-- `15` if the main verticle cannot be deployed
+- `0` 如果过程顺利结束，或者抛出未捕获的错误
+- `1` 对于通用错误
+- `11` 如果Vert.x无法初始化
+- `12` 如果无法启动、查找或停止衍生进程。这个错误代码由`start`和`stop`命令使用
+- `14` 如果系统配置不符合系统要求（找不到java的shc）
+- `15` 如果主verticle无法部署
 
-## Configuring Vert.x cache {#Configuring_Vert_x_cache}
-When Vert.x needs to read a file from the classpath (embedded in a fat jar, in a jar form the classpath or a file that is on the classpath), it copies it to a cache directory. The reason behind this is simple: reading a file from a jar or from an input stream is blocking. So to avoid to pay the price every time, Vert.x copies the file to its cache directory and reads it from there every subsequent read. This behavior can be configured.
+## 配置Vert.x缓存 {#Configuring_Vert_x_cache}
+当Vert.x需要从类路径中读取文件时（嵌入在一个 fat jar中，以类路径的jar形式或位于类路径中的文件），它将把它复制到缓存目录中。 这背后的原因很简单：从jar或从输入流读取文件是阻塞的。 因此，为避免每次都付出代价，Vert.x将该文件复制到其缓存目录，并在以后每次读取时从该目录读取该文件。 此行为可以配置。
 
-First, by default, Vert.x uses `$CWD/.vertx` as cache directory. It creates a unique directory inside this one to avoid conflicts. This location can be configured by using the `vertx.cacheDirBase` system property. For instance if the current working directory is not writable (such as in an immutable container context), launch your application with:
+首先，默认情况下，Vert.x使用`$CWD/.vertx`作为缓存目录。 它在此目录内创建一个唯一目录，以避免冲突。 这个位置可以通过使用`vertx.cacheDirBase`系统属性来配置。 例如，如果当前工作目录不可写（例如在不可变的容器上下文中），请使用以下命令启动应用程序：
 
 ```bash
 vertx run my.Verticle -Dvertx.cacheDirBase=/tmp/vertx-cache
@@ -6807,13 +6807,13 @@ vertx run my.Verticle -Dvertx.cacheDirBase=/tmp/vertx-cache
 java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
 ```
 
-| IMPORTANT | the directory must be **writable**. |
-| --------- | ----------------------------------- |
-|           |                                     |
+------
+> **重要:** 该目录必须是“可写的”。
+------
 
-When you are editing resources such as HTML, CSS or JavaScript, this cache mechanism can be annoying as it serves only the first version of the file (and so you won’t see your edits if you reload your page). To avoid this behavior, launch your application with `-Dvertx.disableFileCaching=true`. With this setting, Vert.x still uses the cache, but always refresh the version stored in the cache with the original source. So if you edit a file served from the classpath and refresh your browser, Vert.x reads it from the classpath, copies it to the cache directory and serves it from there. Do not use this setting in production, it can kill your performances.
+当您编辑HTML，CSS或JavaScript之类的资源时，此缓存机制可能很烦人，因为它仅提供文件的第一个版本（因此，如果重新加载页面，您将看不到编辑内容）。 为了避免这种情况，请使用`-Dvertx.disableFileCaching=true`启动您的应用程序。 有了这个设置，Vert.x仍然使用缓存，但总是使用原始源刷新缓存中存储的版本。因此，如果您编辑来自类路径的文件并刷新浏览器，那么Vert.x从类路径中读取它，将它复制到缓存目录并从那里提供服务。不要在生产中使用这种设置，它会扼杀你的表现。
 
-Finally, you can disable completely the cache by using `-Dvertx.disableFileCPResolving=true`. This setting is not without consequences. Vert.x would be unable to read any files from the classpath (only from the file system). Be very careful when using this settings.
+最后，您可以使用`-Dvertx.disableFileCPResolving=true`完全禁用高速缓存。 此设置并非没有后果。 Vert.x将无法从类路径（仅从文件系统）读取任何文件。 使用此设置时要非常小心。
 
-Last updated 2019-10-17 18:44:38 CEST
+最后更新时间: 2019-10-17 18:44:38 CEST
 
