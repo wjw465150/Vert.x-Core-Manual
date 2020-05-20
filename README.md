@@ -1,2 +1,2 @@
-# Vert.x-Core-Manual
-Vert.x Core Manual 中文版
+# VertX核心手册Java版
+VertX核心手册Java版

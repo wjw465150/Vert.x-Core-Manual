@@ -1,6 +1,6 @@
 {
-  "title": "Vert.x Core Manual 中文版",
-  "description": "Vert.x Core Manual 中文版",
+  "title": "VertX核心手册Java版",
+  "description": "VertX核心手册Java版",
   "author": "WS",
   "language": "zh-hans",
   "plugins": [
@@ -25,7 +25,7 @@
       "label": "编辑此页面"
     },
     "tbfed-pagefooter": {
-      "copyright": "Copyright © WS 2019",
+      "copyright": "Copyright © WS 2020",
       "modify_label": "该文件修订时间：",
       "modify_format": "YYYY-MM-DD HH:mm:ss"
     },

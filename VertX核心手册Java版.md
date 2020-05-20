@@ -1,4 +1,4 @@
-# VertX核心手册 Java版 {#VertX_Core_Manual_Java}
+# VertX核心手册 Java版
 
 Vert.x的核心是一组Java API，我们称为**Vert.x Core**
 
@@ -49,7 +49,8 @@ dependencies {
 
 让我们讨论core中的不同概念和功能。
 
-## 开始创建Vert.x {#In_the_beginning_there_was_Vert_x}
+<a name="1___开始创建Vert_x"></a>
+## 开始创建Vert.x
 除非您可以与`Vertx`对象进行通讯，否则您在Vert.x-land上不能做很多事情！
 
 它是Vert.x的控制中心，是您执行几乎所有操作的方法，包括创建客户端和服务器，获取对事件总线的引用，设置计时器以及许多其他功能。
@@ -64,9 +65,11 @@ Vertx vertx = Vertx.vertx();
 
 ------
 > **注意:**  大多数应用程序只需要一个Vert.x实例，但是如果您需要隔离事件总线或不同组的服务器和客户端，则可以创建多个Vert.x实例。
+>
 ------
 
-### 创建Vertx对象时指定选项 {#Specifying_options_when_creating_a_Vertx_object}
+<a name="2____创建Vertx对象时指定选项"></a>
+### 创建Vertx对象时指定选项
 创建Vert.x对象时，如果默认值不适合您，您还可以指定选项：
 
 ```java
@@ -75,12 +78,14 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(40));
 
 `VertxOptions`对象有许多设置，允许您配置集群、高可用性、池大小和各种其他设置。
 
-### 创建集群的Vert.x对象 {#Creating_a_clustered_Vert_x_object}
+<a name="3____创建集群的Vert_x对象"></a>
+### 创建集群的Vert.x对象
 如果您要创建**集群Vert.x**（请参阅[事件总线]](https://vertx.io/docs/vertx-core/java/#event_bus)上的部分，以获得关于集群事件总线的更多信息），然后您将通常使用异步变量来创建Vertx对象。
 
 这是因为群集中的不同Vert.x实例通常需要花费一些时间（可能是几秒钟）来组合在一起。 在此期间，我们不想阻塞调用线程，因此我们将结果异步地提供给您。
 
-## 你是链式的吗? {#Are_you_fluent_}
+<a name="4___你是链式的吗_"></a>
+## 你是链式的吗?
 您可能已经注意到，在前面的示例中使用了**fluent** API。
 
 在`fluent` API中，可以将多个方法调用链接在一起。例如:
@@ -100,7 +105,8 @@ response.write("some text");
 response.end();
 ```
 
-## 别打给我们，我们会打给你的。 {#Don_t_call_us__we_ll_call_you_}
+<a name="5___别打给我们，我们会打给你的。"></a>
+## 别打给我们，我们会打给你的。
 Vert.x API在很大程度上是*事件驱动*的。 这意味着当您感兴趣的Vert.x中发生任何事情时，Vert.x会通过向您发送事件来呼叫您。
 
 一些示例事件是：
@@ -133,7 +139,8 @@ server.requestHandler(request -> {
 
 这使我们想到了Vert.x中的一些重要概念：
 
-## 不要阻塞我！ {#Don_t_block_me_}
+<a name="6___不要阻塞我！"></a>
+## 不要阻塞我！
 除了极少数例外（即某些文件系统操作以“同步”结尾）外，Vert.x中的所有API均不会阻塞调用线程。
 
 如果可以立即提供结果，则将立即返回结果，否则通常会在一段时间后提供处理程序以接收事件。
@@ -155,7 +162,8 @@ server.requestHandler(request -> {
 
 对于许多现代应用程序所需的并发级别，阻塞方法根本无法扩展。
 
-## 反应器和多反应器 {#Reactor_and_Multi_Reactor}
+<a name="7___反应器和多反应器"></a>
+## 反应器和多反应器
 我们之前提到过Vert.x API是事件驱动的 - Vert.x在事件可用时将事件传递给处理程序。
 
 在大多数情况下，Vert.x使用称为**event loop(事件循环)**的线程调用处理程序。
@@ -180,10 +188,11 @@ Vert.x在这里的工作方式有所不同。 每个Vertx实例都维护多个�
 
 ------
 > **注意:** 尽管Vertx实例维护多个事件循环，但任何特定的处理程序都不会并发执行，并且在大多数情况下总是使用**完全相同的事件循环**调用。(除了 [worker verticles](https://vertx.io/docs/vertx-core/groovy/#worker_verticles))。
-> 
+>
 ------
 
-## 黄金法则 - 不要阻塞事件循环 {#The_Golden_Rule___Don_t_Block_the_Event_Loop}
+<a name="8___黄金法则___不要阻塞事件循环"></a>
+## 黄金法则 - 不要阻塞事件循环
 我们已经知道Vert.x api是非阻塞的，不会阻塞事件循环，但是如果您在处理程序中阻塞事件循环**您自己**，那就没有多大帮助。
 
 如果这样做，则在阻塞期间该事件循环将无法执行任何其他操作。如果您阻塞了Vertx实例中的所有事件循环，那么您的应用程序将完全停止!
@@ -219,7 +228,8 @@ Vert.x还将提供堆栈跟踪，以精确定位阻塞发生的位置。
 
 如果您想关闭这些警告或更改设置，您可以在创建Vertx对象之前在`VertxOptions`对象中这样做。
 
-## 运行阻塞的代码 {#Running_blocking_code}
+<a name="9___运行阻塞的代码"></a>
+## 运行阻塞的代码
 在一个理想的世界中，不会有战争或饥饿，所有API都是异步编写的，小兔子会与小羊羔在阳光明媚的绿色草地上携手并进。
 
 **但是……现实世界并非如此。 （您最近看过新闻吗？）**
@@ -297,10 +307,12 @@ WorkerExecutor executor = vertx.createSharedWorkerExecutor("my-worker-pool", poo
 > 
 ------
 
-## 异步协调 {#Async_coordination}
+<a name="10___异步协调"></a>
+## 异步协调
 多个异步结果的协调可以通过Vert.x的`futures`来实现。 它支持并发组合（并行运行多个异步操作）和顺序组合（链异步操作）。
 
-### 并发组合 {#Concurrent_composition}
+<a name="11____并发组合"></a>
+### 并发组合
 `CompositeFuture.all`接受几个futures参数(最多6个)，返回一个在所有future都*succeeded*时“成功”的future，在至少一个future*failed*时“失败”的future:
 
 ```java
@@ -361,7 +373,8 @@ CompositeFuture.join(future1, future2, future3).setHandler(ar -> {
 CompositeFuture.join(Arrays.asList(future1, future2, future3));
 ```
 
-### 顺序组合 {#Sequential_composition}
+<a name="12____顺序组合"></a>
+### 顺序组合
 当`all`和`any`实现并发组合时，`compose`可用于链接futures(即顺序组合)。 
 
 ```java
@@ -395,7 +408,8 @@ Future<Void> startFuture = fut1
 
 在第二种情况下，`Handler`应完成`next`future 以报告其成功或失败。
 
-## Verticles {Vertx的模块}
+<a name="13___Verticles"></a>
+## Verticles
 
 Vert.x提供了一个简单，可扩展的，类似于*actor-like*的部署和并发模型，您可以使用它来节省编写自己的代码的时间。
 
@@ -411,7 +425,8 @@ Verticles 由Vert.x部署和运行的代码块。 一个Vert.x实例默认维护
 
 应用程序通常由同时在同一Vert.x实例中运行的许多verticle实例组成。 不同的verticle实例通过在[事件总线](https://vertx.io/docs/vertx-core/groovy/#event_bus)上发送消息来相互通信。
 
-### 编写Verticles {#Writing_Verticles}
+<a name="14____编写Verticles"></a>
+### 编写Verticles
 Verticle 类必须实现`Verticle`接口。
 
 如果愿意，他们可以直接实现它，但通常扩展抽象类`AbstractVerticle`会更简单。
@@ -438,7 +453,8 @@ public class MyVerticle extends AbstractVerticle {
 
 您也可以选择覆盖stop方法。 Vert.x将在取消部署verticle时调用该方法，并且在该方法完成后，该verticle将被视为已停止。
 
-### 异步Verticle启动和停止 {#Asynchronous_Verticle_start_and_stop}
+<a name="15____异步Verticle启动和停止"></a>
+### 异步Verticle启动和停止
 有时，您需要在启动Verticle时做一些事情，而这需要一些时间，并且您不希望在这种情况发生之前就考虑将Verticle部署。 例如，您可能想使用start方法启动HTTP服务器，并传播服务器`listen`方法的异步结果。
 
 您不能阻止在启动方法中绑定HTTP服务器，那样会破坏[黄金规则](https://vertx.io/docs/vertx-core/java/#golden_rule)。
@@ -501,7 +517,8 @@ public class MyVerticle extends AbstractVerticle {
 > 
 ------
 
-### Verticle类型 {#Verticle_Types}
+<a name="16____Verticle类型"></a>
+### Verticle类型
 共有三种不同类型的verticle：
 
 - Standard Verticles(标准Verticles)
@@ -516,7 +533,8 @@ public class MyVerticle extends AbstractVerticle {
 
   这些使用工作池中的线程运行。 一个实例可以由多个线程并发执行。
 
-### Standard verticles {#标准Verticles}
+<a name="17____Standard_verticles"></a>
+### Standard verticles
 标准verticles在创建时会分配一个事件循环线程，并使用该事件循环调用start方法。 当您从事件循环调用任何其他在核心API上使用处理程序的方法时，Vert.x将保证这些处理程序在被调用时将在同一事件循环上执行。
 
 这意味着我们可以保证您的verticle实例中的所有代码始终在同一事件循环上执行（只要您不创建自己的线程并调用它！）。
@@ -538,7 +556,8 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 
 Vert.x永远不会由多个线程同时执行worker verticle实例，但可以在不同时间由不同线程执行。
 
-#### 多线程工作Verticles {#Multi_threaded_worker_verticles}
+<a name="18_____多线程工作Verticles"></a>
+#### 多线程工作Verticles
 多线程worker verticle与普通worker verticle一样，但是可以由不同的线程同时执行。
 
 ------
@@ -579,7 +598,8 @@ vertx.eventBus().consumer("foo", msg -> {
 });
 ```
 
-### 以编程方式部署verticles {#Deploying_verticles_programmatically}
+<a name="19____以编程方式部署verticles"></a>
+### 以编程方式部署verticles
 您可以使用`deployVerticle`方法之一来部署一个verticle，指定一个Verticle名称，也可以传入已经创建的Verticle实例。
 
 ------
@@ -612,7 +632,8 @@ vertx.deployVerticle("verticles/myverticle.js");
 vertx.deployVerticle("verticles/my_verticle.rb");
 ```
 
-### 将verticle名称映射到verticle工厂的规则 {#Rules_for_mapping_a_verticle_name_to_a_verticle_factory}
+<a name="20____将verticle名称映射到verticle工厂的规则"></a>
+### 将verticle名称映射到verticle工厂的规则
 当使用名称部署verticle时，该名称用于选择将实例化该verticle的实际verticle工厂。
 
 verticle名称可以有一个前缀-这是一个字符串，后跟一个冒号，如果存在的话将用于查找工厂，例如
@@ -629,12 +650,14 @@ verticle factory service:com.mycompany:myorderservice // Uses the service vertic
 
 如果没有前缀或后缀，则Vert.x将假定它是Java完全限定的类名（FQCN），然后尝试实例化该名称。
 
-### Verticle工厂位于哪里? {#How_are_Verticle_Factories_located_}
+<a name="21____Verticle工厂位于哪里_"></a>
+### Verticle工厂位于哪里?
 大多数Verticle工厂都从类路径加载并在Vert.x启动时注册。
 
 如果愿意，您还可以使用`registerVerticleFactory`和`unregisterVerticleFactory`以编程方式注册和注销verticle工厂。
 
-### 等待部署完成 {#Waiting_for_deployment_to_complete}
+<a name="22____等待部署完成"></a>
+### 等待部署完成
 Verticle部署是异步的，可能会在部署调用返回后的一段时间内完成。
 
 如果你想在部署完成时得到通知，你可以部署指定一个完成处理程序:
@@ -653,7 +676,8 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", res -> {
 
 如果希望取消部署，可以稍后使用此部署ID。
 
-### 取消verticle部署 {#Undeploying_verticle_deployments}
+<a name="23____取消verticle部署"></a>
+### 取消verticle部署
 可以使用`undeploy`取消部署。
 
 取消部署本身是异步的，因此，如果要在完成取消部署时收到通知，可以部署指定完成处理程序：
@@ -668,7 +692,8 @@ vertx.undeploy(deploymentID, res -> {
 });
 ```
 
-### 指定verticle实例数 {#Specifying_number_of_verticle_instances}
+<a name="24____指定verticle实例数"></a>
+### 指定verticle实例数
 使用verticle名称部署verticle时，可以指定要部署的verticle实例的数量：
 
 ```java
@@ -678,7 +703,8 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 
 这对于轻松跨多个内核进行扩展很有用。 例如，您可能有一个要部署的Web服务器版本，并且在您的计算机上有多个核心，因此您想部署多个实例以利用所有核心。
 
-### 将配置传递到verticle {#Passing_configuration_to_a_verticle}
+<a name="25____将配置传递到verticle"></a>
+### 将配置传递到verticle
 可以在部署时将JSON形式的配置传递给verticle：
 
 ```java
@@ -693,7 +719,8 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 System.out.println("Configuration: " + config().getString("name"));
 ```
 
-### 在Verticle中访问环境变量 {#Accessing_environment_variables_in_a_Verticle}
+<a name="26____在Verticle中访问环境变量"></a>
+### 在Verticle中访问环境变量
 使用Java API可访问环境变量和系统属性：
 
 ```java
@@ -701,7 +728,8 @@ System.getProperty("prop");
 System.getenv("HOME");
 ```
 
-### Verticle隔离组 {#Verticle_Isolation_Groups}
+<a name="27____Verticle隔离组"></a>
+### Verticle隔离组
 默认情况下，Vert.x具有*flat classpath*。 也就是说，当Vert.x部署verticle时，它会使用当前的类加载器进行部署-不会创建新的类加载器。 在大多数情况下，这是最简单，最清晰和最明智的做法。
 
 但是，在某些情况下，您可能希望部署一个Verticle，以便该Verticle的类与您的应用程序中的其他类隔离。
@@ -728,7 +756,8 @@ options.setIsolatedClasses(Arrays.asList("com.mycompany.myverticle.*",
 vertx.deployVerticle("com.mycompany.myverticle.VerticleClass", options);
 ```
 
-### High Availability {#High_Availability}
+<a name="28____高可用性"></a>
+### 高可用性
 可以在启用高可用性（HA）的情况下部署Verticles。 在这种情况下，当将一个verticle部署在突然死亡的vert.x实例上时，该verticle 将重新部署到集群中的另一个vert.x实例上。
 
 要运行启用了高可用性的Verticle，只需附加`-ha`开关即可：
@@ -741,7 +770,8 @@ vertx run my-verticle.js -ha
 
 [高可用性和故障转移](https://vertx.io/docs/vertx-core/groovy/#_high_availability_and_fail_over)部分中有关高可用性功能和配置的更多详细信息。
 
-### 从命令行运行Verticles {#Running_Verticles_from_the_command_line}
+<a name="29____从命令行运行Verticles"></a>
+### 从命令行运行Verticles
 您可以在Maven或Gradle项目中直接使用Vert.x，方法是向Vert.x核心库添加一个依赖项，然后从那里开始。
 
 但是，如果愿意，您也可以直接从命令行运行Vert.x的verticles。
@@ -776,14 +806,16 @@ Vert.x将在运行之前即时编译Java源文件。 这对于快速制作vertic
 
 有关在命令行上执行`vertx`时可用的各种选项的完整信息，请在命令行中键入`vertx`。
 
-### 导致Vert.x退出 {#Causing_Vert_x_to_exit}
+<a name="30____导致Vert_x退出"></a>
+### 导致Vert.x退出
 Vert.x实例维护的线程不是守护程序线程，因此它们将阻止JVM退出。
 
 如果你正在嵌入Vert.x，并且你已经完成了它，你可以调用`close`来关闭它。
 
 这将关闭所有内部线程池并关闭其他资源，并允许JVM退出。
 
-### 上下文对象 {#The_Context_object}
+<a name="31____上下文对象"></a>
+### 上下文对象
 当Vert.x向处理程序提供事件或调用`Verticle`的start或stop方法时，执行将与`Context` 关联。 通常，上下文是**事件循环上下文**，并绑定到特定的事件循环线程。 因此，针对该上下文的执行始终在完全相同的事件循环线程上进行。 对于工作程序verticles和运行内联阻塞代码的情况，工作程序上下文将与执行关联，该上下文将使用工作程序线程池中的线程。
 
 要获取上下文，请使用`getOrCreateContext`方法：
@@ -827,14 +859,16 @@ context.runOnContext((v) -> {
 
 上下文对象还允许您使用`config`方法访问verticle配置。 检查[将配置传递到verticle位置](https://vertx.io/docs/vertx-core/groovy/#_passing_configuration_to_a_verticle)部分以获取有关此配置的更多详细信息。
 
-### 执行定期和延迟的操作 {#Executing_periodic_and_delayed_actions}
+<a name="32____执行定期和延迟的操作"></a>
+### 执行定期和延迟的操作
 在Vert.x中，很常见的是要延迟或定期执行操作。
 
 在标准verticle中，您不能只是使线程休眠以引入延迟，因为这会阻塞事件循环线程。
 
 而是使用Vert.x计时器。 计时器可以是**一次性**或**定期**。 我们将讨论两者
 
-#### 单次计时器 {#One_shot_Timers}
+<a name="33_____单次计时器"></a>
+#### 单次计时器
 一次性计时器在一定的延迟(以毫秒为单位)之后调用事件处理程序。
 
 使用`setTimer`方法传递延迟和处理程序后，设置要触发的计时器
@@ -849,7 +883,8 @@ System.out.println("First this is printed");
 
 返回值是唯一的计时器ID，以后可用于取消计时器。 处理程序还传递了计时器ID。
 
-#### 周期性的计时器 {#Periodic_Timers}
+<a name="34_____周期性的计时器"></a>
+#### 周期性的计时器
 您还可以使用`setPeriodic`将计时器设置为定期触发。
 
 将会有一个与周期相等的初始延迟。
@@ -870,17 +905,20 @@ long timerID = vertx.setPeriodic(1000, id -> {
 System.out.println("First this is printed");
 ```
 
-#### 取消计时器 {#Cancelling_timers}
+<a name="35_____取消计时器"></a>
+#### 取消计时器
 要取消定期计时器，请调用`cancelTimer`并指定计时器ID。 例如：
 
 ```java
 vertx.cancelTimer(timerID);
 ```
 
-#### verticles中的自动清理 {#Automatic_clean_up_in_verticles}
+<a name="36_____verticles中的自动清理"></a>
+#### verticles中的自动清理
 如果您是从verticle内部创建计时器，则取消部署verticles时，这些计时器将自动关闭。
 
-### Verticle工作池 {#Verticle_worker_pool}
+<a name="37____Verticle工作池"></a>
+### Verticle工作池
 Verticles使用Vert.x工作池执行阻塞操作，即`executeBlocking`或工作verticle。
 
 可以在部署选项中指定其他工作池：
@@ -889,7 +927,8 @@ Verticles使用Vert.x工作池执行阻塞操作，即`executeBlocking`或工作
 vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("the-specific-pool"));
 ```
 
-## 事件总线 {#The_Event_Bus}
+<a name="38___事件总线"></a>
+## 事件总线
 `event bus(事件总线)`是Vert.x的**nervous system(经系统)**。
 
 每个Vert.x实例都有一个事件总线实例，可以使用`eventBus`方法获得它。
@@ -906,29 +945,34 @@ vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("
 
 首先是一些理论：
 
-### 理论 {#The_Theory}
-#### 地址 {#Addressing}
+<a name="39____理论"></a>
+### 理论
+<a name="40_____地址"></a>
+#### 地址
 消息在事件总线上发送到**address(地址)**address**。
 
 Vert.x不需要任何花哨的寻址方案。 在Vert.x中，地址只是一个字符串。 任何字符串均有效。 但是，明智的做法是使用某种方案，例如使用句点来分隔名称空间。
 
 有效地址的一些示例是`europe.news.feed1`，`acme.games.pacman`，`sausages`和`X`。
 
-#### 处理程序 {#Handlers}
+<a name="41_____处理程序"></a>
+#### 处理程序
 消息由处理程序接收。 您在地址注册处理程序。
 
 可以在同一地址注册许多不同的处理程序。
 
 单个处理程序可以在许多不同的地址上注册。
 
-#### 发布/订阅消息 {#Publish___subscribe_messaging}
+<a name="42_____发布_订阅消息"></a>
+#### 发布/订阅消息
 事件总线支持**发布**消息。
 
 消息被发布到一个地址。 发布意味着将消息传递给在该地址注册的所有处理程序。
 
 这是熟悉的**发布/订阅**消息传递模式。
 
-#### 点对点和请求响应消息传递 {#Point_to_point_and_Request_Response_messaging}
+<a name="43_____点对点和请求响应消息传递"></a>
+#### 点对点和请求响应消息传递
 事件总线还支持**point-to-point(点对点)**消息传递。
 
 消息被发送到一个地址。 然后，Vert.x会将它们路由到在该地址注册的处理程序之一。
@@ -943,14 +987,16 @@ Vert.x不需要任何花哨的寻址方案。 在Vert.x中，地址只是一个�
 
 这是一种常见的消息传递模式，称为**请求-响应**模式。
 
-#### 尽力递送 {#Best_effort_delivery}
+<a name="44_____尽力递送"></a>
+#### 尽力递送
 Vert.x会尽力传递消息，并且不会有意识地将其丢弃。 这称为**best-effort(尽力而为)**交付。
 
 但是，如果事件总线的全部或部分发生故障，则可能会丢失消息。
 
 如果您的应用程序关心丢失的消息，则应将处理程序编码为幂等，而发送方应在恢复后重试。
 
-#### 消息类型 {#Types_of_messages}
+<a name="45_____消息类型"></a>
+#### 消息类型
 开箱即用的Vert.x允许将任何原始/简单类型，字符串或`buffers(缓冲区)`作为消息发送。
 
 但是，在Vert.x中以[JSON](https://json.org/)发送消息是一种惯例
@@ -961,10 +1007,12 @@ JSON非常容易以Vert.x支持的所有语言创建，读取和解析，因此�
 
 事件总线非常灵活，并且还支持通过事件总线发送任意对象。 您可以通过为要发送的对象定义一个“编解码器”来实现。
 
-### 事件总线API {#The_Event_Bus_API}
+<a name="46____事件总线API"></a>
+### 事件总线API
 让我们进入API。
 
-#### 获取事件总线 {#Getting_the_event_bus}
+<a name="47_____获取事件总线"></a>
+#### 获取事件总线
 您可以获得对事件总线的引用，如下所示：
 
 ```java
@@ -973,7 +1021,8 @@ EventBus eb = vertx.eventBus();
 
 每个Vert.x实例只有一个事件总线实例。
 
-#### 注册处理程序 {#Registering_Handlers}
+<a name="48_____注册处理程序"></a>
+#### 注册处理程序
 注册处理程序的最简单方法是使用`consumer`。 这是一个例子：
 
 ```java
@@ -1015,7 +1064,8 @@ consumer.completionHandler(res -> {
 });
 ```
 
-#### 取消注册处理程序 {#Un_registering_Handlers}
+<a name="49_____取消注册处理程序"></a>
+#### 取消注册处理程序
 要取消注册处理程序，请调用`unregister`。
 
 如果您在集群事件总线上，则注销可能需要一些时间才能在节点上传播。 如果您想在完成时收到通知，请使用`unregister`。
@@ -1030,7 +1080,8 @@ consumer.unregister(res -> {
 });
 ```
 
-#### 发布消息 {#Publishing_messages}
+<a name="50_____发布消息"></a>
+#### 发布消息
 发布消息很简单。 只需使用`publish`指定发布地址即可。
 
 ```java
@@ -1039,7 +1090,8 @@ eventBus.publish("news.uk.sport", "Yay! Someone kicked a ball");
 
 然后，该消息将传递给在地址`news.uk.sport`注册的所有处理程序。
 
-#### 发送消息 {#Sending_messages}
+<a name="51_____发送消息"></a>
+#### 发送消息
 发送消息将导致仅在接收消息的地址注册一个处理程序。这就是点对点消息传递模式。处理程序以非严格的循环方式选择。
 
 您可以通过`send`发送信息。
@@ -1048,7 +1100,8 @@ eventBus.publish("news.uk.sport", "Yay! Someone kicked a ball");
 eventBus.send("news.uk.sport", "Yay! Someone kicked a ball");
 ```
 
-#### 在消息上设置标题 {#Setting_headers_on_messages}
+<a name="52_____在消息上设置标题"></a>
+#### 在消息上设置标题
 通过事件总线发送的消息也可以包含*header*。 可以通过在发送或发布时设置选项来指定：
 
 ```java
@@ -1057,17 +1110,20 @@ options.addHeader("some-header", "some-value");
 eventBus.send("news.uk.sport", "Yay! Someone kicked a ball", options);
 ```
 
-#### 消息顺序 {#Message_ordering}
+<a name="53_____消息顺序"></a>
+#### 消息顺序
 Vert.x将按照从任何特定发件人发送的顺序将消息传递到任何特定处理程序。
 
-#### 消息对象 {#The_Message_object}
+<a name="54_____消息对象"></a>
+#### 消息对象
 您在消息处理程序中收到的对象是`Message`。
 
 消息的`body`对应于已发送或发布的对象。
 
 消息的头可与`headers`一起使用。
 
-#### 确认消息/发送回复 {#Acknowledging_messages___sending_replies}
+<a name="55_____确认消息_发送回复"></a>
+#### 确认消息/发送回复
 当使用`send`时，事件总线尝试将消息传递到在事件总线上注册的`MessageConsumer`。
 
 在某些情况下，对于发件人来说，了解消费者何时收到邮件并使用**request-response**模式对其进行"处理"很有用。
@@ -1108,14 +1164,16 @@ eventBus.request("news.uk.sport", "Yay! Someone kicked a ball across a patch of 
 - 实现持久队列的消息使用者，如果消息已成功持久存储在消息中，则可能会以`true`进行确认，否则将以`false`进行确认。
 - 成功处理完订单后，处理订单的消息使用者可能会以`true`确认，因此可以将其从数据库中删除
 
-#### 发送与超时 {#Sending_with_timeouts}
+<a name="56_____发送与超时"></a>
+#### 发送与超时
 当发送带有回复处理程序的消息时，您可以在`DeliveryOptions`中指定超时。
 
 如果在此时间内未收到答复，则将以失败的方式调用答复处理程序。
 
 默认超时为30秒。
 
-#### 发送失败 {#Send_Failures}
+<a name="57_____发送失败"></a>
+#### 发送失败
 消息发送可能由于其他原因而失败，包括：
 
 - 没有可用于将消息发送到的处理程序
@@ -1123,7 +1181,8 @@ eventBus.request("news.uk.sport", "Yay! Someone kicked a ball across a patch of 
 
 在所有情况下，将使用特定的故障调用应答处理程序。
 
-#### 消息的编解码器 {#Message_Codecs}
+<a name="58_____消息的编解码器"></a>
+#### 消息的编解码器
 如果定义并注册了`消息编解码器`，则可以在事件总线上发送任何您喜欢的对象。
 
 消息编解码器具有名称，您可以在发送或发布消息时在`DeliveryOptions`中指定该名称：
@@ -1148,10 +1207,12 @@ eventBus.send("orders", new MyPOJO());
 
 消息编解码器不必总是编码和解码为相同的类型。 例如，您可以编写允许发送MyPOJO类的编解码器，但是当该消息发送到处理程序时，它将作为MyOtherPOJO类到达。
 
-#### 集群事件总线 {#Clustered_Event_Bus}
+<a name="59_____集群事件总线"></a>
+#### 集群事件总线
 事件总线不仅存在于单个Vert.x实例中。 通过在网络上将不同的Vert.x实例群集在一起，它们可以形成单一的分布式事件总线。
 
-#### 以编程方式建立集群 {#Clustering_programmatically}
+<a name="60_____以编程方式建立集群"></a>
+#### 以编程方式建立集群
 如果您以编程方式创建Vert.x实例，则可以通过将Vert.x实例配置为集群来获得集群事件总线；
 
 ```java
@@ -1169,7 +1230,8 @@ Vertx.clusteredVertx(options, res -> {
 
 您还应该确保在类路径上具有`ClusterManager`实现，例如Hazelcast集群管理器。
 
-#### 在命令行上进行集群 {#Clustering_on_the_command_line}
+<a name="61_____在命令行上进行集群"></a>
+#### 在命令行上进行集群
 您可以使用以下命令行运行Vert.x集群
 
 ```java
@@ -1180,7 +1242,8 @@ vertx run my-verticle.js -cluster
 
 如果您是从Verticle内部注册事件总线处理程序，则在取消部署Verticle时，这些处理程序将自动注销。
 
-## 配置事件总线 {#Configuring_the_event_bus}
+<a name="62___配置事件总线"></a>
+## 配置事件总线
 可以配置事件总线。当事件总线集群化时，它特别有用。在底层，事件总线使用TCP连接发送和接收消息，因此`EventBusOptions`允许您配置这些TCP连接的所有方面。由于事件总线充当服务器和客户机，所以配置接近`NetClientOptions`和`NetServerOptions。
 
 ```java
@@ -1207,6 +1270,7 @@ Vertx.clusteredVertx(options, res -> {
 
 ------
 > **警告:** 要在集群模式下实施安全性，您**必须**配置集群管理器以使用加密或实施安全性。有关详细信息，请参阅集群管理器的文档。
+>
 ------
 
 事件总线配置需要在所有集群节点中保持一致。
@@ -1233,17 +1297,20 @@ Vertx.clusteredVertx(options, res -> {
 });
 ```
 
-## JSON {#JSON}
+<a name="63___JSON"></a>
+## JSON
 与其他一些语言不同，Java不支持[JSON](https://json.org/)，因此我们提供了两个类来简化Vert.x应用程序中的JSON处理。
 
-### JSON对象 {#JSON_objects}
+<a name="64____JSON对象"></a>
+### JSON对象
 `JsonObject`类表示JSON对象。
 
 JSON对象基本上只是一个具有字符串键的映射，并且值可以是JSON支持的类型之一（字符串，数字，布尔值）。
 
 JSON对象还支持空值。
 
-#### 创建JSON对象 {#Creating_JSON_objects}
+<a name="65_____创建JSON对象"></a>
+#### 创建JSON对象
 可以使用默认构造函数创建空的JSON对象。
 
 您可以通过字符串JSON表示形式创建JSON对象，如下所示：
@@ -1262,7 +1329,8 @@ map.put("xyz", 3);
 JsonObject object = new JsonObject(map);
 ```
 
-#### 将条目放入JSON对象 {#Putting_entries_into_a_JSON_object}
+<a name="66_____将条目放入JSON对象"></a>
+#### 将条目放入JSON对象
 使用`put`方法将值放入JSON对象。
 
 可以使用流畅的API链接方法调用：
@@ -1272,7 +1340,8 @@ JsonObject object = new JsonObject();
 object.put("foo", "bar").put("num", 123).put("mybool", true);
 ```
 
-#### 从JSON对象获取值 {#Getting_values_from_a_JSON_object}
+<a name="67_____从JSON对象获取值"></a>
+#### 从JSON对象获取值
 您可以使用`getXXX`方法从JSON对象获取值，例如：
 
 ```java
@@ -1280,7 +1349,8 @@ String val = jsonObject.getString("some-key");
 int intVal = jsonObject.getInteger("some-other-key");
 ```
 
-#### JSON对象和Java对象之间的映射 {#Mapping_between_JSON_objects_and_Java_objects}
+<a name="68_____JSON对象和Java对象之间的映射"></a>
+#### JSON对象和Java对象之间的映射
 您可以从Java对象的字段创建一个JSON对象，如下所示:
 
 您可以实例化Java对象并从JSON对象填充其字段，如下所示：
@@ -1298,17 +1368,20 @@ request.bodyHandler(buff -> {
 
 只要对象图是非循环的，被引用的对象就可以在嵌套JSON对象之间进行传递序列化/反序列化。
 
-#### 将JSON对象编码为字符串 {#Encoding_a_JSON_object_to_a_String}
+<a name="69_____将JSON对象编码为字符串"></a>
+#### 将JSON对象编码为字符串
 使用`encode`将对象编码为字符串形式。
 
-### JSON 数组 {#JSON_arrays}
+<a name="70____JSON_数组"></a>
+### JSON 数组
 `JsonArray`类表示JSON数组。
 
 JSON数组是一系列值（字符串，数字，布尔值）。
 
 JSON数组也可以包含空值。
 
-#### 创建JSON数组 {#Creating_JSON_arrays}
+<a name="71_____创建JSON数组"></a>
+#### 创建JSON数组
 可以使用默认构造函数创建空的JSON数组。
 
 您可以从字符串JSON表示形式创建JSON数组，如下所示：
@@ -1318,7 +1391,8 @@ String jsonString = "[\"foo\",\"bar\"]";
 JsonArray array = new JsonArray(jsonString);
 ```
 
-#### 将条目添加到JSON数组中 {#Adding_entries_into_a_JSON_array}
+<a name="72_____将条目添加到JSON数组中"></a>
+#### 将条目添加到JSON数组中
 您可以使用`add`方法将条目添加到JSON数组中。
 
 ```java
@@ -1326,7 +1400,8 @@ JsonArray array = new JsonArray();
 array.add("foo").add(123).add(false);
 ```
 
-#### 从JSON数组获取值 {#Getting_values_from_a_JSON_array}
+<a name="73_____从JSON数组获取值"></a>
+#### 从JSON数组获取值
 您可以使用`getXXX`方法从JSON数组中获取值，例如：
 
 ```java
@@ -1335,10 +1410,12 @@ Integer intVal = array.getInteger(1);
 Boolean boolVal = array.getBoolean(2);
 ```
 
-#### 将JSON数组编码为字符串 {#Encoding_a_JSON_array_to_a_String}
+<a name="74_____将JSON数组编码为字符串"></a>
+#### 将JSON数组编码为字符串
 您可以使用`encode`将数组编码为String形式。
 
-#### 创建任意JSON {#Creating_arbitrary_JSON}
+<a name="75_____创建任意JSON"></a>
+#### 创建任意JSON
 创建JSON对象和数组假定您正在使用有效的字符串表示形式。
 
 如果不确定字符串的有效性，则应改用`Json.decodeValue`。
@@ -1356,7 +1433,8 @@ if (object instanceof JsonObject) {
 }
 ```
 
-## JSON指针 {#Json_Pointers}
+<a name="76___JSON指针"></a>
+## JSON指针
 Vert.x提供了[来自RFC6901的Json指针](https://tools.ietf.org/html/rfc6901)的实现。 您可以将指针用于查询和编写。 您可以使用字符串，URI或手动添加路径来构建`JsonPointer`：
 
 ```java
@@ -1381,12 +1459,14 @@ arrayPointer.writeJson(jsonArray, "new element");
 
 您可以通过提供`JsonPointerIterator`的自定义实现，将Vert.x的Json指针与任何对象模型一起使用
 
-## 缓冲区 {#Buffers}
+<a name="77___缓冲区"></a>
+## 缓冲区
 大多数数据使用缓冲区在Vert.x内部混洗。
 
 缓冲区是可以读取或写入的零个或多个字节的序列，并根据需要自动扩展以容纳写入其中的任何字节。 您也许可以将缓冲区视为智能字节数组。
 
-### 创建缓冲区 {#Creating_buffers}
+<a name="78____创建缓冲区"></a>
+### 创建缓冲区
 可以使用静态的`Buffer.buffer`方法之一来创建缓冲区。
 
 可以从字符串或字节数组初始化缓冲区，也可以创建空缓冲区。
@@ -1426,10 +1506,12 @@ Buffer buff = Buffer.buffer(bytes);
 Buffer buff = Buffer.buffer(10000);
 ```
 
-### 写入缓冲区 {#Writing_to_a_Buffer}
+<a name="79____写入缓冲区"></a>
+### 写入缓冲区
 有两种写入缓冲区的方法：追加和随机访问。 无论哪种情况，缓冲区将始终自动扩展以包含字节。 带有缓冲区的`IndexOutOfBoundsException`是不可能的。
 
-#### 追加到缓冲区 {#Appending_to_a_Buffer}
+<a name="80_____追加到缓冲区"></a>
+#### 追加到缓冲区
 要追加到缓冲区，可以使用`appendXXX`方法。 存在用于附加各种不同类型的附加方法。
 
  `appendXXX`方法的返回值是缓冲区本身，因此可以将它们链接起来：
@@ -1442,7 +1524,8 @@ buff.appendInt(123).appendString("hello\n");
 socket.write(buff);
 ```
 
-#### 随机存取缓冲区写入 {#Random_access_buffer_writes}
+<a name="81_____随机存取缓冲区写入"></a>
+#### 随机存取缓冲区写入
 您也可以使用`setXXX`方法以特定的索引写入缓冲区。 存在用于各种不同数据类型的设置方法。 所有set方法都将索引作为第一个参数-这表示缓冲区中开始写入数据的位置。
 
 缓冲区将始终根据需要扩展以容纳数据。
@@ -1454,7 +1537,8 @@ buff.setInt(1000, 123);
 buff.setString(0, "hello");
 ```
 
-### 从缓冲区读取 {#Reading_from_a_Buffer}
+<a name="82____从缓冲区读取"></a>
+### 从缓冲区读取
 使用`getXXX`方法从缓冲区读取数据。 存在各种数据类型的Get方法。 这些方法的第一个参数是缓冲区中从何处获取数据的索引。
 
 ```java
@@ -1464,7 +1548,8 @@ for (int i = 0; i < buff.length(); i += 4) {
 }
 ```
 
-### 使用无符号数字 {#Working_with_unsigned_numbers}
+<a name="83____使用无符号数字"></a>
+### 使用无符号数字
 可以使用`getUnsignedXXX`，`appendUnsignedXXX`和`setUnsignedXXX`方法从缓冲区读取无符号的数字或将其附加/设置到缓冲区。 在为网络协议实现编解码器时最有用的，该编解码器已优化以最小化带宽消耗。
 
 在下面的例子中，值200被设置在指定的位置，只有一个字节:
@@ -1478,29 +1563,36 @@ System.out.println(buff.getUnsignedByte(pos));
 
 控制台显示“200”。
 
-### 缓冲区长度 {#Buffer_length}
+<a name="84____缓冲区长度"></a>
+### 缓冲区长度
 使用`length`获得缓冲区的长度。 缓冲区的长度是缓冲区的最大索引+ 1。
 
-### 复制缓冲区 {#Copying_buffers}
+<a name="85____复制缓冲区"></a>
+### 复制缓冲区
 使用`copy`制作缓冲区的副本
 
-### 切片缓冲区 {#Slicing_buffers}
+<a name="86____切片缓冲区"></a>
+### 切片缓冲区
 切片缓冲区是一个新的缓冲区，它返回到原始缓冲区，即它不复制底层数据。使用`slice`创建一个切片缓冲区
 
-### 缓冲区重用 {#Buffer_re_use}
+<a name="87____缓冲区重用"></a>
+### 缓冲区重用
 将缓冲区写入套接字或其他类似位置后，将无法重复使用它们。
 
-## 编写TCP服务器和客户端 {#Writing_TCP_servers_and_clients}
+<a name="88___编写TCP服务器和客户端"></a>
+## 编写TCP服务器和客户端
 Vert.x允许您轻松编写不阻塞的TCP客户端和服务器。
 
-### 创建一个TCP服务器 {#Creating_a_TCP_server}
+<a name="89____创建一个TCP服务器"></a>
+### 创建一个TCP服务器
 使用所有默认选项创建TCP服务器的最简单方法如下：
 
 ```java
 NetServer server = vertx.createNetServer();
 ```
 
-### 配置TCP服务器 {#Configuring_a_TCP_server}
+<a name="90____配置TCP服务器"></a>
+### 配置TCP服务器
 如果您不希望使用默认值，则可以通过在创建服务器时传入`NetServerOptions`实例来配置服务器：
 
 ```java
@@ -1508,7 +1600,8 @@ NetServerOptions options = new NetServerOptions().setPort(4321);
 NetServer server = vertx.createNetServer(options);
 ```
 
-### 开始服务器监听 {#Start_the_Server_Listening}
+<a name="91____开始服务器监听"></a>
+### 开始服务器监听
 要告诉服务器侦听传入请求，可以使用`listen`替代方法之一。
 
 要告诉服务器侦听选项中指定的主机和端口：
@@ -1542,7 +1635,8 @@ server.listen(1234, "localhost", res -> {
 });
 ```
 
-### 在随机端口上监听 {#Listening_on_a_random_port}
+<a name="92____在随机端口上监听"></a>
+### 在随机端口上监听
 如果将`0`用作侦听端口，则服务器将找到一个未使用的随机端口进行侦听。
 
 要找出服务器正在监听的真实端口，可以调用`actualPort`。
@@ -1558,7 +1652,8 @@ server.listen(0, "localhost", res -> {
 });
 ```
 
-### 收到传入连接的通知 {#Getting_notified_of_incoming_connections}
+<a name="93____收到传入连接的通知"></a>
+### 收到传入连接的通知
 要在建立连接时收到通知，您需要设置一个`connectHandler`：
 
 ```java
@@ -1572,7 +1667,8 @@ server.connectHandler(socket -> {
 
 这是实际连接的类似于套接字的接口，它允许您读取和写入数据以及执行其他各种操作，例如关闭套接字。
 
-### 从套接字读取数据 {#Reading_data_from_the_socket}
+<a name="94____从套接字读取数据"></a>
+### 从套接字读取数据
 要从套接字读取数据，请在套接字上设置`handler`。
 
 每次在套接字上接收到数据时，将使用`Buffer`实例调用此处理程序。
@@ -1586,7 +1682,8 @@ server.connectHandler(socket -> {
 });
 ```
 
-### 将数据写入套接字 {#Writing_data_to_a_socket}
+<a name="95____将数据写入套接字"></a>
+### 将数据写入套接字
 您使用`write`之一写入套接字。
 
 ```java
@@ -1602,7 +1699,8 @@ socket.write("some data", "UTF-16");
 
 写操作是异步的，直到写调用返回后一段时间才可能发生。
 
-### 关闭处理程序 {#Closed_handler}
+<a name="96____关闭处理程序"></a>
+### 关闭处理程序
 如果您想在套接字关闭时收到通知，可以在其上设置一个`closeHandler`：
 
 ```java
@@ -1611,24 +1709,28 @@ socket.closeHandler(v -> {
 });
 ```
 
-### 处理异常 {#Handling_exceptions}
+<a name="97____处理异常"></a>
+### 处理异常
 您可以设置`exceptionHandler`来接收套接字上发生的任何异常。
 
 您可以设置`exceptionHandler`来接收将连接传递给`connectHandler`之前发生的任何异常，例如在TLS握手期间。
 
-### 事件总线写处理程序 {#Event_bus_write_handler}
+<a name="98____事件总线写处理程序"></a>
+### 事件总线写处理程序
 每个套接字都会在事件总线上自动注册一个处理程序，并且在此处理程序中接收到任何缓冲区时，它将它们写入自身。
 
 这使您能够将数据写入socket，socket可能位于完全不同的verticle，甚至可能位于不同的 Vert.x实例。将缓冲区发送到该处理程序的地址。
 
 处理程序的地址是`writeHandlerID`
 
-### 本地和远程地址 {#Local_and_remote_addresses}
+<a name="99____本地和远程地址"></a>
+### 本地和远程地址
 可以使用`localAddress`检索`NetSocket`的本地地址。
 
 可以使用`remoteAddress`来检索`NetSocket`的远程地址（即连接另一端的地址）。
 
-### 从类路径发送文件或资源 {#Sending_files_or_resources_from_the_classpath}
+<a name="100____从类路径发送文件或资源"></a>
+### 从类路径发送文件或资源
 文件和类路径资源可以直接使用`sendFile`写入套接字。 这是一种非常有效的发送文件的方式，因为它可以由OS内核直接在操作系统支持的地方进行处理。
 
 有关限制或禁用类路径解析的信息，请参阅有关[从类路径提供文件](https://vertx.io/docs/vertx-core/java/#classpath)的章节。
@@ -1637,17 +1739,20 @@ socket.closeHandler(v -> {
 socket.sendFile("myfile.dat");
 ```
 
-### 流式套接字 {#Streaming_sockets}
+<a name="101____流式套接字"></a>
+### 流式套接字
 `NetSocket`的实例同时也是`ReadStream`和`WriteStream`实例，因此它们可用于向其他读写流中泵送数据。
 
 有关更多信息，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
-### 将连接升级到SSL/TLS {#Upgrading_connections_to_SSL_TLS}
+<a name="102____将连接升级到SSL_TLS"></a>
+### 将连接升级到SSL/TLS
 非SSL/TLS连接可以使用`upgradeToSsl`升级到SSL/TLS。
 
 必须为SSL/TLS配置服务器或客户端才能正常工作。 有关更多信息，请参见[SSL/TLS章节](https://vertx.io/docs/vertx-core/java/#ssl) 。
 
-### 关闭TCP服务器 {#Closing_a_TCP_Server}
+<a name="103____关闭TCP服务器"></a>
+### 关闭TCP服务器
 调用`close`关闭服务器。 关闭服务器将关闭所有打开的连接并释放所有服务器资源。
 
 关闭实际上是异步的，并且可能直到调用返回后的一段时间才能完成。 如果您想在实际关闭完成时收到通知，则可以传入处理程序。
@@ -1664,10 +1769,12 @@ server.close(res -> {
 });
 ```
 
-### 自动清理的verticles {#Automatic_clean_up_in_verticles}
+<a name="104____自动清理的verticles"></a>
+### 自动清理的verticles
 如果您要从verticles中创建TCP服务器和客户端，则取消部署verticles时，这些服务器和客户端将自动关闭。
 
-### 扩展-共享TCP服务器 {#Scaling___sharing_TCP_servers}
+<a name="105____扩展_共享TCP服务器"></a>
+### 扩展-共享TCP服务器
 任何TCP服务器的处理程序始终在同一事件循环线程上执行。
 
 这意味着，如果您在具有很多核心的服务器上运行，并且仅部署了一个实例，那么您的服务器上最多将使用一个核心。
@@ -1712,14 +1819,16 @@ vertx.deployVerticle("com.mycompany.MyVerticle", options);
 
 因此，Vert.x TCP服务器可以扩展可用核心，而每个实例保持单线程。
 
-### 创建一个TCP客户端 {#Creating_a_TCP_client}
+<a name="106____创建一个TCP客户端"></a>
+### 创建一个TCP客户端
 使用所有默认选项创建TCP客户端的最简单方法如下：
 
 ```java
 NetClient client = vertx.createNetClient();
 ```
 
-### 配置TCP客户端 {#Configuring_a_TCP_client}
+<a name="107____配置TCP客户端"></a>
+### 配置TCP客户端
 如果您不希望使用默认值，则可以通过在创建客户端时传入`NetClientOptions`实例来配置客户端：
 
 ```java
@@ -1727,7 +1836,8 @@ NetClientOptions options = new NetClientOptions().setConnectTimeout(10000);
 NetClient client = vertx.createNetClient(options);
 ```
 
-### 建立连接 {#Making_connections}
+<a name="108____建立连接"></a>
+### 建立连接
 要与服务器建立连接，请使用`connect`，指定服务器的端口和主机以及将被调用的处理程序，连接成功时将包含`NetSocket`的结果，如果连接失败则返回错误。
 
 ```java
@@ -1743,11 +1853,13 @@ client.connect(4321, "localhost", res -> {
 });
 ```
 
-### 配置连接尝试 {#Configuring_connection_attempts}
+<a name="109____配置连接尝试"></a>
+### 配置连接尝试
 可以将客户端配置为在无法连接的情况下自动重试连接服务器。 这是通过`setReconnectInterval`和`setReconnectAttempts`配置的。
 
 ------
 > **注意:** 当前，如果连接失败，Vert.x将不会尝试重新连接，重新连接尝试和间隔仅适用于创建初始连接。
+>
 ------
 
 ```java
@@ -1760,7 +1872,8 @@ NetClient client = vertx.createNetClient(options);
 
 默认情况下，禁用多次连接尝试。
 
-### 记录网络活动 {#Logging_network_activity}
+<a name="110____记录网络活动"></a>
+### 记录网络活动
 出于调试目的，可以记录网络活动：
 
 ```java
@@ -1784,17 +1897,20 @@ Netty用`DEBUG`级别和`io.netty.handler.logging.LoggingHandler`名称记录网
 
 您应该阅读[Netty日志记录](https://vertx.io/docs/vertx-core/java/#netty-logging)部分。
 
-### 配置服务器和客户端以使用SSL/TLS {#Configuring_servers_and_clients_to_work_with_SSL_TLS}
+<a name="111____配置服务器和客户端以使用SSL_TLS"></a>
+### 配置服务器和客户端以使用SSL/TLS
 可以将TCP客户端和服务器配置为使用[传输层安全性](https://en.wikipedia.org/wiki/Transport_Layer_Security)-TLS的早期版本称为SSL。
 
 无论是否使用SSL/TLS，服务器和客户端的API都是相同的，并且可以通过配置用于创建服务器或客户端的`NetClientOptions` 或 `NetServerOptions`实例来启用它们。
 
-#### 在服务器上启用SSL/TLS {#Enabling_SSL_TLS_on_the_server}
+<a name="112_____在服务器上启用SSL_TLS"></a>
+#### 在服务器上启用SSL/TLS
 SSL/TLS通过`ssl`启用。
 
 默认情况下，它是禁用的。
 
-#### 指定服务器的密钥/证书 {#Specifying_key_certificate_for_the_server}
+<a name="113_____指定服务器的密钥_证书"></a>
+#### 指定服务器的密钥/证书
 SSL/TLS服务器通常向客户端提供证书，以便向客户端验证其身份。
 
 可以通过多种方式为服务器配置证书/密钥：
@@ -1880,9 +1996,11 @@ Vert.x支持从PKCS8 PEM文件中读取未加密的基于RSA和/或ECC的私钥�
 
 ------
 > **警告:** 请记住，任何可以读取该文件的人都可以提取未加密的PKCS8或PKCS1 PEM文件中包含的密钥。 因此，请确保对此类PEM文件设置适当的访问限制，以防止滥用。
+>
 ------
 
-#### 指定服务器的信任 {#Specifying_trust_for_the_server}
+<a name="114_____指定服务器的信任"></a>
+#### 指定服务器的信任
 SSL/TLS服务器可以使用证书颁发机构来验证客户端的身份。
 
 可以通过多种方式为服务器配置证书颁发机构：
@@ -1974,12 +2092,14 @@ NetServerOptions options = new NetServerOptions().
 NetServer server = vertx.createNetServer(options);
 ```
 
-#### 在客户端上启用SSL/TLS {#Enabling_SSL_TLS_on_the_client}
+<a name="115_____在客户端上启用SSL_TLS"></a>
+#### 在客户端上启用SSL/TLS
 Net Client也可以轻松配置为使用SSL。 使用SSL和使用标准套接字时，它们具有完全相同的API。
 
 要在NetClient上启用SSL，请调用函数`setSSL(true)`。
 
-#### 客户端信任配置 {#Client_trust_configuration}
+<a name="116_____客户端信任配置"></a>
+#### 客户端信任配置
 如果在客户端上将`trustAll`设置为true，则客户端将信任所有服务器证书。 连接仍将被加密，但是此模式容易受到“中间人”攻击。 即 您不确定要连接到谁。 请谨慎使用。 默认值为false。
 
 ```java
@@ -2083,7 +2203,8 @@ NetClientOptions options = new NetClientOptions().
 NetClient client = vertx.createNetClient(options);
 ```
 
-#### 指定客户端的密钥/证书 {#Specifying_key_certificate_for_the_client}
+<a name="117_____指定客户端的密钥_证书"></a>
+#### 指定客户端的密钥/证书
 如果服务器要求客户端身份验证，则客户端在连接时必须向服务器出示自己的证书。 可以通过几种方式配置客户端：
 
 第一种方法是通过指定包含密钥和证书的Java密钥存储的位置。 同样，它只是常规的Java密钥存储区。 客户端密钥库的位置是通过使用`jks options`上的函数`path`来设置的。
@@ -2161,10 +2282,12 @@ NetClient client = vertx.createNetClient(options);
 
 请记住，pem配置中，私钥未加密。
 
-#### 用于测试和开发目的的自签名证书 {#Self_signed_certificates_for_testing_and_development_purposes}
+<a name="118_____用于测试和开发目的的自签名证书"></a>
+#### 用于测试和开发目的的自签名证书
 
 ------
 > **慎重:** 不要在生产设置中使用此功能，请注意，生成的密钥非常不安全。
+>
 ------
 
 通常，需要自签名证书，无论是用于单元/集成测试还是用于运行应用程序的开发版本。
@@ -2219,7 +2342,8 @@ vertx.createHttpServer(new HttpServerOptions()
   .listen(8080);
 ```
 
-#### 吊销证书颁发机构 {#Revoking_certificate_authorities}
+<a name="119_____吊销证书颁发机构"></a>
+#### 吊销证书颁发机构
 可以将信任配置为使用证书吊销列表（CRL）来处理应该不再受信任的吊销证书。 `crlPath`配置crl列表以使用：
 
 ```java
@@ -2241,7 +2365,8 @@ NetClientOptions options = new NetClientOptions().
 NetClient client = vertx.createNetClient(options);
 ```
 
-#### 配置密码套件 {#Configuring_the_Cipher_suite}
+<a name="120_____配置密码套件"></a>
+#### 配置密码套件
 默认情况下，TLS配置将使用运行Vert.x的JVM的Cipher套件。 可以使用以下一组启用密码来配置此密码套件：
 
 ```java
@@ -2257,7 +2382,8 @@ NetServer server = vertx.createNetServer(options);
 
 密码套件可以在`NetServerOptions`或`NetClientOptions`配置中指定。
 
-#### 配置TLS协议版本 {#Configuring_TLS_protocol_versions}
+<a name="121_____配置TLS协议版本"></a>
+#### 配置TLS协议版本
 默认情况下，TLS配置将使用以下协议版本：SSLv2Hello，TLSv1，TLSv1.1和TLSv1.2。 可以通过显式添加启用的协议来配置协议版本：
 
 ```java
@@ -2271,7 +2397,8 @@ NetServer server = vertx.createNetServer(options);
 
 协议版本可以在`NetServerOptions`或`NetClientOptions`配置中指定。
 
-#### SSL引擎 {#SSL_engine}
+<a name="122_____SSL引擎"></a>
+#### SSL引擎
 可以将引擎实现配置为使用[OpenSSL](https://www.openssl.org/)而不是JDK实现。 与JDK引擎相比，OpenSSL提供了更好的性能和CPU使用率，并且具有JDK版本独立性。
 
 使用的引擎选项是
@@ -2297,7 +2424,8 @@ options = new NetServerOptions().
   setOpenSslEngineOptions(new OpenSSLEngineOptions());
 ```
 
-#### 服务器名称指示(SNI) {#Server_Name_Indication__SNI_}
+<a name="123_____服务器名称指示_SNI_"></a>
+#### 服务器名称指示(SNI)
 服务器名称指示（SNI）是TLS扩展，客户端通过该扩展名指定尝试连接的主机名：在TLS握手期间，客户端提供服务器名称，服务器可以使用该名称来响应该服务器名称的特定证书而不是 默认部署的证书。 如果服务器要求客户端身份验证，则服务器可以根据指定的服务器名称使用特定的受信任CA证书。
 
 当SNI处于活动状态时，服务器使用
@@ -2367,7 +2495,8 @@ client.connect(1234, "localhost", "server.name", res -> {
 - 连接到IP时显示服务器名称
 - 使用短名称时强制显示服务器名称
 
-#### 应用层协议协商(ALPN) {#Application_Layer_Protocol_Negotiation__ALPN_}
+<a name="124_____应用层协议协商_ALPN_"></a>
+#### 应用层协议协商(ALPN)
 应用程序层协议协商（ALPN）是用于应用程序层协议协商的TLS扩展。 它由HTTP/2使用：在TLS握手期间，客户端会提供其接受的应用程序协议列表，服务器将以其支持的协议进行响应。
 
 如果您使用的是Java 9，那很好，您可以直接使用HTTP/2，而无需执行其他步骤。
@@ -2384,12 +2513,14 @@ Java 8不支持现成的ALPN，因此应通过其他方式启用ALPN：
 - ALPN可用于OpenSSL时使用`OpenSSLEngineOptions`
 - 否则失败
 
-##### OpenSSL ALPN支持 {#OpenSSL_ALPN_support}
+<a name="125______OpenSSL_ALPN支持"></a>
+##### OpenSSL ALPN支持
 OpenSSL提供本机ALPN支持。
 
 OpenSSL需要配置`setOpenSslEngineOptions`，并在类路径上使用[netty-tcnative](http://netty.io/wiki/forked-tomcat-native.html)jar。 根据tcnative的实现，使用tcnative可能需要在您的操作系统上安装OpenSSL。
 
-##### Jetty-ALPN支持 {#Jetty_ALPN_support}
+<a name="126______Jetty_ALPN支持"></a>
+##### Jetty-ALPN支持
 Jetty-ALPN是一个小jar，它覆盖了Java 8分发的一些类以支持ALPN。
 
 JVM必须在其`bootclasspath`中以*alpn-boot-${version}.jar*启动：
@@ -2408,7 +2539,8 @@ JVM必须在其`bootclasspath`中以*alpn-boot-${version}.jar*启动：
 -javaagent:/path/to/alpn/agent
 ```
 
-### 使用代理进行客户端连接 {#Using_a_proxy_for_client_connections}
+<a name="127____使用代理进行客户端连接"></a>
+### 使用代理进行客户端连接
 `NetClient`支持HTTP/1.x *CONNECT*, *SOCKS4a* 或 *SOCKS5*代理。
 
 通过设置包含代理类型，主机名，端口以及用户名和密码（可选）的`ProxyOptions`对象，可以在`NetClientOptions`中配置代理。
@@ -2425,21 +2557,24 @@ NetClient client = vertx.createNetClient(options);
 
 DNS解析始终在代理服务器上完成，为了实现SOCKS4客户端的功能，必须在本地解析DNS地址。
 
-## 编写HTTP服务器和客户端 {#Writing_HTTP_servers_and_clients}
+<a name="128___编写HTTP服务器和客户端"></a>
+## 编写HTTP服务器和客户端
 Vert.x允许您轻松编写不阻塞的HTTP客户端和服务器。
 
 Vert.x支持HTTP/1.0, HTTP/1.1 和 HTTP/2协议。
 
 HTTP的基本API与HTTP/1.x和HTTP/2相同，特定的API功能可用于处理HTTP/2协议。
 
-### 创建一个HTTP服务器 {#Creating_an_HTTP_Server}
+<a name="129____创建一个HTTP服务器"></a>
+### 创建一个HTTP服务器
 使用所有默认选项创建HTTP服务器的最简单方法如下：
 
 ```java
 HttpServer server = vertx.createHttpServer();
 ```
 
-### 配置HTTP服务器 {#Configuring_an_HTTP_server}
+<a name="130____配置HTTP服务器"></a>
+### 配置HTTP服务器
 如果您不希望使用默认值，则可以在创建服务器时通过传入`HttpServerOptions`实例来配置服务器：
 
 ```java
@@ -2448,7 +2583,8 @@ HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(100
 HttpServer server = vertx.createHttpServer(options);
 ```
 
-### 配置HTTP/2服务器 {#Configuring_an_HTTP_2_server}
+<a name="131____配置HTTP_2服务器"></a>
+### 配置HTTP/2服务器
 Vert.x通过TLS `h2`和TCP `h2c`支持HTTP/2。
 
 - `h2` 在[应用层协议协商](https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation) (ALPN)协商的TLS上使用时，标识HTTP/2协议
@@ -2475,6 +2611,7 @@ ALPN通常会同意`h2`协议，尽管如果服务器或客户端决定使用htt
 
 ------
 > **警告:** 大多数浏览器均不支持`h2c`，因此，为网站服务时，应使用`h2`而不是`h2c`。
+>
 ------
 
 服务器接受HTTP/2连接时，会将其`initial settings(初始设置)`发送给客户端。 这些设置定义客户端如何使用连接，服务器的默认初始设置为：
@@ -2484,9 +2621,11 @@ ALPN通常会同意`h2`协议，尽管如果服务器或客户端决定使用htt
 
 ------
 > **注意:** Worker Verticles与HTTP/2不兼容
+>
 ------
 
-### 记录网络服务器活动 {#Logging_network_server_activity}
+<a name="132____记录网络服务器活动"></a>
+### 记录网络服务器活动
 出于调试目的，可以记录网络活动。
 
 ```java
@@ -2497,7 +2636,8 @@ HttpServer server = vertx.createHttpServer(options);
 
 有关详细说明，请参见[记录网络活动](https://vertx.io/docs/vertx-core/java/#logging_network_activity)一章。
 
-### 开始服务器监听 {#Start_the_Server_Listening}
+<a name="133____开始服务器监听"></a>
+### 开始服务器监听
 要告诉服务器侦听传入的请求，您可以使用一种`listen`方法。
 
 要告诉服务器侦听选项中指定的主机和端口：
@@ -2531,7 +2671,8 @@ server.listen(8080, "myhost.com", res -> {
 });
 ```
 
-### 收到传入请求的通知 {#Getting_notified_of_incoming_requests}
+<a name="134____收到传入请求的通知"></a>
+### 收到传入请求的通知
 要在请求到达时得到通知，您需要设置`requestHandler`：
 
 ```java
@@ -2541,7 +2682,8 @@ server.requestHandler(request -> {
 });
 ```
 
-### 处理请求 {#Handling_requests}
+<a name="135____处理请求"></a>
+### 处理请求
 当请求到达时，调用请求处理程序传递`HttpServerRequest`的实例。 该对象代表服务器端HTTP请求。
 
 当请求的头被完全读取时，将调用处理程序。
@@ -2560,20 +2702,24 @@ vertx.createHttpServer().requestHandler(request -> {
 }).listen(8080);
 ```
 
-#### Request 版本 {#Request_version}
+<a name="136_____Request_版本"></a>
+#### Request 版本
 可以使用`version`检索请求中指定的HTTP版本。
 
-#### Request 方法 {#Request_method}
+<a name="137_____Request_方法"></a>
+#### Request 方法
 使用`method`检索请求的HTTP方法。 （即GET，POST，PUT，DELETE，HEAD，OPTIONS等）。
 
-#### Request URI {#Request_URI}
+<a name="138_____Request_URI"></a>
+#### Request URI
 使用`uri`检索请求的URI。
 
 注意，这是在HTTP请求中传递的实际URI，它几乎总是一个相对URI。
 
 URI如[HTTP规范的5.1.2节-请求URI](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html)中所定义。
 
-#### Request 路径 {#Request_path}
+<a name="139_____Request_路径"></a>
+#### Request 路径
 使用`path`返回URI的路径部分
 
 例如，如果请求URI为：
@@ -2584,7 +2730,8 @@ URI如[HTTP规范的5.1.2节-请求URI](https://www.w3.org/Protocols/rfc2616/rfc
 
 `/a/b/c/page.html`
 
-#### Request query {#Request_query}
+<a name="140_____Request_query"></a>
+#### Request query
 使用`query`返回URI的查询部分
 
 例如，如果请求URI为：
@@ -2595,7 +2742,8 @@ URI如[HTTP规范的5.1.2节-请求URI](https://www.w3.org/Protocols/rfc2616/rfc
 
 `param1=abc&param2=xyz`
 
-#### Request 头 {#Request_headers}
+<a name="141_____Request_头"></a>
+#### Request 头
 使用`headers`返回HTTP请求的标题。
 
 这将返回`MultiMap`的实例-类似于普通Map或Hash，但允许同一键具有多个值-这是因为HTTP允许具有相同键的多个标头值。
@@ -2612,12 +2760,14 @@ System.out.println("User agent is " + headers.get("user-agent"));
 System.out.println("User agent is " + headers.get("User-Agent"));
 ```
 
-#### Request host {#Request_host}
+<a name="142_____Request_host"></a>
+#### Request host
 使用`host`返回HTTP请求的主机。
 
 对于HTTP/1.x请求，返回`host`头，对于HTTP/1请求，返回`:authority`伪头。
 
-#### Request 参数 {#Request_parameters}
+<a name="143_____Request_参数"></a>
+#### Request 参数
 使用`params`返回HTTP请求的参数。
 
 就像`headers`一样，它会返回`MultiMap`的一个实例，因为可以有多个具有相同名称的参数。
@@ -2635,16 +2785,20 @@ param2: 'xyz
 
 请注意，这些请求参数是从请求的URL中检索的。 如果您在`multi-part/form-data`请求的正文中提交的表单属性是作为HTML表单提交的一部分发送的，则它们不会出现在此处的参数中。
 
-#### Remote 地址 {#Remote_address}
+<a name="144_____Remote_地址"></a>
+#### Remote 地址
 可以使用`remoteAddress`检索请求的发送者的地址。
 
-#### 绝对 URI {#Absolute_URI}
+<a name="145_____绝对_URI"></a>
+#### 绝对 URI
 HTTP请求中传递的URI通常是相对的。 如果您希望检索与请求相对应的绝对URI，则可以使用`absoluteURI`获取它。
 
-#### End handler {#End_handler}
+<a name="146_____End_handler"></a>
+#### End handler
 当整个请求（包括任何主体）都已被完全读取时，将调用请求的`endHandler`。
 
-#### 从请求主体读取数据 {#Reading_Data_from_the_Request_Body}
+<a name="147_____从请求主体读取数据"></a>
+#### 从请求主体读取数据
 HTTP请求通常包含我们要读取的正文。 如前所述，仅当请求的标头到达时，请求处理程序才被调用，因此请求对象此时没有主体。
 
 这是因为主体可能很大（例如，文件上传），而且我们通常不希望在将整个主体交给您之前将其缓存在内存中，因为那样可能会导致服务器耗尽可用内存。
@@ -2682,12 +2836,14 @@ request.bodyHandler(totalBuffer -> {
 });
 ```
 
-#### 泵送请求 {#Pumping_requests}
+<a name="148_____泵送请求"></a>
+#### 泵送请求
 请求对象是`ReadStream`，因此您可以将请求主体泵送到任何`WriteStream`实例。
 
 有关详细说明，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
-#### 处理HTML表单 {#Handling_HTML_forms}
+<a name="149_____处理HTML表单"></a>
+#### 处理HTML表单
 HTML表单可以以`application/x-www-form-urlencoded` 或 `multipart/form-data`的内容类型提交。
 
 对于url编码的表单，表单属性是在url中编码的，就像普通的查询参数一样。
@@ -2708,7 +2864,8 @@ server.requestHandler(request -> {
 });
 ```
 
-#### 处理表单文件上传 {#Handling_form_file_uploads}
+<a name="150_____处理表单文件上传"></a>
+#### 处理表单文件上传
 Vert.x还可以处理以多部分请求正文编码的文件上传。
 
 要接收文件上传，您告诉Vert.x期望采用多部分表单，并在请求上设置`uploadHandler`。
@@ -2748,9 +2905,11 @@ request.uploadHandler(upload -> {
 
 ------
 > **警告:** 确保在生产系统中检查文件名，以避免恶意客户端将文件上传到文件系统上的任意位置。 有关更多信息，请参见[安全说明](https://vertx.io/docs/vertx-core/java/#_security_notes)。
+>
 ------
 
-#### 处理 cookies {#Handling_cookies}
+<a name="151_____处理_cookies"></a>
+#### 处理 cookies
 使用`getCookie`按名称检索cookie，或使用`cookieMap`检索所有cookie。
 
 要删除一个cookie，使用`removeCookie`。
@@ -2773,14 +2932,16 @@ String cookieValue = someCookie.getValue();
 request.response().addCookie(Cookie.cookie("othercookie", "somevalue"));
 ```
 
-#### 处理压缩的主体 {#Handling_compressed_body}
+<a name="152_____处理压缩的主体"></a>
+#### 处理压缩的主体
 Vert.x可以处理由客户端使用*deflate* 或 *gzip*算法编码的压缩主体有效载荷。
 
 要启用解压缩，请在创建服务器时在选项上设置`setDecompressionSupported`。
 
 默认情况下解压是禁用的。
 
-#### 接收自定义HTTP/2帧 {#Receiving_custom_HTTP_2_frames}
+<a name="153_____接收自定义HTTP_2帧"></a>
+#### 接收自定义HTTP/2帧
 HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
 要接收自定义帧，您可以对请求使用`customFrameHandler`，它将在每次自定义帧到达时被调用。这里有一个例子:
@@ -2795,15 +2956,18 @@ request.customFrameHandler(frame -> {
 
 HTTP/2帧不受流控制—当接收到自定义帧时，无论请求是否暂停，都会立即调用帧处理程序
 
-#### 非标准的HTTP方法 {#Non_standard_HTTP_methods}
+<a name="154_____非标准的HTTP方法"></a>
+#### 非标准的HTTP方法
 `OTHER` HTTP方法用于非标准方法，在本例中，`rawMethod`返回客户端发送的HTTP方法。
 
-### 发送回响应 {#Sending_back_responses}
+<a name="155____发送回响应"></a>
+### 发送回响应
 服务器响应对象是`HttpServerResponse`的一个实例，它是从带有`response`的请求中获得的。
 
 您可以使用响应对象将响应写回到HTTP客户端。
 
-#### 设置状态码和消息 {#Setting_status_code_and_message}
+<a name="156_____设置状态码和消息"></a>
+#### 设置状态码和消息
 响应的默认HTTP状态码是`200`，表示`OK`。
 
 使用`setStatusCode`来设置不同的代码。
@@ -2814,9 +2978,11 @@ HTTP/2帧不受流控制—当接收到自定义帧时，无论请求是否暂�
 
 ------
 > **注意:** 对于HTTP/2，状态不会出现在响应中，因为协议不会将消息传输到客户端
+>
 ------
 
-#### 编写HTTP响应 {#Writing_HTTP_responses}
+<a name="157_____编写HTTP响应"></a>
+#### 编写HTTP响应
 要将数据写入HTTP响应，需要使用`write`操作之一。
 
 在响应结束之前，可以多次调用它们。 可以通过以下几种方式调用它们：
@@ -2848,7 +3014,8 @@ response.write("hello world!", "UTF-16");
 
 首次写入调用会导致将响应标头写入响应。 因此，如果您不使用HTTP分块，则必须在写响应之前设置`Content-Length`标头，否则将为时已晚。 如果您使用的是HTTP分块，则不必担心。
 
-#### 结束HTTP响应 {#Ending_HTTP_responses}
+<a name="158_____结束HTTP响应"></a>
+#### 结束HTTP响应
 一旦你完成了HTTP响应，你应该`end`它。
 
 这可以通过几种方式完成：
@@ -2868,7 +3035,8 @@ HttpServerResponse response = request.response();
 response.end("hello world!");
 ```
 
-#### 关闭基础连接 {#Closing_the_underlying_connection}
+<a name="159_____关闭基础连接"></a>
+#### 关闭基础连接
 您可以使用`close`关闭底层TCP连接。
 
 响应结束时，Vert.x将自动关闭非保持活动连接。
@@ -2877,7 +3045,8 @@ response.end("hello world!");
 
 HTTP/2连接在关闭响应之前发送一个{@literal GOAWAY}帧。
 
-#### 设置响应头 {#Setting_response_headers}
+<a name="160_____设置响应头"></a>
+#### 设置响应头
 HTTP响应报头可以通过直接添加它们到`headers`响应：
 
 ```java
@@ -2896,7 +3065,8 @@ response.putHeader("content-type", "text/html").putHeader("other-header", "wibbl
 
 必须在写入响应主体的任何部分之前添加所有的响应头。
 
-#### 分块的HTTP响应和trailers {#Chunked_HTTP_responses_and_trailers}
+<a name="161_____分块的HTTP响应和trailers"></a>
+#### 分块的HTTP响应和trailers
 Vert.x支持[HTTP块传输编码](https://en.wikipedia.org/wiki/Chunked_transfer_encoding)。
 
 这允许将HTTP响应主体分块编写，并且通常在将大型响应主体流式传输到客户端并且事先不知道总大小时使用。
@@ -2914,6 +3084,7 @@ response.setChunked(true);
 
 ------
 > **注意:** 分块响应对HTTP/2流无效
+>
 ------
 
 要将trailers添加到响应中，请将其直接添加到`trailers`中。
@@ -2933,7 +3104,8 @@ response.setChunked(true);
 response.putTrailer("X-wibble", "woobble").putTrailer("X-quux", "flooble");
 ```
 
-#### 直接从磁盘或类路径提供文件 {#Serving_files_directly_from_disk_or_the_classpath}
+<a name="162_____直接从磁盘或类路径提供文件"></a>
+#### 直接从磁盘或类路径提供文件
 如果您正在编写Web服务器，则从磁盘提供文件的一种方法是将其作为`AsyncFile`打开并将其泵送至HTTP响应。
 
 或者，您可以使用`readFile`一次性加载它，然后直接将其写入响应中。
@@ -2962,10 +3134,12 @@ vertx.createHttpServer().requestHandler(request -> {
 
 ------
 > **注意:** 如果您在使用HTTPS时使用`sendFile`，它将通过用户空间进行复制，因为如果内核将数据直接从磁盘复制到套接字，则不会给我们提供任何加密的机会。
+>
 ------
 
 ------
 > **警告:** 如果您要直接使用Vert.x编写Web服务器，请注意用户不能利用该路径访问您要为其提供服务的目录或类路径之外的文件，而使用Vert.x Web可能更安全。
+>
 ------
 
 如果只需要服务文件的一部分，例如从给定的字节开始，则可以通过执行以下操作来实现：
@@ -3005,7 +3179,8 @@ vertx.createHttpServer().requestHandler(request -> {
 }).listen(8080);
 ```
 
-#### Pumping 响应 {#Pumping_responses}
+<a name="163_____Pumping_响应"></a>
+#### Pumping 响应
 服务器响应是一个`WriteStream`实例，因此您可以从任何`ReadStream`， 例如， `AsyncFile`，`NetSocket`，`WebSocket`或`HttpServerRequest`。
 
 这是一个示例，该示例针对任何PUT方法在响应中回显请求正文。 它为主体使用泵，因此即使HTTP请求主体比任何时候都可容纳在内存中的容量大得多，它也将起作用：
@@ -3023,7 +3198,8 @@ vertx.createHttpServer().requestHandler(request -> {
 }).listen(8080);
 ```
 
-#### 编写HTTP/2帧 {#Writing_HTTP_2_frames}
+<a name="164_____编写HTTP_2帧"></a>
+#### 编写HTTP/2帧
 HTTP/2是带有`HTTP请求/响应模型`的各种框架的框架协议。 该协议允许发送和接收其他类型的帧。
 
 要发送这样的帧，可以在响应中使用`writeCustomFrame`。 这是一个例子：
@@ -3039,7 +3215,8 @@ response.writeCustomFrame(frameType, frameStatus, payload);
 
 这些帧将立即发送，并且不受流控制-当发送此类帧时，可以在其他{@literal DATA}帧之前完成。
 
-#### 流重置 {#Stream_reset}
+<a name="165_____流重置"></a>
+#### 流重置
 HTTP/1.x不允许对请求或响应流进行干净的重置，例如，当客户端上传服务器上已经存在的资源时，服务器需要接受整个响应。
 
 HTTP/2支持在请求/响应期间的任何时间进行流重置：
@@ -3067,7 +3244,8 @@ request.response().exceptionHandler(err -> {
 });
 ```
 
-#### 服务器推送 {#Server_push}
+<a name="166_____服务器推送"></a>
+#### 服务器推送
 服务器推送是HTTP/2的一项新功能，它可以为单个客户端请求并行发送多个响应。
 
 服务器处理请求时，可以将请求/响应推送到客户端：
@@ -3102,10 +3280,12 @@ response.sendFile("<html><head><script src=\"/main.js\"></script></head><body></
 
 必须在发起响应结束之前调用`push`方法，但是可以在之后写入被推送的响应。
 
-#### 处理异常 {#Handling_exceptions}
+<a name="167_____处理异常"></a>
+#### 处理异常
 您可以设置`exceptionHandler`来接收将连接传递给`requestHandler`或`websocketHandler`之前发生的任何异常，例如在TLS握手期间。
 
-### HTTP 压缩 {#HTTP_Compression}
+<a name="168____HTTP_压缩"></a>
+### HTTP 压缩
 Vert.x开箱即用地支持HTTP压缩。
 
 这意味着您可以在将响应正文发送回客户端之前自动对其进行压缩。
@@ -3142,7 +3322,8 @@ request.response()
 
 默认情况下-如果通过`setCompressionSupported`启用了压缩-Vert.x将使用'6'作为压缩级别，但是该参数可以配置为使用`setCompressionLevel`处理任何情况。
 
-### 创建一个HTTP客户端 {#Creating_an_HTTP_client}
+<a name="169____创建一个HTTP客户端"></a>
+### 创建一个HTTP客户端
 您可以使用以下默认选项创建一个`HttpClient`实例：
 
 ```java
@@ -3186,7 +3367,8 @@ http服务器可能不支持HTTP/2，当响应到达时，可以使用`version`�
 
 当客户端连接到HTTP/2服务器时，它将“初始设置”发送到服务器。 这些设置定义服务器如何使用连接，客户端的默认初始设置是HTTP/2 RFC定义的默认值。
 
-### 记录网络客户端活动 {#Logging_network_client_activity}
+<a name="170____记录网络客户端活动"></a>
+### 记录网络客户端活动
 出于调试目的，可以记录网络活动。
 
 ```java
@@ -3196,7 +3378,8 @@ HttpClient client = vertx.createHttpClient(options);
 
 有关详细说明，请参见[记录网络活动](https://vertx.io/docs/vertx-core/java/#logging_network_activity) 一章。
 
-### 发出请求 {#Making_requests}
+<a name="171____发出请求"></a>
+### 发出请求
 http客户端非常灵活，可以通过多种方式发出请求。
 
 通常，您想通过http客户端向同一主机/端口发出许多请求。 为避免每次发出请求时都重复主机/端口，可以为客户端配置默认主机/端口：
@@ -3228,7 +3411,8 @@ client.getNow("foo.othercompany.com", "/other-uri", response -> {
 
 与客户端发出请求的所有不同方式都支持两种指定主机/端口的方法。
 
-#### 没有请求正文的简单请求 {#Simple_requests_with_no_request_body}
+<a name="172_____没有请求正文的简单请求"></a>
+#### 没有请求正文的简单请求
 通常，您会希望在没有请求正文的情况下发出HTTP请求。 HTTP GET，OPTIONS和HEAD请求通常是这种情况。
 
 使用Vert.x http客户端执行此操作的最简单方法是使用`Now`后缀的方法。 例如`getNow`。
@@ -3249,7 +3433,8 @@ client.headNow("/other-uri", response -> {
 });
 ```
 
-#### 编写一般请求 {#Writing_general_requests}
+<a name="173_____编写一般请求"></a>
+#### 编写一般请求
 在其他时间，直到运行时您才知道要发送的请求方法。 对于这种用例，我们提供了通用的请求方法，例如`request`，它允许您在运行时指定HTTP方法：
 
 ```java
@@ -3264,7 +3449,8 @@ client.request(HttpMethod.POST, "foo-uri", response -> {
 }).end("some-data");
 ```
 
-#### 编写请求主体 {#Writing_request_bodies}
+<a name="174_____编写请求主体"></a>
+#### 编写请求主体
 有时，您可能希望写入具有正文的请求，或者在发送请求之前希望写入请求头。
 
 为此，您可以调用一种特定的请求方法（例如`post`）或一种通用请求方法（例如`request`）。
@@ -3337,7 +3523,8 @@ request.end(buffer);
 
 如果您使用HTTP分块，则不需要`Content-Length`标头，因此不必预先计算大小。
 
-#### 编写请求标头 {#Writing_request_headers}
+<a name="175_____编写请求标头"></a>
+#### 编写请求标头
 您可以使用`headers` multi-map将标头写入请求，如下所示：
 
 ```java
@@ -3355,10 +3542,12 @@ request.putHeader("content-type", "application/json").putHeader("other-header", 
 
 如果您希望将标头写入请求，则必须在写入请求正文的任何部分之前这样做。
 
-#### 非标准HTTP方法 {#Non_standard_HTTP_methods}
+<a name="176_____非标准HTTP方法"></a>
+#### 非标准HTTP方法
 HTTP方法的`OTHER`用于非标准方法，使用此方法时，必须使用`setRawMethod`来设置要发送到服务器的原始方法。
 
-#### 结束HTTP请求 {#Ending_HTTP_requests}
+<a name="177_____结束HTTP请求"></a>
+#### 结束HTTP请求
 完成HTTP请求后，必须以`end`操作之一结束它。
 
 结束请求将导致写入所有标头（如果尚未写入标头）并将请求标记为已完成。
@@ -3379,7 +3568,8 @@ Buffer buffer = Buffer.buffer().appendFloat(12.3f).appendInt(321);
 request.end(buffer);
 ```
 
-#### 分块的HTTP请求 {#Chunked_HTTP_requests}
+<a name="178_____分块的HTTP请求"></a>
+#### 分块的HTTP请求
 Vert.x支持[HTTP块传输编码](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) 。
 
 这允许将HTTP请求主体分块编写，并且通常在将大型请求主体流式传输到服务器（事先不知道其大小）时使用。
@@ -3399,12 +3589,14 @@ for (int i = 0; i < 10; i++) {
 request.end();
 ```
 
-#### 请求超时 {#Request_timeouts}
+<a name="179_____请求超时"></a>
+#### 请求超时
 您可以使用`setTimeout`为特定的HTTP请求设置超时。
 
 如果请求在超时时间内未返回任何数据，则将异常传递给异常处理程序（如果提供），并且该请求将被关闭。
 
-#### 处理异常 {#Handling_exceptions}
+<a name="180_____处理异常"></a>
+#### 处理异常
 您可以通过在`HttpClientRequest`实例上设置异常处理程序来处理与请求相对应的异常：
 
 ```java
@@ -3435,9 +3627,11 @@ request.end();
 
 ------
 > **重要:** `XXXNow`方法不能接收异常处理程序。
+>
 ------
 
-#### 在客户端请求上指定处理程序 {#Specifying_a_handler_on_the_client_request}
+<a name="181_____在客户端请求上指定处理程序"></a>
+#### 在客户端请求上指定处理程序
 或者，除了在创建客户端请求对象的调用中提供响应处理程序之外，还不能在创建请求时提供处理程序，以后再使用`handler`在请求对象本身上进行设置，例如：
 
 ```java
@@ -3447,7 +3641,8 @@ request.handler(response -> {
 });
 ```
 
-#### 将请求用作流 {#Using_the_request_as_a_stream}
+<a name="182_____将请求用作流"></a>
+#### 将请求用作流
 `HttpClientRequest`实例也是一个`WriteStream`，这意味着您可以从任何`ReadStream`实例中将其泵入。
 
 例如，可以将磁盘上的文件泵送到http请求正文，如下所示：
@@ -3459,7 +3654,8 @@ file.endHandler(v -> request.end());
 pump.start();
 ```
 
-#### 编写HTTP/2帧 {#Writing_HTTP_2_frames}
+<a name="183_____编写HTTP_2帧"></a>
+#### 编写HTTP/2帧
 HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
 要发送这样的帧，您可以对请求使用`write`。这里有一个例子:
@@ -3473,7 +3669,8 @@ Buffer payload = Buffer.buffer("some data");
 request.writeCustomFrame(frameType, frameStatus, payload);
 ```
 
-#### 流重置 {#Stream_reset}
+<a name="184_____流重置"></a>
+#### 流重置
 HTTP/1.x不允许对请求或响应流进行干净的重置，例如，当客户机上传服务器上已经存在的资源时，服务器需要接受整个响应。
 
 HTTP/2支持在请求/响应期间的任何时间进行流重置：
@@ -3501,7 +3698,8 @@ request.exceptionHandler(err -> {
 });
 ```
 
-### 处理HTTP响应 {#Handling_HTTP_responses}
+<a name="185____处理HTTP响应"></a>
+### 处理HTTP响应
 您会在请求方法中指定的处理程序中收到`HttpClientResponse`的实例，或者直接在`HttpClientRequest`对象上设置处理程序。
 
 您可以使用`statusCode`和`statusMessage`查询响应的状态码和状态消息。
@@ -3516,10 +3714,12 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-#### 将响应作为流使用 {#Using_the_response_as_a_stream}
+<a name="186_____将响应作为流使用"></a>
+#### 将响应作为流使用
 `HttpClientResponse`实例也是一个`ReadStream`，这意味着你可以把它泵到任何`WriteStream`实例。
 
-#### 响应头和trailers(尾部) {#Response_headers_and_trailers}
+<a name="187_____响应头和trailers_尾部_"></a>
+#### 响应头和trailers(尾部)
 Http响应可以包含标头。使用`headers`获取标头。
 
 返回的对象是一个`MultiMap`，因为HTTP头文件可以包含单个键的多个值。
@@ -3533,7 +3733,8 @@ String contentLength = response.headers().get("content-lengh");
 
 您可以使用`trailers`来获取Trailers。 Trailers也是`MultiMap`。
 
-#### 读取请求正文 {#Reading_the_request_body}
+<a name="188_____读取请求正文"></a>
+#### 读取请求正文
 当从连线读取响应的标头时，将调用响应处理程序。
 
 如果响应有一个主体，那么它可能在读取标题之后的一段时间内以几部分的形式到达。我们不会在调用响应处理程序之前等待所有主体的到来，因为响应可能非常大，我们可能要等待很长时间，或者耗尽内存来处理较大的响应。
@@ -3582,15 +3783,18 @@ client.getNow("some-uri", response -> {
 });
 ```
 
-#### 响应结束处理程序 {#Response_end_handler}
+<a name="189_____响应结束处理程序"></a>
+#### 响应结束处理程序
 当读取了整个响应主体时，或者在读取标头之后立即调用响应`endHandler`，如果没有主体则调用响应处理程序。
 
-#### 从响应中读取Cookie {#Reading_cookies_from_the_response}
+<a name="190_____从响应中读取Cookie"></a>
+#### 从响应中读取Cookie
 您可以使用`cookies`来从响应中检索Cookie列表。
 
 另外，您也可以在响应中自己解析`Set-Cookie`标头。
 
-#### 30x重定向处理 {#x_redirection_handling}
+<a name="191_____30x重定向处理"></a>
+#### 30x重定向处理
 当客户端收到以下消息时，可以将客户端配置为遵循`Location`响应标头提供的HTTP重定向：
 
 - 一个`301`、`302`、`307`或`308`状态码，以及HTTP GET或HEAD方法
@@ -3654,7 +3858,8 @@ client.redirectHandler(response -> {
 - 请求异常处理程序
 - 请求超时
 
-#### 100-继续处理 {#Continue_handling}
+<a name="192_____100_继续处理"></a>
+#### 100-继续处理
 根据[HTTP 1.1规范](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) ，客户端可以设置标头`Expect: 100-Continue` ,并在发送请求标头之前发送请求正文的其余部分。
 
 然后，服务器可以使用临时响应状态`Status: 100 (Continue)` 来响应，以向客户端表示可以发送主体的其余部分。
@@ -3737,7 +3942,8 @@ httpServer.requestHandler(request -> {
 });
 ```
 
-#### 客户端推送 {#Client_push}
+<a name="193_____客户端推送"></a>
+#### 客户端推送
 服务器推送是HTTP/2的一个新特性，它支持为单个客户机请求并发发送多个响应。
 
 可以在请求上设置推送处理程序，以接收服务器推送的请求/响应：
@@ -3777,7 +3983,8 @@ request.pushHandler(pushedRequest -> {
 
 如果未设置任何处理程序，则推送的任何流都将由客户端通过流重置（“ 8”错误代码）自动取消。
 
-#### 接收自定义HTTP/2帧 {#Receiving_custom_HTTP_2_frames}
+<a name="194_____接收自定义HTTP_2帧"></a>
+#### 接收自定义HTTP/2帧
 HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
 要接收自定义帧，您可以对请求使用customFrameHandler，它将在每次自定义帧到达时被调用。这里有一个例子:
@@ -3790,7 +3997,8 @@ response.customFrameHandler(frame -> {
 });
 ```
 
-### 在客户端上启用压缩 {#Enabling_compression_on_the_client}
+<a name="195____在客户端上启用压缩"></a>
+### 在客户端上启用压缩
 http客户端开箱即用地支持HTTP压缩。
 
 这意味着客户端可以让远程http服务器知道它支持压缩，并且能够处理压缩的响应主体。
@@ -3811,7 +4019,8 @@ Content-Encoding: gzip
 
 默认情况下禁用压缩。
 
-### HTTP/1.x 连接池 和 保持活动状态 {#HTTP_1_x_pooling_and_keep_alive}
+<a name="196____HTTP_1_x_连接池_和_保持活动状态"></a>
+### HTTP/1.x 连接池 和 保持活动状态
 Http保持活动状态允许将HTTP连接用于多个请求。 当您向同一服务器发出多个请求时，可以更有效地使用连接。
 
 对于HTTP / 1.x版本，http客户端支持连接池，从而允许您在请求之间重用连接。
@@ -3832,7 +4041,8 @@ keep-alive: timeout=30
 
 您可以使用`setKeepAliveTimeout`设置默认超时-在此超时时间内未使用的所有连接都将关闭。 请注意，超时值以秒为单位，而不是毫秒。
 
-### HTTP/1.1 pipe-lining(流水线) {#HTTP_1_1_pipe_lining}
+<a name="197____HTTP_1_1_pipe_lining_流水线_"></a>
+### HTTP/1.1 pipe-lining(流水线)
 客户端还支持对连接的请求进行pipe-lining。
 
 Pipe-lining表示在先前的响应返回之前，在同一连接上发送了另一个请求。 Pipe-lining不适用于所有请求。
@@ -3843,7 +4053,8 @@ Pipe-lining表示在先前的响应返回之前，在同一连接上发送了另
 
 单个连接上的pipe-lined请求数受`setPipeliningLimit`限制。 此选项定义发送到服务器等待响应的http请求的最大数量。 此限制可确保在与同一服务器的连接上分配客户端请求的公平性。
 
-### HTTP/2 多路复用 {#HTTP_2_multiplexing}
+<a name="198____HTTP_2_多路复用"></a>
+### HTTP/2 多路复用
 HTTP/2提倡使用与服务器的单个连接，默认情况下，http客户端对每个服务器使用一个连接，到同一服务器的所有流都在同一连接上多路复用。
 
 当客户端需要使用多个连接并使用缓冲池时，应使用`setHttp2MaxPoolSize`。
@@ -3865,14 +4076,16 @@ HttpClient client = vertx.createHttpClient(clientOptions);
 
 另外，您也可以使用`setIdleTimeout`设置空闲超时-在此超时时间内未使用的任何连接都将关闭。 请注意，空闲超时值以秒为单位，而不是毫秒。
 
-### HTTP 连接 {#HTTP_connections}
+<a name="199____HTTP_连接"></a>
+### HTTP 连接
 `HttpConnection`提供了用于处理HTTP连接事件，生命周期和设置的API。
 
 HTTP/2完全实现了`HttpConnection` API。
 
 HTTP/1.x部分实现了`HttpConnection` API：仅实现了close操作，close处理程序和异常处理程序。 该协议不提供其他操作的语义。
 
-#### Server 连接 {#Server_connections}
+<a name="200_____Server_连接"></a>
+#### Server 连接
 `connection`方法返回服务器上的请求连接:
 
 ```java
@@ -3889,7 +4102,8 @@ server.connectionHandler(connection -> {
 });
 ```
 
-#### Client 连接 {#Client_connections}
+<a name="201_____Client_连接"></a>
+#### Client 连接
 `connection`方法在客户端上返回请求连接：
 
 ```java
@@ -3904,7 +4118,8 @@ request.connectionHandler(connection -> {
 });
 ```
 
-#### Connection 设置 {#Connection_settings}
+<a name="202_____Connection_设置"></a>
+#### Connection 设置
 HTTP/2的配置由`Http2Settings`数据对象配置。
 
 每个端点都必须遵守连接另一端发送的设置。
@@ -3937,9 +4152,11 @@ connection.remoteSettingsHandler(settings -> {
 
 ------
 > **注意:** 这仅适用于HTTP/2协议
+>
 ------
 
-#### 连接 ping {#Connection_ping}
+<a name="203_____连接_ping"></a>
+#### 连接 ping
 HTTP/2连接ping对确定连接往返时间或检查连接有效性很有用：ping将{@literal PING}帧发送到远程端点：
 
 ```java
@@ -3964,9 +4181,11 @@ connection.pingHandler(ping -> {
 
 ------
 > **注意:** 这仅适用于HTTP/2协议
+>
 ------
 
-#### 连接关闭并消失 {#Connection_shutdown_and_go_away}
+<a name="204_____连接关闭并消失"></a>
+#### 连接关闭并消失
 调用`shutdown`会将{@literal GOAWAY}帧发送到连接的远程端，要求它停止创建流：客户端将停止发出新请求，而服务器将停止推送响应。 发送{@literal GOAWAY}帧后，连接将等待一段时间（默认为30秒），直到所有当前流关闭并关闭连接为止：
 
 ```java
@@ -4004,9 +4223,11 @@ connection.shutdownHandler(v -> {
 
 ------
 > **注意:** this only applies to the HTTP/2 protocol
+>
 ------
 
-#### 连接关闭 {#Connection_close}
+<a name="205_____连接关闭"></a>
+#### 连接关闭
 连接 `close` 关闭连接:
 
 - 它关闭HTTP/1.x的套接字
@@ -4014,7 +4235,8 @@ connection.shutdownHandler(v -> {
 
 `closeHandler`通知连接何时关闭。
 
-### HttpClient 用法 {#HttpClient_usage}
+<a name="206____HttpClient_用法"></a>
+### HttpClient 用法
 HttpClient可以在Vertical或嵌入式中使用。
 
 在Verticle中使用时，Verticle**应该使用其自己的客户端实例**。
@@ -4031,7 +4253,8 @@ Reusing a connection with a different context: an HttpClient is probably shared 
 
 HttpClient可以嵌入在非Vert.x线程中，例如单元测试或普通的Java`main`：客户端处理程序将由不同的Vert.x线程和上下文调用，此类上下文是根据需要创建的。 对于生产，不建议使用此用法。
 
-### Server 共享 {#Server_sharing}
+<a name="207____Server_共享"></a>
+### Server 共享
 当多个HTTP服务器在同一端口上侦听时，vert.x使用循环策略来协调请求处理。
 
 让我们使用verticle创建一个HTTP服务器，如:`io.vertx.examples.http.sharing.HttpServerVerticle`
@@ -4068,7 +4291,8 @@ Hello from i.v.e.h.s.HttpServerVerticle@2
 
 因此，服务器可以扩展可用内核，而每个Vert.x Verticle实例严格保持单线程运行，并且无需执行任何特殊技巧即可编写负载平衡器，从而在多核计算机上扩展服务器。
 
-### 将HTTPS与Vert.x一起使用 {#Using_HTTPS_with_Vert_x}
+<a name="208____将HTTPS与Vert_x一起使用"></a>
+### 将HTTPS与Vert.x一起使用
 可以将Vert.x http服务器和客户端配置为以与网络服务器完全相同的方式使用HTTPS。
 
 有关更多信息，请参见[配置网络服务器以使用SSL](https://vertx.io/docs/vertx-core/java/#ssl)。
@@ -4094,20 +4318,24 @@ client.getNow(new RequestOptions()
 
 同样，`requestAbs`方案也将覆盖默认的客户端设置。
 
-#### 服务器名称指示 (SNI) {#Server_Name_Indication__SNI_}
+<a name="209_____服务器名称指示__SNI_"></a>
+#### 服务器名称指示 (SNI)
 可以将Vert.x http服务器配置为使用{@linkplain io.vertx.core.net 网络服务器}完全相同的方式来使用SNI。
 
 Vert.x http客户端将在TLS握手期间将实际的主机名显示为*服务器名*。
 
-### WebSockets {#WebSockets}
+<a name="210____WebSockets"></a>
+### WebSockets
 [WebSockets](https://en.wikipedia.org/wiki/WebSocket)是一种Web技术，它允许HTTP服务器和HTTP客户端（通常是浏览器）之间的全双工套接字式连接。
 
 Vert.x在客户端和服务器端都支持WebSocket。
 
-#### 服务器上的WebSocket {#WebSockets_on_the_server}
+<a name="211_____服务器上的WebSocket"></a>
+#### 服务器上的WebSocket
 在服务器端有两种处理WebSocket的方法。
 
-##### WebSocket处理程序 {#WebSocket_handler}
+<a name="212______WebSocket处理程序"></a>
+##### WebSocket处理程序
 第一种方法涉及在服务器实例上提供一个`websocketHandler`。
 
 当与服务器建立WebSocket连接时，将调用处理程序，并传入一个`ServerWebSocket`实例。
@@ -4151,9 +4379,11 @@ server.websocketHandler(websocket -> {
 
 ------
 > **注意:** 除非已设置WebSocket的握手，否则调用处理程序后，WebSocket将被自动接受
+>
 ------
 
-##### 升级到WebSocket {#Upgrading_to_WebSocket}
+<a name="213______升级到WebSocket"></a>
+##### 升级到WebSocket
 处理WebSockets的第二种方法是处理从客户端发送的HTTP升级请求，并在服务器请求上调用`upgrade`。
 
 ```java
@@ -4170,10 +4400,12 @@ server.requestHandler(request -> {
 });
 ```
 
-##### 服务器WebSocket {#The_server_WebSocket}
+<a name="214______服务器WebSocket"></a>
+##### 服务器WebSocket
 `ServerWebSocket`实例使您能够检索WebSocket握手的HTTP请求的`headers`，`path`，`query`和`URI`。
 
-#### 客户端上的WebSockets {#WebSockets_on_the_client}
+<a name="215_____客户端上的WebSockets"></a>
+#### 客户端上的WebSockets
 Vert.x的`HttpClient`支持WebSockets。
 
 您可以使用`webSocket`操作之一并提供处理程序将WebSocket连接到服务器。
@@ -4189,7 +4421,8 @@ client.webSocket("/some-uri", res -> {
 });
 ```
 
-#### 将消息写入WebSockets {#Writing_messages_to_WebSockets}
+<a name="216_____将消息写入WebSockets"></a>
+#### 将消息写入WebSockets
 如果您希望将单个WebSocket消息写入WebSocket，则可以使用`writeBinaryMessage`或`writeTextMessage`来实现：
 
 ```java
@@ -4203,7 +4436,8 @@ websocket.writeTextMessage(message);
 
 如果WebSocket消息大于使用`setMaxWebsocketFrameSize`配置的最大Websocket帧大小，则Vert.x会将其拆分为多个WebSocket帧，然后通过网络发送。
 
-#### 将frames写入WebSocket {#Writing_frames_to_WebSockets}
+<a name="217_____将frames写入WebSocket"></a>
+#### 将frames写入WebSocket
 WebSocket消息可以由多个frames组成。 在这种情况下，第一帧是 *binary* 或 *text* 帧，然后是零个或多个 *continuation* 帧。
 
 消息中的最后一帧被标记为*final*。
@@ -4238,7 +4472,8 @@ Buffer buff = Buffer.buffer().appendInt(12).appendString("foo");
 websocket.writeFinalBinaryFrame(buff);
 ```
 
-#### 从WebSockets读取frames {#Reading_frames_from_WebSockets}
+<a name="218_____从WebSockets读取frames"></a>
+#### 从WebSockets读取frames
 要从WebSocket读取帧，请使用`frameHandler`。
 
 当帧到达时，将使用`WebSocketFrame`实例调用帧处理程序，例如：
@@ -4249,15 +4484,18 @@ websocket.frameHandler(frame -> {
 });
 ```
 
-#### 关闭 WebSockets {#Closing_WebSockets}
+<a name="219_____关闭_WebSockets"></a>
+#### 关闭 WebSockets
 完成后，使用`close`关闭WebSocket连接。
 
-#### 流式WebSocket {#Streaming_WebSockets}
+<a name="220_____流式WebSocket"></a>
+#### 流式WebSocket
 WebSocket实例也是`ReadStream`和`WriteStream`实例，因此可以与泵一起使用。
 
 当将WebSocket用作写入流或读取流时，它只能与WebSockets连接一起使用，该连接用于二进制帧，而二进制帧不会拆分为多个帧。
 
-### 使用代理进行HTTP/HTTPS连接 {#Using_a_proxy_for_HTTP_HTTPS_connections}
+<a name="221____使用代理进行HTTP_HTTPS连接"></a>
+### 使用代理进行HTTP/HTTPS连接
 http客户端支持通过HTTP代理（例如Squid）或 *SOCKS4a* 或 *SOCKS5* 代理访问http/https URL。 CONNECT协议使用HTTP/1.x，但可以连接到HTTP/1.x和HTTP/2服务器。
 
 http代理可能不支持连接到h2c（未加密的HTTP/2服务器），因为它们仅支持HTTP/1.1。
@@ -4290,7 +4528,8 @@ HttpClient client = vertx.createHttpClient(options);
 
 DNS解析始终在代理服务器上完成，为了实现SOCKS4客户端的功能，必须在本地解析DNS地址。
 
-#### 其他协议的处理 {#Handling_of_other_protocols}
+<a name="222_____其他协议的处理"></a>
+#### 其他协议的处理
 如果代理支持，HTTP代理实现支持获取`ftp:// urls`，这在非代理getAbs请求中不可用。
 
 ```java
@@ -4304,10 +4543,12 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", response -> {
 
 对其他协议的支持是不可用的，因为`java.net.URL`不支持它们(例如gopher://)。
 
-### verticles自动清理 {#Automatic_clean_up_in_verticles}
+<a name="223____verticles自动清理"></a>
+### verticles自动清理
 如果您是从Verticle内部创建http服务器和客户端，则取消部署Verticle时，这些服务器和客户端将自动关闭。
 
-## 使用SharedData API {#Using_the_SharedData_API}
+<a name="224___使用SharedData_API"></a>
+## 使用SharedData API
 顾名思义，`SharedData` API可让您安全地在以下之间共享数据：
 
 - 应用程序的不同部分，或者
@@ -4323,9 +4564,11 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", response -> {
 
 ------
 > **重要:** 分布式数据结构的行为取决于您使用的集群管理器。 群集管理器及其配置定义了面对网络分区时的备份（复制）和行为。 请参考集群管理器文档以及基础框架手册。
+>
 ------
 
-### 本地 maps {#Local_maps}
+<a name="225____本地_maps"></a>
+### 本地 maps
 `Local maps` 可让您在同一Vert.x实例中的不同事件循环（例如，不同的verticles）之间安全地共享数据。
 
 它们仅允许将某些数据类型用作键和值：
@@ -4361,7 +4604,8 @@ map2 = sharedData.getLocalMap("mymap2");
 Buffer buff = map2.get("eek");
 ```
 
-### 异步 shared maps {#Asynchronous_shared_maps}
+<a name="226____异步_shared_maps"></a>
+### 异步 shared maps
 `Asynchronous shared maps`允许将数据放入map中，并在本地或从任何其他节点检索。
 
 这使得它们对于将会话状态存储在托管Vert.x Web应用程序的服务器场中非常有用。
@@ -4384,6 +4628,7 @@ sharedData.<String, String>getAsyncMap("mymap", res -> {
 
 ------
 > **重要:** 在集群模式下，asynchronous shared maps依赖于集群管理器提供的分布式数据结构。 请注意，asynchronous shared maps操作，在集群中的延迟可能比在本地模式下高得多。
+>
 ------
 
 如果您的应用程序不需要与其他所有节点共享数据，则可以检索仅限本地的local-only map：
@@ -4401,7 +4646,8 @@ sharedData.<String, String>getLocalAsyncMap("mymap", res -> {
 });
 ```
 
-#### 将数据放入map {#Putting_data_in_a_map}
+<a name="227_____将数据放入map"></a>
+#### 将数据放入map
 你用`put`把数据放到map上。
 
 实际的放置是异步的，并且在完成后会通知处理程序：
@@ -4416,7 +4662,8 @@ map.put("foo", "bar", resPut -> {
 });
 ```
 
-#### 从map获取数据 {#Getting_data_from_a_map}
+<a name="228_____从map获取数据"></a>
+#### 从map获取数据
 您可以通过`get`从map中获取数据。
 
 实际的get是异步的，并在一段时间后将结果通知处理程序：
@@ -4432,12 +4679,14 @@ map.get("foo", resGet -> {
 });
 ```
 
-##### 其它 map 操作 {#Other_map_operations}
+<a name="229______其它_map_操作"></a>
+##### 其它 map 操作
 您还可以从异步map中删除条目，清除它们并获取大小。
 
 有关map操作的详细列表，请参见API文档。
 
-### Asynchronous 锁 {#Asynchronous_locks}
+<a name="230____Asynchronous_锁"></a>
+### Asynchronous 锁
 `Asynchronous locks(异步锁)`允许您在本地或整个集群中获取排他锁。 当您想随时执行某项操作或仅在群集的一个节点上访问资源时，此功能很有用。
 
 异步锁具有异步API，这与大多数锁API不同，后者会阻塞调用线程，直到获得锁为止。
@@ -4486,6 +4735,7 @@ sharedData.getLockWithTimeout("mylock", 10000, res -> {
 
 ------
 > **重要:** 在集群模式下，异步锁依赖于集群管理器提供的分布式数据结构。 请注意，群集中的相对于异步共享锁操作的延迟可能比本地模式下的延迟高得多。
+>
 ------
 
 如果您的应用程序不需要与其他所有节点共享该锁，则可以检索仅本地锁：
@@ -4508,7 +4758,8 @@ sharedData.getLocalLock("mylock", res -> {
 });
 ```
 
-### 异步计数器 {#Asynchronous_counters}
+<a name="231____异步计数器"></a>
+### 异步计数器
 在本地或跨应用程序的不同节点维护原子计数器通常很有用。
 
 你可以通过`Counter`来完成。
@@ -4533,6 +4784,7 @@ sharedData.getCounter("mycounter", res -> {
 
 ------
 > **重要:** 在集群模式下，异步计数器依赖于集群管理器提供的分布式数据结构。 请注意，相对于异步共享计数器操作，在群集中的延迟可能比在本地模式下高得多。
+>
 ------
 
 如果您的应用程序不需要与其他节点共享计数器，则可以检索仅本地计数器：
@@ -4550,7 +4802,8 @@ sharedData.getLocalCounter("mycounter", res -> {
 });
 ```
 
-## 在Vert.x中使用文件系统 {#Using_the_file_system_with_Vert_x}
+<a name="232___在Vert_x中使用文件系统"></a>
+## 在Vert.x中使用文件系统
 Vert.x `FileSystem` 对象提供了许多操作文件系统的操作。
 
 每个Vert.x实例只有一个文件系统对象，您可以通过`fileSystem`获取它。
@@ -4626,7 +4879,8 @@ vertx.fileSystem().exists("target/classes/junk.txt", result -> {
 });
 ```
 
-### Asynchronous 文件 {#Asynchronous_files}
+<a name="233____Asynchronous_文件"></a>
+### Asynchronous 文件
 Vert.x提供了异步文件抽象，使您可以操纵文件系统上的文件。
 
 您可以如下打开`AsyncFile`：
@@ -4646,7 +4900,8 @@ fileSystem.open("myfile.txt", options, res -> {
 
 它们还允许您直接对其进行读写。
 
-#### 随机存取写入 {#Random_access_writes}
+<a name="234_____随机存取写入"></a>
+#### 随机存取写入
 要将`AsyncFile`用于随机访问写入，请使用`write`方法。
 
 该方法的参数为：
@@ -4678,7 +4933,8 @@ vertx.fileSystem().open("target/classes/hello.txt", new OpenOptions(), result ->
 });
 ```
 
-#### 随机读取 {#Random_access_reads}
+<a name="235_____随机读取"></a>
+#### 随机读取
 要将`AsyncFile`用于随机访问，请使用`read`方法。
 
 该方法的参数为：
@@ -4711,19 +4967,22 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 });
 ```
 
-#### 打开选项 {#Opening_Options}
+<a name="236_____打开选项"></a>
+#### 打开选项
 当打开`AsyncFile`时，您传递`OpenOptions`实例。 这些选项描述了文件访问的行为。 例如，您可以使用`setRead`，`setWrite`和`setPerms`方法配置文件权限。
 
 如果打开的文件已经存在，则您也可以配置行为：`setCreateNew`和`setTruncateExisting`。
 
 您也可以使用`setDeleteOnClose`标记关闭或关闭JVM时要删除的文件。
 
-#### 数据刷新到下面的储存 {#Flushing_data_to_underlying_storage_}
+<a name="237_____数据刷新到下面的储存"></a>
+#### 数据刷新到下面的储存
 在`OpenOptions`中，您可以使用`setDsync`启用/禁用每次写入时内容的自动同步。 在这种情况下，您可以通过调用`flush`方法来手动清除OS缓存中的所有写入。
 
 也可以使用处理程序来调用此方法，该处理程序将在刷新完成后调用。
 
-#### 使用AsyncFile作为ReadStream和WriteStream {#Using_AsyncFile_as_ReadStream_and_WriteStream}
+<a name="238_____使用AsyncFile作为ReadStream和WriteStream"></a>
+#### 使用AsyncFile作为ReadStream和WriteStream
 `AsyncFile`实现`ReadStream`和`WriteStream`。 然后，您可以将它们与*pump*一起使用，以与其他读取和写入流之间来回传输数据。 例如，这会将内容复制到另一个`AsyncFile`中：
 
 ```java
@@ -4744,7 +5003,8 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 
 您也可以使用*pump*将文件内容写入HTTP响应，或更普遍的是在任何`WriteStream`中。
 
-#### 从类路径访问文件 {#Accessing_files_from_the_classpath}
+<a name="239_____从类路径访问文件"></a>
+#### 从类路径访问文件
 当vert.x在文件系统上找不到文件时，它将尝试从类路径中解析文件。 注意，类路径资源路径从不以`/`开头。
 
 由于Java不提供对类路径资源的异步访问的事实，因此，当首次访问类路径资源并从那里异步提供服务时，该文件将被复制到工作线程中的文件系统中。 第二次访问同一资源时，来自文件系统的文件将直接从文件系统提供服务。 即使类路径资源发生变化（例如，在开发系统中），原始内容仍会提供。
@@ -4757,14 +5017,17 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 
 ------
 > **注意:** 加载`io.vertx.core.file.FileSystemOptions`类时，将对这些系统属性进行求值一次，因此，应在加载此类之前设置这些属性，或在启动它时将其设置为JVM系统属性。
+>
 ------
 
 如果要禁用特定应用程序的类路径解析，但默认情况下在系统范围内将其保持启用状态，则可以通过`setClassPathResolvingEnabled`选项来启用。
 
-#### 关闭一个AsyncFile {#Closing_an_AsyncFile}
+<a name="240_____关闭一个AsyncFile"></a>
+#### 关闭一个AsyncFile
 要关闭`AsyncFile`，请调用`close`方法。 关闭是异步的，如果您希望在关闭完成时收到通知，则可以将处理函数指定为参数。
 
-## 数据报套接字(UDP) {#Datagram_sockets__UDP_}
+<a name="241___数据报套接字_UDP_"></a>
+## 数据报套接字(UDP)
 将用户数据报协议（UDP）与Vert.x结合使用很容易。
 
 UDP是无连接传输，这基本上意味着您没有与远程对等方的持久连接。
@@ -4785,7 +5048,8 @@ UDP是无连接传输，这基本上意味着您没有与远程对等方的持�
 
 其优点是与TCP相比，它的开销要小得多，而TCP可以由NetServer和NetClient来处理(参见上面)。
 
-### 创建一个DatagramSocket {#Creating_a_DatagramSocket}
+<a name="242____创建一个DatagramSocket"></a>
+### 创建一个DatagramSocket
 要使用UDP，你首先需要创建一个`DatagramSocket`。在这里，您是否只想发送数据或发送和接收数据并不重要。
 
 ```java
@@ -4794,7 +5058,8 @@ DatagramSocket socket = vertx.createDatagramSocket(new DatagramSocketOptions());
 
 返回的`DatagramSocket`将不会绑定到特定的端口。如果您只想发送数据(如客户端)，这不是问题，但在下一节中会详细介绍。
 
-### 发送 Datagram packets {#Sending_Datagram_packets}
+<a name="243____发送_Datagram_packets"></a>
+### 发送 Datagram packets
 如前所述，用户数据报协议(User Datagram Protocol, UDP)以数据包的形式向远程对等方发送数据，但不以持久的方式连接到它们。
 
 这意味着每个包可以发送到不同的远程对等点。
@@ -4814,7 +5079,8 @@ socket.send("A string used as content", 1234, "10.0.0.1", asyncResult -> {
 });
 ```
 
-### 接收 Datagram packets {#Receiving_Datagram_packets}
+<a name="244____接收_Datagram_packets"></a>
+### 接收 Datagram packets
 如果你想接收数据包，你需要绑定`DatagramSocket`通过调用`listen(…)`。
 
 通过这种方式，您将能够接收发送到`DatagramSocket`侦听的地址和端口的`DatagramPacket`。
@@ -4845,8 +5111,10 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 
 如果您需要这样的保证，那么您需要使用TCP，并在其上构建一些握手逻辑。
 
-### 多播 {#Multicast}
-#### 发送多播数据包 {#Sending_Multicast_packets}
+<a name="245____多播"></a>
+### 多播
+<a name="246_____发送多播数据包"></a>
+#### 发送多播数据包
 多播允许多个套接字接收相同的数据包。这是通过让套接字加入相同的多播组来实现的，然后您可以向该组发送数据包。
 
 我们将在下一节讨论如何加入多播组并接收数据包。
@@ -4866,7 +5134,8 @@ socket.send(buffer, 1234, "230.0.0.1", asyncResult -> {
 
 所有加入组播组`230.0.0.1`的套接字都将收到数据包。
 
-##### 接收多播数据包 {#Receiving_Multicast_packets}
+<a name="247______接收多播数据包"></a>
+##### 接收多播数据包
 如果您想接收特定多播组的数据包，您需要通过调用`listen(…)`绑定`DatagramSocket`以加入多播组。
 
 这样，您将收到发送到`DatagramSocket`侦听的地址和端口的`DatagramPackets`，以及发送到`Multicast`组的数据报。
@@ -4898,7 +5167,8 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 });
 ```
 
-##### 取消收听/离开多播组 {#Unlisten___leave_a_Multicast_group}
+<a name="248______取消收听_离开多播组"></a>
+##### 取消收听/离开多播组
 有时，您希望在有限的时间内接收多播组的数据包。
 
 在这种情况下，您可以先开始收听它们，然后再取消收听。
@@ -4933,7 +5203,8 @@ socket.listen(1234, "0.0.0.0", asyncResult -> {
 });
 ```
 
-##### 阻塞多播 {#Blocking_multicast}
+<a name="249______阻塞多播"></a>
+##### 阻塞多播
 除了取消监听多播地址之外，还可以阻止特定发送方地址的多播。
 
 注意，这只适用于某些操作系统和内核版本。因此，请检查操作系统文档是否受支持。
@@ -4953,7 +5224,8 @@ socket.blockMulticastGroup("230.0.0.1", "10.0.0.2", asyncResult -> {
 });
 ```
 
-#### DatagramSocket 属性 {#DatagramSocket_properties}
+<a name="250_____DatagramSocket_属性"></a>
+#### DatagramSocket 属性
 在创建`DatagramSocket`对象时，可以设置多个属性来更改`DatagramSocketOptions`对象的行为。这些都列在这里:
 
 - `setSendBufferSize` 设置发送缓冲区的大小(以字节为单位)。
@@ -4964,13 +5236,16 @@ socket.blockMulticastGroup("230.0.0.1", "10.0.0.2", asyncResult -> {
 - `setMulticastNetworkInterface` 设置或清除IP_MULTICAST_LOOP套接字选项。设置此选项后，还将在本地接口上接收多播包。
 - `setMulticastTimeToLive` 设置IP_MULTICAST_TTL套接字选项。TTL表示“生存时间”，但是在这个上下文中，它指定了允许数据包通过的IP跳数，特别是对于多播流量。每一个转发包的路由器或网关都会降低TTL。如果TTL被路由器减少到0，它将不会被转发。
 
-#### DatagramSocket本地地址 {#DatagramSocket_Local_Address}
+<a name="251_____DatagramSocket本地地址"></a>
+#### DatagramSocket本地地址
 你可以找到本地地址的套接字(即UDP套接字的这一边的地址)调用`localAddress`。这将只返回一个`InetSocketAddress`，如果你之前绑定了`DatagramSocket`和`listen(…)`，否则它将返回null。
 
-#### 关闭DatagramSocket {#Closing_a_DatagramSocket}
+<a name="252_____关闭DatagramSocket"></a>
+#### 关闭DatagramSocket
 您可以通过调用`close`方法来关闭套接字。这将关闭套接字并释放所有资源
 
-## DNS 客户端 {#DNS_client}
+<a name="253___DNS_客户端"></a>
+## DNS 客户端
 通常，您会遇到需要以异步方式获取DNS信息的情况。 不幸的是，Java虚拟机本身附带的API无法做到这一点。 因此，Vert.x提供了自己的用于DNS解析的API，该API是完全异步的。
 
 要获取DnsClient实例，您将通过Vertx创建一个新实例。
@@ -4998,7 +5273,8 @@ DnsClient client1 = vertx.createDnsClient();
 DnsClient client2 = vertx.createDnsClient(new DnsClientOptions().setQueryTimeout(10000));
 ```
 
-### 查找 {#lookup}
+<a name="254____查找"></a>
+### 查找
 尝试查找给定名称的A (ipv4)或AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
 查找“vertx.io”的A / AAAA记录。你通常会这样使用它:
@@ -5014,7 +5290,8 @@ client.lookup("vertx.io", ar -> {
 });
 ```
 
-### 查找4 {#lookup4}
+<a name="255____查找4"></a>
+### 查找4
 尝试查找给定名称的A (ipv4)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
 查找“vertx.io”的A记录。你通常会这样使用它:
@@ -5030,7 +5307,8 @@ client.lookup4("vertx.io", ar -> {
 });
 ```
 
-### 查找6 {#lookup6}
+<a name="256____查找6"></a>
+### 查找6
 尝试查找给定名称的AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
 查找“vertx.io”的A记录。你通常会这样使用它:
@@ -5046,7 +5324,8 @@ client.lookup6("vertx.io", ar -> {
 });
 ```
 
-### 解析A {#resolveA}
+<a name="257____解析A"></a>
+### 解析A
 尝试解析给定名称的所有A（ipv4）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
 要查找“vertx.io”的所有A记录，通常需要执行以下操作：
@@ -5065,7 +5344,8 @@ client.resolveA("vertx.io", ar -> {
 });
 ```
 
-### 解析AAAA {#resolveAAAA}
+<a name="258____解析AAAA"></a>
+### 解析AAAA
 尝试解析给定名称的所有AAAA（ipv6）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
 要查找“vertx.io”的所有AAAAA记录，通常需要执行以下操作：
@@ -5084,7 +5364,8 @@ client.resolveAAAA("vertx.io", ar -> {
 });
 ```
 
-### 解析CNAME {#resolveCNAME}
+<a name="259____解析CNAME"></a>
+### 解析CNAME
 尝试解析给定名称的所有CNAME记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
 要查找“vertx.io”的所有CNAME记录，通常需要执行以下操作：
@@ -5103,7 +5384,8 @@ client.resolveCNAME("vertx.io", ar -> {
 });
 ```
 
-### 解析MX {#resolveMX}
+<a name="260____解析MX"></a>
+### 解析MX
 尝试解析给定名称的所有MX记录。 MX记录用于定义哪个邮件服务器接受给定域的电子邮件。
 
 要查找“vertx.io”的所有MX记录，通常需要执行以下操作：
@@ -5131,7 +5413,8 @@ record.priority();
 record.name();
 ```
 
-### 解析TXT {#resolveTXT}
+<a name="261____解析TXT"></a>
+### 解析TXT
 尝试解析给定名称的所有TXT记录。 TXT记录通常用于定义域的其他信息。
 
 要解析“vertx.io”的所有TXT记录，可以使用以下几行：
@@ -5150,7 +5433,8 @@ client.resolveTXT("vertx.io", ar -> {
 });
 ```
 
-### 解析NS {#resolveNS}
+<a name="262____解析NS"></a>
+### 解析NS
 尝试解析给定名称的所有NS记录。 NS记录指定哪个DNS服务器托管给定域的DNS信息。
 
 要为“vertx.io”解析所有NS记录，可以使用以下方式：
@@ -5169,7 +5453,8 @@ client.resolveNS("vertx.io", ar -> {
 });
 ```
 
-### 解析SRV {#resolveSRV}
+<a name="263____解析SRV"></a>
+### 解析SRV
 尝试解析给定名称的所有SRV记录。 SRV记录用于定义其他信息，例如服务的端口和主机名。 一些协议需要这些额外的信息。
 
 要查找“vertx.io”的所有SRV记录，通常需要执行以下操作：
@@ -5204,7 +5489,8 @@ record.target();
 
 请参阅API文档以获取确切的详细信息。
 
-### 解析PTR {#resolvePTR}
+<a name="264____解析PTR"></a>
+### 解析PTR
 尝试解析给定名称的PTR记录。 PTR记录将ip地址映射到名称。
 
 要解析ipaddress 10.0.0.1的PTR记录，可以使用PTR概念"1.0.0.10.in-addr.arpa"
@@ -5221,7 +5507,8 @@ client.resolvePTR("1.0.0.10.in-addr.arpa", ar -> {
 });
 ```
 
-### 解析Lookup {#reverseLookup}
+<a name="265____解析Lookup"></a>
+### 解析Lookup
 尝试对IP地址进行反向查找。 这基本上与解析PTR记录相同，但是允许您仅传入IP地址而不是有效的PTR查询字符串。
 
 要对ipaddress 10.0.0.1进行反向查找，请执行类似以下操作：
@@ -5238,7 +5525,8 @@ client.reverseLookup("10.0.0.1", ar -> {
 });
 ```
 
-### 错误处理 {#Error_handling}
+<a name="266____错误处理"></a>
+### 错误处理
 如前几节所述，DnsClient允许您传入一个处理程序，一旦查询完成，该处理程序将通过AsyncResult通知。 如果发生错误，将通过DnsException通知该错误，该错误将在`DnsResponseCode`中指出解析失败的原因。 此DnsResponseCode可用于更详细地检查原因。
 
 可能的DnsResponseCodes为：
@@ -5281,7 +5569,7 @@ client.lookup("nonexisting.vert.xio", ar -> {
 });
 ```
 
-## 流 {#Streams}
+## 流
 Vert.x中有几个对象，它们可以读取和写入项目。
 
 在以前的版本中，`io.vertx.core.streams`包是专门处理`Buffer`对象的。 从现在开始，流不再与缓冲区耦合，并且可以与任何类型的对象一起使用。
@@ -5466,7 +5754,8 @@ src.pipe()
 
 现在，让我们更详细地了解`ReadStream`和`WriteStream`上的方法：
 
-### ReadStream {#ReadStream}
+<a name="267____ReadStream"></a>
+### ReadStream
 `ReadStream` 被这些类实现 `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
 
 功能介绍:
@@ -5477,7 +5766,8 @@ src.pipe()
 - `exceptionHandler`: 如果ReadStream发生异常，将被调用。
 - `endHandler`: 到达流结束时将被调用。 如果ReadStream表示一个文件，则达到EOF；如果是HTTP请求，则达到请求结束；或者，如果它是TCP套接字，则关闭连接。
 
-### WriteStream {#WriteStream}
+<a name="268____WriteStream"></a>
+### WriteStream
 
 `WriteStream` 被这些类实现 `HttpClientRequest`, `HttpServerResponse`, `WebSocket`, `NetSocket`, `AsyncFile`, `MessageProducer`
 
@@ -5490,7 +5780,8 @@ src.pipe()
 - `exceptionHandler`: 如果`riteStream`发生异常，将被调用。
 - `drainHandler`: 如果认为`WriteStream`不再满，则将调用处理程序。
 
-### Pump(水泵) {#Pump}
+<a name="269____Pump_水泵_"></a>
+### Pump(水泵)
 泵公开了管道API的子集，仅在流之间传输项目，它不处理传输操作的完成或失败。
 
 ```java
@@ -5504,6 +5795,7 @@ server.connectHandler(sock -> {
 
 ------
 > **重要:** 在Vert.x 3.7之前，`Pump`是提倡将读取流传输到写入流的API。 从3.7开始，pipe API取代了pump API。
+>
 ------
 
 Pump实例具有以下方法：
@@ -5516,7 +5808,8 @@ pump可以多次启动和停止。
 
 首次创建pump时，它*不会*启动。 您需要调用`start()`方法来启动它。
 
-## 记录解析器 {#Record_Parser}
+<a name="270___记录解析器"></a>
+## 记录解析器
 记录解析器使您可以轻松地解析由字节序列或固定大小记录分隔的协议。 它将输入缓冲区的序列转换为按配置结构构造的缓冲区序列（固定大小或分隔的记录）。
 
 例如，如果您有一个以`\n`分隔的简单ASCII文本协议，并且输入如下：
@@ -5559,7 +5852,8 @@ RecordParser.newFixed(4, h -> {
 
 有关更多详细信息，请查看`RecordParser`类。
 
-## Json解析器 {#Json_Parser}
+<a name="271___Json解析器"></a>
+## Json解析器
 您可以轻松地解析JSON结构，但这需要立即提供JSON内容，但在需要解析非常大的结构时可能不太方便。
 
 非阻塞JSON解析器是一个事件驱动的解析器，能够处理非常大的结构。 它将输入缓冲区的序列转换为JSON解析事件的序列。
@@ -5740,19 +6034,22 @@ parser.exceptionHandler(err -> {
 
 有关更多详细信息，请查看`JsonParser`类。
 
-## Thread safety {#Thread_safety}
+<a name="272___线程安全"></a>
+## 线程安全
 大多数Vert.x对象可以从不同线程安全访问。 *但是*当从创建它们的相同上下文访问它们时，性能会得到优化。
 
 例如，如果您部署了一个创建了`NetServer`的Verticle，并在其处理程序中提供了`NetSocket`实例，那么最好始终从该Verticle的事件循环访问该套接字实例。
 
 如果您坚持使用标准的Vert.x的verticle 部署模型，并避免在verticles之间共享对象，则无需考虑即可。
 
-## 指标SPI {#Metrics_SPI}
+<a name="273___指标SPI"></a>
+## 指标SPI
 默认情况下，Vert.x不记录任何指标。 相反，它为其他人提供了一个SPI，可以将其添加到类路径中。 指标SPI是一项高级功能，允许实施者从Vert.x捕获事件以收集指标。 有关此的更多信息，请查阅API文档。
 
 如果使用`setFactory`嵌入Vert.x，您还可以通过编程方式指定指标工厂。
 
-## OSGi {#OSGi}
+<a name="274___OSGi"></a>
+## OSGi
 Vert.x Core打包为OSGi捆绑包，因此可以在任何OSGi R4.2 +环境中使用，例如Apache Felix或Eclipse Equinox。 捆绑包导出`io.vertx.core*`。
 
 但是，捆绑软件对Jackson和Netty有一定的依赖性。 要解决vert.x核心捆绑的部署：
@@ -5786,14 +6083,17 @@ Vert.x Core打包为OSGi捆绑包，因此可以在任何OSGi R4.2 +环境中使
 
 在Equinox上，您可能要禁用具有以下框架属性的`ContextFinder`：`eclipse.bundle.setTCCL=false`
 
-## 'vertx'命令行 {#The__vertx__command_line}
+<a name="275____vertx_命令行"></a>
+## 'vertx'命令行
 vertx命令用于从命令行与Vert.x交互。 主要用途是运行Vert.x的verticles。 为此，您需要下载并安装Vert.x发行版，并将安装的bin目录添加到环境变量`PATH`中。 还要确保您在`PATH`上有一个Java 8 JDK。
 
 ------
 > **注意:** 需要JDK来支持Java代码的即时编译。
+>
 ------
 
-### 运行 verticles {#Run_verticles}
+<a name="276____运行_verticles"></a>
+### 运行 verticles
 您可以使用`vertx run`直接从命令行运行原始Vert.x的verticles。 这是`run`  *command*的几个例子：
 
 ```bash
@@ -5898,7 +6198,8 @@ vertx bare
 
 根据您的集群配置，您可能必须附加`cluster-host`和`cluster-port`参数。
 
-### 执行打包为fat jar的Vert.x应用程序 {#Executing_a_Vert_x_application_packaged_as_a_fat_jar}
+<a name="277____执行打包为fat_jar的Vert_x应用程序"></a>
+### 执行打包为fat jar的Vert.x应用程序
 *fat jar*是嵌入了全部依赖项的可执行jar。 这意味着您无需在执行jar的计算机上预安装Vert.x。 像任何可执行的Java jar一样，可以使用它来执行。
 
 ```bash
@@ -5923,18 +6224,21 @@ java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cl
 
 ------
 > **注意:** 请参考示例存储库中的Maven/Gradle最简单的Maven/Gradle verticle示例，以获取将应用程序构建为fatjars的示例。
+>
 ------
 
 默认情况下，fat jar执行`run`命令。
 
-### 显示Vert.x的版本 {#Displaying_version_of_Vert_x}
+<a name="278____显示Vert_x的版本"></a>
+### 显示Vert.x的版本
 要显示vert.x版本，只需启动：
 
 ```bash
 vertx version
 ```
 
-### 其他命令 {#Other_commands}
+<a name="279____其他命令"></a>
+### 其他命令
 除了`run` 和 `version`之外，`vertx`命令行和`Launcher`还提供其他*command*：
 
 您可以使用以下方法创建一个`bare`实例：
@@ -5981,7 +6285,8 @@ java -jar my-verticle-fat.jar list
 
 该命令集是可扩展的，请参阅[扩展vert.x启动器](https://vertx.io/docs/vertx-core/java/#_extending_the_vert_x_launcher)部分。
 
-### 实时重新部署 {#Live_Redeploy}
+<a name="280____实时重新部署"></a>
+### 实时重新部署
 开发时，在文件更改后自动重新部署应用程序可能会很方便。 `vertx`命令行工具，更一般地讲，`Launcher`类提供此功能。 这里有些例子：
 
 ```bash
@@ -6025,7 +6330,8 @@ java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./
 - `redeploy-grace-period` : 2次重新部署之间等待的时间（以毫秒为单位），默认为1000ms
 - `redeploy-termination-period` : 停止应用程序后（启动用户命令之前）要等待的时间。 这在Windows上非常有用，因为Windows不会立即终止该进程。 时间以毫秒为单位。 默认为0毫秒。
 
-## 集群管理器 {#Cluster_Managers}
+<a name="281___集群管理器"></a>
+## 集群管理器
 在Vert.x中，群集管理器用于各种功能，包括：
 
 - 集群中Vert.x节点的发现和组成员关系
@@ -6046,22 +6352,26 @@ Vert.x发行版中使用的默认集群管理器是使用[Hazelcast](http://haze
 
 如果使用`setClusterManager`嵌入Vert.x，也可以通过编程方式指定集群管理器。
 
-## 日志记录 {#Logging}
+<a name="282___日志记录"></a>
+## 日志记录
 Vert.x使用其内置的日志记录API进行日志记录。 默认实现使用JDK（JUL）日志记录，因此不需要额外的日志记录依赖项。
 
-### 配置 JUL 日志 {#Configuring_JUL_logging}
+<a name="283____配置_JUL_日志"></a>
+### 配置 JUL 日志
 可以通过提供一个名为`java.util.logging.config.file`的系统属性（其值为配置文件）来以普通的JUL方式指定JUL日志记录配置文件。 有关此内容和JUL配置文件的结构的更多信息，请查阅JUL日志记录文档。
 
 Vert.x还提供了一种更便捷的方式来指定配置文件，而无需设置系统属性。 只需在类路径上提供一个名为`vertx-default-jul-logging.properties`的JUL配置文件（例如，在fatjar中），Vert.x将使用该文件来配置JUL。
 
-### 使用其它的日志框架 {#Using_another_logging_framework}
+<a name="284____使用其它的日志框架"></a>
+### 使用其它的日志框架
 如果您不希望Vert.x使用JUL进行自己的日志记录，则可以将其配置为使用其他日志记录框架，例如 Log4J或SLF4J。
 
 为此，您应该设置一个名为`vertx.logger-delegate-factory-class-name`的系统属性，该属性带有实现`LogDelegateFactory`接口的Java类的名称。 我们提供了Log4J(版本1)、Log4J 2和SLF4J的预构建实现，类名为`io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` 和 `io.vertx.core.logging.SLF4JLogDelegateFactory`。如果要使用这些实现，则还应确保相关的Log4J或SLF4J jar在您的类路径中。
 
 注意，Log4J 1提供的委托不支持参数化消息。Log4J 2的委托像SLF4J委托一样使用`{}`语法。JUL委托使用`{x}`语法。
 
-### Netty 日志 {#Netty_logging}
+<a name="285____Netty_日志"></a>
+### Netty 日志
 配置日志记录时，还应注意配置Netty日志记录。
 
 Netty不依赖外部日志记录配置（例如系统属性），而是基于Netty类可见的日志记录库实现日志记录配置：
@@ -6077,8 +6387,10 @@ Netty不依赖外部日志记录配置（例如系统属性），而是基于Net
 InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
 ```
 
-### 故障排除 {#Troubleshooting}
-#### 启动时的SLF4J警告 {#SLF4J_warning_at_startup}
+<a name="286____故障排除"></a>
+### 故障排除
+<a name="287_____启动时的SLF4J警告"></a>
+#### 启动时的SLF4J警告
 如果，当你开始你的应用程序，你看到以下消息:
 
 ```
@@ -6091,7 +6403,8 @@ SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further detail
 
 请注意，Netty会查找SLF4-API jar，并默认使用它。
 
-#### 对等连接重置 {#Connection_reset_by_peer}
+<a name="288_____对等连接重置"></a>
+#### 对等连接重置
 如果您的日志显示以下内容：
 
 ```
@@ -6101,7 +6414,8 @@ SEVERE: java.io.IOException: Connection reset by peer
 
 这意味着客户端正在重置HTTP连接，而不是关闭它。 此消息还表明您可能没有消耗完完整的有效负载（连接已被切断，然后才能够使用）。
 
-## 主机名解析 {#Host_name_resolution}
+<a name="289___主机名解析"></a>
+## 主机名解析
 Vert.x使用地址解析器将主机名解析为IP地址，而不是JVM内置的阻塞解析器。
 
 主机名使用以下方式解析为IP地址：
@@ -6126,21 +6440,25 @@ DNS服务器的默认端口为53，当服务器使用其他端口时，可以使
 
 ------
 > **注意:** 有时可能需要使用JVM内置解析器，JVM系统属性*-Dvertx.disableDnsResolver=true*会激活此行为
+>
 ------
 
-### 故障转移 {#Failover}
+<a name="290____故障转移"></a>
+### 故障转移
 当服务器未及时答复时，解析器将尝试列表中的下一个，搜索将受到`setMaxQueries`的限制（默认值为`4`个查询）。
 
 如果解析器未在`getQueryTimeout`毫秒（默认值为`5`秒）内收到正确答案，则认为DNS查询失败。
 
-### 服务器列表轮换 {#Server_list_rotation}
+<a name="291____服务器列表轮换"></a>
+### 服务器列表轮换
 默认情况下，dns服务器选择使用第一个，其余服务器用于故障转移。
 
 您可以将`setRotateServers`设置为`true`，以使解析器执行循环选择。 它将查询负载分散到服务器之间，并避免所有查找都到达列表中的第一台服务器。
 
 故障转移仍然适用，并将使用列表中的下一个服务器。
 
-### 主机映射 {#Hosts_mapping}
+<a name="292____主机映射"></a>
+### 主机映射
 操作系统的*hosts*文件用于执行ipaddress的主机名查找。
 
 可以使用替代的*hosts*文件：
@@ -6153,7 +6471,8 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 );
 ```
 
-### 搜索域 {#Search_domains}
+<a name="293____搜索域"></a>
+### 搜索域
 默认情况下，解析器将使用环境中的系统DNS搜索域。 或者，可以提供一个明确的搜索域列表：
 
 ```java
@@ -6165,10 +6484,12 @@ Vertx vertx = Vertx.vertx(new VertxOptions().
 
 当使用搜索域列表时，点数的阈值为`1`或在Linux上从`/etc/resolv.conf`加载，可以使用`setNdots`将其配置为特定值。
 
-## 高可用性和故障转移 {#High_Availability_and_Fail_Over}
+<a name="294___高可用性和故障转移"></a>
+## 高可用性和故障转移
 Vert.x允许您在具有高可用性（HA）支持的情况下运行自己的verticles。 在这种情况下，当运行某个verticle的vert.x实例突然死亡时，该verticle将被迁移到另一个verticle实例。 vert.x实例必须位于同一集群中。
 
-### 自动故障转移 {#Automatic_failover}
+<a name="295____自动故障转移"></a>
+### 自动故障转移
 在启用*HA*的情况下运行vert.x时，如果运行某个verticle的vert.x实例发生故障或死亡，该verticle将自动重新部署到集群的另一个vert.x实例上。 我们称此为“verticle故障转移”。
 
 要在启用*H *的情况下运行vert.x，只需在命令行中添加`-ha`标志即可：
@@ -6187,10 +6508,12 @@ vertx run my-other-verticle.js -ha
 
 ------
 > **注意:** 仅当第二个vert.x实例有权访问verticle文件（此处为`my-verticle.js`）时，才可以进行迁移。
+>
 ------
 
 ------
 > **重要:** 请注意，完全关闭Vert.x实例不会导致发生故障转移，例如`CTRL-C` 或 `kill -SIGINT`
+>
 ------
 
 您也可以启动 *裸* Vert.x实例--即最初没有运行任何verticle的实例，它们也将针对集群中的节点进行故障转移。 要启动一个裸实例，您只需执行以下操作：
@@ -6203,9 +6526,11 @@ vertx run -ha
 
 ------
 > **注意:** 根据您的集群配置，您可能需要自定义集群管理器配置（默认为Hazelcast）和/或添加`cluster-host`和`cluster-port`参数。
+>
 ------
 
-### HA 组 {#HA_groups}
+<a name="296____HA_组"></a>
+### HA 组
 当使用HA运行Vert.x实例时，您还可以可选地指定*HA组*。 HA组表示集群中节点的逻辑组。 只有具有相同HA组的节点才能彼此故障转移。 如果您未指定HA组，则使用默认组`__DEFAULT__`。
 
 要指定HA组，请在运行verticle时使用`-group`开关，例如:
@@ -6238,7 +6563,8 @@ vertx run yet-another-verticle.js -ha -hagroup g2
 
 如果我们在终端3杀死了该实例，则该实例将不会进行故障转移，因为该组中没有其他vert.x实例。
 
-### 处理网络分区-Quora {#Dealing_with_network_partitions___Quora}
+<a name="297____处理网络分区_Quora"></a>
+### 处理网络分区-Quora
 HA实现还支持法定人数。 quorum (法定人数)是为了允许在分布式系统中执行操作而必须获得的分布式事务的最小投票数。
 
 启动Vert.x实例时，您可以指示它要求`quorum`，然后才能部署任何HA。 在这种情况下，quorum是集群中特定组的最小节点数。 通常，您将quorum大小选择为`Q = 1 + N/2`，其中`N`是组中的节点数。 如果集群中的节点少于`Q`个，则HA部署将取消。 如果重新达到法定人数，他们将重新部署。 这样可以防止网络分区，也就是“split brain(裂脑)”。
@@ -6275,7 +6601,8 @@ vertx run yet-another-verticle.js -ha -quorum 3
 
 Quora也可以与ha组结合使用。 在这种情况下，将为每个特定组解决法定人数。
 
-## 本地传输 {#Native_transports}
+<a name="298___本地传输"></a>
+## 本地传输
 Vert.x可以与[本地传输](http://netty.io/wiki/native-transports.html)（如果可用）一起在BSD（OSX）和Linux上运行：
 
 ```java
@@ -6290,9 +6617,11 @@ System.out.println("Running with native: " + usingNative);
 
 ------
 > **注意:** 首选本地传输不会阻止应用程序执行（例如，如果缺少JAR）。 如果您的应用程序需要本地传输，则需要检查`isNativeTransportEnabled`。
+>
 ------
 
-### 本地Linux传输 {#Native_Linux_Transport}
+<a name="299____本地Linux传输"></a>
+### 本地Linux传输
 您需要在类路径中添加以下依赖项：
 
 ```xml
@@ -6320,7 +6649,8 @@ vertx.createHttpServer(new HttpServerOptions()
 );
 ```
 
-### 本地BSDLinuxNative {#Native_BSD_Transport}
+<a name="300____本地BSDLinuxNative"></a>
+### 本地BSDLinuxNative
 您需要在类路径中添加以下依赖项：
 
 ```xml
@@ -6342,7 +6672,8 @@ BSD上的Native可以为您提供其他网络选项：
 vertx.createHttpServer(new HttpServerOptions().setReusePort(reusePort));
 ```
 
-### 域套接字 {#Domain_sockets}
+<a name="301____域套接字"></a>
+### 域套接字
 本机为服务器提供域套接字支持:
 
 ```java
@@ -6397,12 +6728,14 @@ httpClient.request(HttpMethod.GET, addr, 8080, "localhost", "/", resp -> {
 }).end();
 ```
 
-## 安全提示 {#Security_notes}
+<a name="302___安全提示"></a>
+## 安全提示
 Vert.x是一个工具包，而不是一个固执己见的框架，我们在其中强迫您以某种方式做事。 这为您提供了强大的开发能力，但随之而来的是巨大的责任。
 
 与任何工具包一样，也可以编写不安全的应用程序，因此在开发应用程序时应特别小心，尤其是在公开（例如通过互联网）的应用程序中。
 
-### Web 应用程序 {#Web_applications}
+<a name="303____Web_应用程序"></a>
+### Web 应用程序
 如果编写网络应用程序，强烈建议您直接使用Vert.x-Web而不是Vert.x core来提供资源和处理文件上传。
 
 Vert.x-Web规范了请求中的路径，以防止恶意客户端制作URL来访问Web根以外的资源。
@@ -6411,15 +6744,18 @@ Vert.x-Web规范了请求中的路径，以防止恶意客户端制作URL来访�
 
 Vert.x核心本身不提供此类检查，因此，作为开发人员，您可以自己实施这些检查。
 
-### 集群事件总线流量 {#Clustered_event_bus_traffic}
+<a name="304____集群事件总线流量"></a>
+### 集群事件总线流量
 在网络上不同Vert.x节点之间对事件总线进行集群时，流量将以非加密方式通过网络发送，因此，如果要发送的机密数据且Vert.x节点不在受信任的网络上，请不要使用此功能 。
 
-### 标准安全最佳做法 {#Standard_security_best_practices}
+<a name="305____标准安全最佳做法"></a>
+### 标准安全最佳做法
 无论是使用Vert.x或任何其他工具包编写的任何服务，都可能存在潜在的漏洞，因此请始终遵循最佳安全实践，尤其是当您的服务面向公众时。
 
 例如，您应该始终在DMZ中使用具有有限权限的用户帐户运行它们，以限制服务受到损害时的损坏程度。
 
-## Vert.x命令行界面API {#Vert_x_Command_Line_Interface_API}
+<a name="306___Vert_x命令行界面API"></a>
+## Vert.x命令行界面API
 Vert.x Core提供了一个API，用于解析传递给程序的命令行参数。 它还可以打印帮助消息，其中详细说明了命令行工具可用的选项。 即使这些功能与Vert.x核心主题相距甚远，该API仍可以在`Launcher`类中使用，您可以在*fat-jar*和`vertx`命令行工具中使用。 此外，它是多语言的（可以从任何受支持的语言中使用），并在Vert.x Shell中使用。
 
 Vert.x CLI提供了一个模型来描述您的命令行界面，还提供了一个解析器。 该解析器支持不同类型的语法：
@@ -6436,7 +6772,8 @@ Vert.x CLI提供了一个模型来描述您的命令行界面，还提供了一�
 2. 用户命令行解析
 3. 查询/询问
 
-### 定义阶段 {#Definition_Stage}
+<a name="307____定义阶段"></a>
+### 定义阶段
 每个命令行界面必须定义将要使用的选项和参数集。 它还需要一个名称。 CLI API使用`Option`和`Argument`类来描述选项和参数：
 
 ```java
@@ -6459,7 +6796,8 @@ CLI cli = CLI.create("copy")
 
 如您所见，您可以使用`CLI.create`创建一个新的`CLI`。 传递的字符串是CLI的名称。 创建后，您可以设置摘要和描述。 摘要旨在简短（一行），而描述可以包含更多详细信息。 每个选项和参数也使用`addArgument`和`addOption`方法添加到CLI对象。
 
-#### 选项 {#Options}
+<a name="308_____选项"></a>
+#### 选项
 “ Option”是一个命令行参数，由用户命令行中的*key*标识。 选项必须至少具有长名或短名。 长名称通常使用`--`前缀，而短名称则使用单个`-`。 选项可以在用法中显示说明（请参阅下文）。 选项可以接收0、1或几个值。 接收到0个值的选项是一个`flag`，必须使用`setFlag`声明。 默认情况下，选项接收单个值，但是，您可以使用`setMultiValued`将选项配置为接收多个值：
 
 ```java
@@ -6509,7 +6847,8 @@ CLI cli = CLI.create("some-name")
 
 还可以从JSON格式实例化选项。
 
-#### 参数 {#Arguments}
+<a name="309_____参数"></a>
+#### 参数
 与选项不同，参数没有*key*，而是由*index*标识。 例如，在`java com.acme.Foo`中，`com.acme.Foo`是一个参数。
 
 参数没有名称，使用基于0的索引进行标识。 第一个参数的索引为`0`：
@@ -6551,7 +6890,8 @@ CLI cli = CLI.create("some-name")
 
 还可以从JSON格式实例化选项。
 
-#### 用法生成 {#Usage_generation}
+<a name="310_____用法生成"></a>
+#### 用法生成
 一旦您的`CLI`实例被配置，您可以生成*usage*消息：
 
 ```java
@@ -6587,7 +6927,8 @@ A command line interface to copy files.
 
 如果需要调整用法消息，请查看`UsageMessageFormatter`类。
 
-### 解析阶段 {#Parsing_Stage}
+<a name="311____解析阶段"></a>
+### 解析阶段
 配置完`CLI`实例后，您可以解析用户命令行以评估每个选项和参数：
 
 ```java
@@ -6598,7 +6939,8 @@ CommandLine commandLine = cli.parse(userCommandLineArguments);
 
 您可以使用`isValid`检查`CommandLine`是否有效。
 
-### 查询/讯问阶段 {#Query___Interrogation_Stage}
+<a name="312____查询_讯问阶段"></a>
+### 查询/讯问阶段
 解析后，您可以从parse方法返回的CommandLine对象中检索选项和参数的值：
 
 ```java
@@ -6627,7 +6969,8 @@ if (!line.isValid() && line.isAskingForHelp()) {
 }
 ```
 
-### 类型化选项和参数 {#Typed_options_and_arguments}
+<a name="313____类型化选项和参数"></a>
+### 类型化选项和参数
 所描述的`Option`和`Argument`类是*untyped*，这意味着只能获取String值。 使用`TypedOption`和`TypedArgument`可以指定*type*，以便将（String）原始值转换为指定的类型。
 
 在`CLI`定义中使用`TypedOption`和`TypedArgument`代替`Option`和`Argument`：
@@ -6682,7 +7025,8 @@ CLI cli = CLI.create("some-name")
 
 如果其中一个选项的类型是`enum`，它将自动计算选择集。
 
-### 使用注解 {#Using_annotations}
+<a name="314____使用注解"></a>
+### 使用注解
 您也可以使用注解定义CLI。 定义使用类和*setter*方法上的注解完成：
 
 ```java
@@ -6721,10 +7065,12 @@ AnnotatedCli instance = new AnnotatedCli();
 CLIConfigurator.inject(commandLine, instance);
 ```
 
-## vert.x启动器 {#The_vert_x_Launcher}
+<a name="315___vert_x启动器"></a>
+## vert.x启动器
 vert.x的`Launcher`在*fat jar*中用作主类，并由`vertx`命令行实用程序使用。 它执行一组*命令*，例如*run*，*bare*，*start* ...
 
-### 扩展vert.x启动器 {#Extending_the_vert_x_Launcher}
+<a name="316____扩展vert_x启动器"></a>
+### 扩展vert.x启动器
 您可以通过实现自己的`Command`（仅适用于Java）来扩展命令集：
 
 ```java
@@ -6771,12 +7117,14 @@ vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ```
 
-### 在fat jars中使用启动器 {#Using_the_Launcher_in_fat_jars}
+<a name="317____在fat_jars中使用启动器"></a>
+### 在fat jars中使用启动器
 要在*fat-jar*中使用`Launcher`类，只需将*MANIFEST*的`Main-Class`设置为`io.vertx.core.Launcher`。 另外，将`Main-Verticle`  *MANIFEST*条目设置为主verticle的名称。
 
 默认情况下，它执行`run`命令。 但是，您可以通过设置`Main-Command` *MANIFEST*条目来配置默认命令。 如果在没有命令的情况下启动*fat jar*，则使用默认命令。
 
-### 对启动器进行子类化 {#Sub_classing_the_Launcher}
+<a name="318____对启动器进行子类化"></a>
+### 对启动器进行子类化
 您也可以创建`Launcher`的子类来启动您的应用程序。 该类已被设计为易于扩展。
 
 `Launcher`子类可以：
@@ -6786,7 +7134,8 @@ java -jar my-fat-jar.jar hello vert.x
 - 使用`getMainVerticle`和`getDefaultCommand`配置默认的verticle和命令
 - 使用`register`和`unregister`添加/删除命令
 
-### 启动器和退出代码 {#Launcher_and_exit_code}
+<a name="319____启动器和退出代码"></a>
+### 启动器和退出代码
 当您使用`Launcher`类作为主类时，它使用以下退出代码：
 
 - `0` 如果过程顺利结束，或者抛出未捕获的错误
@@ -6796,7 +7145,8 @@ java -jar my-fat-jar.jar hello vert.x
 - `14` 如果系统配置不符合系统要求（找不到java的shc）
 - `15` 如果主verticle无法部署
 
-## 配置Vert.x缓存 {#Configuring_Vert_x_cache}
+<a name="320___配置Vert_x缓存"></a>
+## 配置Vert.x缓存
 当Vert.x需要从类路径中读取文件时（嵌入在一个 fat jar中，以类路径的jar形式或位于类路径中的文件），它将把它复制到缓存目录中。 这背后的原因很简单：从jar或从输入流读取文件是阻塞的。 因此，为避免每次都付出代价，Vert.x将该文件复制到其缓存目录，并在以后每次读取时从该目录读取该文件。 此行为可以配置。
 
 首先，默认情况下，Vert.x使用`$CWD/.vertx`作为缓存目录。 它在此目录内创建一个唯一目录，以避免冲突。 这个位置可以通过使用`vertx.cacheDirBase`系统属性来配置。 例如，如果当前工作目录不可写（例如在不可变的容器上下文中），请使用以下命令启动应用程序：
@@ -6809,6 +7159,7 @@ java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
 
 ------
 > **重要:** 该目录必须是“可写的”。
+>
 ------
 
 当您编辑HTML，CSS或JavaScript之类的资源时，此缓存机制可能很烦人，因为它仅提供文件的第一个版本（因此，如果重新加载页面，您将看不到编辑内容）。 为了避免这种情况，请使用`-Dvertx.disableFileCaching=true`启动您的应用程序。 有了这个设置，Vert.x仍然使用缓存，但总是使用原始源刷新缓存中存储的版本。因此，如果您编辑来自类路径的文件并刷新浏览器，那么Vert.x从类路径中读取它，将它复制到缓存目录并从那里提供服务。不要在生产中使用这种设置，它会扼杀你的表现。
