@@ -1,4 +1,4 @@
-# VertX核心手册 {#VertX_Core_Manual}
+# VertX核心手册
 
 Vert.x的核心是一组Java API，我们称为**Vert.x Core**
 
@@ -54,7 +54,7 @@ compile "io.vertx:vertx-lang-groovy:3.8.2"
 
 让我们讨论core中的不同概念和功能。
 
-## 你流利的吗? {#Are_you_fluent_}
+## 你流利的吗?
 您可能已经注意到，在前面的示例中使用了**fluent** API。
 
 在`fluent` API中，可以将多个方法调用链接在一起。例如:
@@ -74,7 +74,7 @@ response.write("some text")
 response.end()
 ```
 
-## 别打给我们，我们会打给你的。 {#Don_t_call_us__we_ll_call_you_}
+## 别打给我们，我们会打给你的。
 Vert.x API在很大程度上是*事件驱动*的。 这意味着当您感兴趣的Vert.x中发生任何事情时，Vert.x会通过向您发送事件来呼叫您。
 
 一些示例事件是：
@@ -108,7 +108,7 @@ server.requestHandler({ request ->
 
 这使我们想到了Vert.x中的一些重要概念：
 
-## 不要阻塞我！ {#Don_t_block_me_}
+## 不要阻塞我！
 除了极少数例外（即某些文件系统操作以“同步”结尾）外，Vert.x中的所有API均不会阻塞调用线程。
 
 如果可以立即提供结果，则将立即返回结果，否则通常会在一段时间后提供处理程序以接收事件。
@@ -130,7 +130,7 @@ server.requestHandler({ request ->
 
 对于许多现代应用程序所需的并发级别，阻塞方法根本无法扩展。
 
-## 反应器和多反应器 {#Reactor_and_Multi_Reactor}
+## 反应器和多反应器
 我们之前提到过Vert.x API是事件驱动的 - Vert.x在事件可用时将事件传递给处理程序。
 
 在大多数情况下，Vert.x使用称为**event loop(事件循环)**的线程调用处理程序。
@@ -158,7 +158,7 @@ Vert.x在这里的工作方式有所不同。 每个Vertx实例都维护多个�
 > 
 ------
 
-## 黄金法则 - 不要阻塞事件循环 {#The_Golden_Rule___Don_t_Block_the_Event_Loop}
+## 黄金法则 - 不要阻塞事件循环
 我们已经知道Vert.x api是非阻塞的，不会阻塞事件循环，但是如果您在处理程序中阻塞事件循环**您自己**，那就没有多大帮助。
 
 如果这样做，则在阻塞期间该事件循环将无法执行任何其他操作。如果您阻塞了Vertx实例中的所有事件循环，那么您的应用程序将完全停止!
@@ -194,7 +194,7 @@ Vert.x还将提供堆栈跟踪，以精确定位阻塞发生的位置。
 
 如果您想关闭这些警告或更改设置，您可以在创建Vertx对象之前在`VertxOptions`对象中这样做。
 
-## 运行阻塞的代码 {#Running_blocking_code}
+## 运行阻塞的代码
 在一个理想的世界中，不会有战争或饥饿，所有API都是异步编写的，小兔子会与小羊羔在阳光明媚的绿色草地上携手并进。
 
 **但是……现实世界并非如此。 （您最近看过新闻吗？）**
@@ -273,10 +273,10 @@ def executor = vertx.createSharedWorkerExecutor("my-worker-pool", poolSize, maxE
 > 
 ------
 
-## 异步协调 {#Async_coordination}
+## 异步协调
 多个异步结果的协调可以通过Vert.x的`futures`来实现。 它支持并发组合（并行运行多个异步操作）和顺序组合（链异步操作）。
 
-### 并发组合 {#Concurrent_composition}
+### 并发组合
 `CompositeFuture.all`接受几个futures参数(最多6个)，返回一个在所有future都*succeeded*时“成功”的future，在至少一个future*failed*时“失败”的future:
 
 ```groovy
@@ -341,7 +341,7 @@ CompositeFuture.join(future1, future2, future3).setHandler({ ar ->
 CompositeFuture.join([future1, future2, future3])
 ```
 
-### 顺序组合 {#Sequential_composition}
+### 顺序组合
 当`all`和`any`实现并发组合时，`compose`可用于链接futures(即顺序组合)。 
 
 ```groovy
@@ -395,7 +395,7 @@ Verticles 由Vert.x部署和运行的代码块。 一个Vert.x实例默认维护
 
 应用程序通常由同时在同一Vert.x实例中运行的许多verticle实例组成。 不同的verticle实例通过在[事件总线](https://vertx.io/docs/vertx-core/groovy/#event_bus)上发送消息来相互通信。
 
-### 编写Verticles {#Writing_Verticles}
+### 编写Verticles
 在Groovy中创建verticles有两种选择：
 
 一个普通的Groovy脚本, 或者一个实现`Verticle`接口或扩展`AbstractVerticle`类的Groovy类
@@ -439,7 +439,7 @@ public class HelloWorldHttpVerticle extends AbstractVerticle {
 
 您也可以选择覆盖stop方法。 Vert.x将在取消部署verticle时调用该方法，并且在该方法完成后，该verticle将被视为已停止。
 
-### 从一个verticle访问vertx实例 {#Accessing_the_vertx_instance_from_a_verticle}
+### 从一个verticle访问vertx实例
 无论您使用哪种方式来实现您的verticle，都可以使用`vertex`变量/字段访问vert.x实例。
 
 在Groovy脚本中访问vert.x实例
@@ -461,7 +461,7 @@ public class HelloWorldHttpVerticle extends GroovyVerticle {
 }
 ```
 
-### 异步Verticle启动和停止 {#Asynchronous_Verticle_start_and_stop}
+### 异步Verticle启动和停止
 有时，您需要在启动verticle时做一些事情，而这需要一些时间，并且您不希望在这种情况发生之前就考虑将verticle部署。 例如，您可能想在start方法中部署其他verticle。
 
 您不能阻止在开始方法中部署其他verticle，因为那样会破坏[黄金规则](https://vertx.io/docs/vertx-core/groovy/#golden_rule)。
@@ -525,12 +525,12 @@ public class HelloWorldHttpVerticle extends AbstractVerticle {
 > **注意:**  您无需通过verticle的stop方法手动取消部署由verticle开始的子verticle。 取消部署父级时，Vert.x会自动取消部署所有子verticle。
 ------
 
-### API与先前版本的更改 {#API_changes_from_previous_versions}
+### API与先前版本的更改
 用于Groovy的Vert.x已在Vert.x 3.4.x中进行了修订，并提供了针对先前API编写的Verticles的自动迁移路径。
 
 Vert.x 3.5.0假定应用程序已迁移到新API。
 
-### Verticle类型 {#Verticle_Types}
+### Verticle类型
 共有三种不同类型的verticle：
 
 - Standard Verticles(标准Verticles)
@@ -545,14 +545,14 @@ Vert.x 3.5.0假定应用程序已迁移到新API。
 
   这些使用工作池中的线程运行。 一个实例可以由多个线程并发执行。
 
-### 标准Verticles {#Standard_verticles}
+### 标准Verticles
 标准verticles在创建时会分配一个事件循环线程，并使用该事件循环调用start方法。 当您从事件循环调用任何其他在核心API上使用处理程序的方法时，Vert.x将保证这些处理程序在被调用时将在同一事件循环上执行。
 
 这意味着我们可以保证您的verticle实例中的所有代码始终在同一事件循环上执行（只要您不创建自己的线程并调用它！）。
 
 这意味着您可以将应用程序中的所有代码编写为单线程，让Vert.x来处理线程和可伸缩性。 不再需要担心同步和易失性，并且还避免了其他许多竞争情况和死锁的情况，这些情况在进行手工“传统”多线程应用程序开发时非常普遍。
 
-### 工作Verticles {#Worker_verticles}
+### 工作Verticles
 `worker verticle`与标准verticle一样，但是它使用Vert.x的`worker thread pool`线程池中的线程执行，而不是使用事件循环。
 
 Worker verticles旨在用于调用阻塞代码，因为它们不会阻止任何事件循环。
@@ -570,7 +570,7 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options)
 
 Vert.x永远不会由多个线程同时执行worker verticle实例，但可以在不同时间由不同线程执行。
 
-#### 多线程工作Verticles {#Multi_threaded_worker_verticles}
+#### 多线程工作Verticles
 多线程worker verticle与普通worker verticle一样，但是可以由不同的线程同时执行。
 
 ------
@@ -612,7 +612,7 @@ vertx.eventBus().consumer("foo", { msg ->
 })
 ```
 
-### 以编程方式部署verticles {#Deploying_verticles_programmatically}
+### 以编程方式部署verticles
 您可以使用`deployVerticle`方法之一来部署一个verticle，指定一个Verticle名称，也可以传入已经创建的Verticle实例。
 
 ------
@@ -646,7 +646,7 @@ vertx.deployVerticle("verticles/myverticle.js")
 vertx.deployVerticle("verticles/my_verticle.rb")
 ```
 
-### 将verticle名称映射到verticle工厂的规则 {#Rules_for_mapping_a_verticle_name_to_a_verticle_factory}
+### 将verticle名称映射到verticle工厂的规则
 当使用名称部署verticle时，该名称用于选择将实例化该verticle的实际verticle工厂。
 
 verticle名称可以有一个前缀-这是一个字符串，后跟一个冒号，如果存在的话将用于查找工厂，例如
@@ -664,12 +664,12 @@ verticle factory service:com.mycompany:myorderservice // Uses the service vertic
 
 如果没有前缀或后缀，则Vert.x将假定它是Java完全限定的类名（FQCN），然后尝试实例化该名称。
 
-### Verticle工厂位于哪里? {#How_are_Verticle_Factories_located_}
+### Verticle工厂位于哪里?
 大多数Verticle工厂都从类路径加载并在Vert.x启动时注册。
 
 如果愿意，您还可以使用`registerVerticleFactory`和`unregisterVerticleFactory`以编程方式注册和注销verticle工厂。
 
-### 等待部署完成 {#Waiting_for_deployment_to_complete}
+### 等待部署完成
 Verticle部署是异步的，可能会在部署调用返回后的一段时间内完成。
 
 如果你想在部署完成时得到通知，你可以部署指定一个完成处理程序:
@@ -688,7 +688,7 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", { res ->
 
 如果希望取消部署，可以稍后使用此部署ID。
 
-### 取消verticle部署 {#Undeploying_verticle_deployments}
+### 取消verticle部署
 可以使用`undeploy`取消部署。
 
 取消部署本身是异步的，因此，如果要在完成取消部署时收到通知，可以部署指定完成处理程序：
@@ -703,7 +703,7 @@ vertx.undeploy(deploymentID, { res ->
 })
 ```
 
-### 指定verticle实例数 {#Specifying_number_of_verticle_instances}
+### 指定verticle实例数
 使用verticle名称部署verticle时，可以指定要部署的verticle实例的数量：
 
 ```groovy
@@ -715,7 +715,7 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options)
 
 这对于轻松跨多个内核进行扩展很有用。 例如，您可能有一个要部署的Web服务器版本，并且在您的计算机上有多个核心，因此您想部署多个实例以利用所有核心。
 
-### 将配置传递到verticle {#Passing_configuration_to_a_verticle}
+### 将配置传递到verticle
 可以将Map形式的配置在部署时传递给verticle：
 
 ```groovy
@@ -738,7 +738,7 @@ println vertx.getOrCreateContext().config()["name"]
 > 
 ------
 
-### 在Verticle中访问环境变量 {#Accessing_environment_variables_in_a_Verticle}
+### 在Verticle中访问环境变量
 使用Java API可访问环境变量和系统属性：
 
 ```groovy
@@ -746,7 +746,7 @@ println System.getProperty("foo")
 println System.getenv("HOME")
 ```
 
-### Verticle隔离组 {#Verticle_Isolation_Groups}
+### Verticle隔离组
 默认情况下，Vert.x具有*flat classpath*。 也就是说，当Vert.x部署verticle时，它会使用当前的类加载器进行部署-不会创建新的类加载器。 在大多数情况下，这是最简单，最清晰和最明智的做法。
 
 但是，在某些情况下，您可能希望部署一个Verticle，以便该Verticle的类与您的应用程序中的其他类隔离。
@@ -774,7 +774,7 @@ options.isolatedClasses = ["com.mycompany.myverticle.*", "com.mycompany.somepkg.
 vertx.deployVerticle("com.mycompany.myverticle.VerticleClass", options)
 ```
 
-### 高可用性 {#High_Availability}
+### 高可用性
 可以在启用高可用性（HA）的情况下部署Verticles。 在这种情况下，当将一个verticle部署在突然死亡的vert.x实例上时，该verticle 将重新部署到集群中的另一个vert.x实例上。
 
 要运行启用了高可用性的Verticle，只需附加`-ha`开关即可：
@@ -787,7 +787,7 @@ vertx run my-verticle.js -ha
 
 [高可用性和故障转移](https://vertx.io/docs/vertx-core/groovy/#_high_availability_and_fail_over)部分中有关高可用性功能和配置的更多详细信息。
 
-### 从命令行运行Verticles {#Running_Verticles_from_the_command_line}
+### 从命令行运行Verticles
 您可以在Maven或Gradle项目中直接使用Vert.x，方法是向Vert.x核心库添加一个依赖项，然后从那里开始。
 
 但是，如果愿意，您也可以直接从命令行运行Vert.x的verticles。
@@ -822,14 +822,14 @@ Vert.x将在运行之前即时编译Java源文件。 这对于快速制作vertic
 
 有关在命令行上执行`vertx`时可用的各种选项的完整信息，请在命令行中键入`vertx`。
 
-### 导致Vert.x退出 {#Causing_Vert_x_to_exit}
+### 导致Vert.x退出
 Vert.x实例维护的线程不是守护程序线程，因此它们将阻止JVM退出。
 
 如果你正在嵌入Vert.x，并且你已经完成了它，你可以调用`close`来关闭它。
 
 这将关闭所有内部线程池并关闭其他资源，并允许JVM退出。
 
-### 上下文对象 {#The_Context_object}
+### 上下文对象
 当Vert.x向处理程序提供事件或调用`Verticle`的start或stop方法时，执行将与`Context` 关联。 通常，上下文是**事件循环上下文**，并绑定到特定的事件循环线程。 因此，针对该上下文的执行始终在完全相同的事件循环线程上进行。 对于工作程序verticles和运行内联阻塞代码的情况，工作程序上下文将与执行关联，该上下文将使用工作程序线程池中的线程。
 
 要获取上下文，请使用`getOrCreateContext`方法：
@@ -873,14 +873,14 @@ context.runOnContext({ v ->
 
 上下文对象还允许您使用`config`方法访问verticle配置。 检查[将配置传递到verticle位置](https://vertx.io/docs/vertx-core/groovy/#_passing_configuration_to_a_verticle)部分以获取有关此配置的更多详细信息。
 
-### 执行定期和延迟的操作 {#Executing_periodic_and_delayed_actions}
+### 执行定期和延迟的操作
 在Vert.x中，很常见的是要延迟或定期执行操作。
 
 在标准verticle中，您不能只是使线程休眠以引入延迟，因为这会阻塞事件循环线程。
 
 而是使用Vert.x计时器。 计时器可以是**一次性**或**定期**。 我们将讨论两者
 
-#### 单次计时器 {#One_shot_Timers}
+#### 单次计时器
 一次性计时器在一定的延迟(以毫秒为单位)之后调用事件处理程序。
 
 使用`setTimer`方法传递延迟和处理程序后，设置要触发的计时器
@@ -895,7 +895,7 @@ println("First this is printed")
 
 返回值是唯一的计时器ID，以后可用于取消计时器。 处理程序还传递了计时器ID。
 
-#### 周期性的计时器 {#Periodic_Timers}
+#### 周期性的计时器
 您还可以使用`setPeriodic`将计时器设置为定期触发。
 
 将会有一个与周期相等的初始延迟。
@@ -916,17 +916,17 @@ def timerID = vertx.setPeriodic(1000, { id ->
 println("First this is printed")
 ```
 
-#### 取消计时器 {#Cancelling_timers}
+#### 取消计时器
 要取消定期计时器，请调用`cancelTimer`并指定计时器ID。 例如：
 
 ```groovy
 vertx.cancelTimer(timerID)
 ```
 
-#### verticles中的自动清理 {#Automatic_clean_up_in_verticles}
+#### verticles中的自动清理
 如果您是从verticle内部创建计时器，则取消部署verticles时，这些计时器将自动关闭。
 
-### Verticle工作池 {#Verticle_worker_pool}
+### Verticle工作池
 Verticles使用Vert.x工作池执行阻塞操作，即`executeBlocking`或工作verticle。
 
 可以在部署选项中指定其他工作池：
@@ -937,7 +937,7 @@ vertx.deployVerticle("the-verticle", [
 ])
 ```
 
-## 事件总线 {#The_Event_Bus}
+## 事件总线
 `event bus(事件总线)`是Vert.x的**nervous system(经系统)**。
 
 每个Vert.x实例都有一个事件总线实例，可以使用`eventBus`方法获得它。
@@ -954,29 +954,29 @@ vertx.deployVerticle("the-verticle", [
 
 首先是一些理论：
 
-### 理论 {#The_Theory}
-#### 地址 {#Addressing}
+### 理论
+#### 地址
 消息在事件总线上发送到**address(地址)**address**。
 
 Vert.x不需要任何花哨的寻址方案。 在Vert.x中，地址只是一个字符串。 任何字符串均有效。 但是，明智的做法是使用某种方案，例如使用句点来分隔名称空间。
 
 有效地址的一些示例是`europe.news.feed1`，`acme.games.pacman`，`sausages`和`X`。
 
-#### 处理程序 {#Handlers}
+#### 处理程序
 消息由处理程序接收。 您在地址注册处理程序。
 
 可以在同一地址注册许多不同的处理程序。
 
 单个处理程序可以在许多不同的地址上注册。
 
-#### 发布/订阅消息 {#Publish___subscribe_messaging}
+#### 发布/订阅消息
 事件总线支持**发布**消息。
 
 消息被发布到一个地址。 发布意味着将消息传递给在该地址注册的所有处理程序。
 
 这是熟悉的**发布/订阅**消息传递模式。
 
-#### 点对点和请求响应消息传递 {#Point_to_point_and_Request_Response_messaging}
+#### 点对点和请求响应消息传递
 事件总线还支持**point-to-point(点对点)**消息传递。
 
 消息被发送到一个地址。 然后，Vert.x会将它们路由到在该地址注册的处理程序之一。
@@ -991,14 +991,14 @@ Vert.x不需要任何花哨的寻址方案。 在Vert.x中，地址只是一个�
 
 这是一种常见的消息传递模式，称为**请求-响应**模式。
 
-#### 尽力递送 {#Best_effort_delivery}
+#### 尽力递送
 Vert.x会尽力传递消息，并且不会有意识地将其丢弃。 这称为**best-effort(尽力而为)**交付。
 
 但是，如果事件总线的全部或部分发生故障，则可能会丢失消息。
 
 如果您的应用程序关心丢失的消息，则应将处理程序编码为幂等，而发送方应在恢复后重试。
 
-#### 消息类型 {#Types_of_messages}
+#### 消息类型
 开箱即用的Vert.x允许将任何原始/简单类型，字符串或`buffers(缓冲区)`作为消息发送。
 
 但是，在Vert.x中以[JSON](https://json.org/)发送消息是一种惯例
@@ -1009,10 +1009,10 @@ JSON非常容易以Vert.x支持的所有语言创建，读取和解析，因此�
 
 事件总线非常灵活，并且还支持通过事件总线发送任意对象。 您可以通过为要发送的对象定义一个“编解码器”来实现。
 
-### 事件总线API {#The_Event_Bus_API}
+### 事件总线API
 让我们进入API。
 
-#### 获取事件总线 {#Getting_the_event_bus}
+#### 获取事件总线
 您可以获得对事件总线的引用，如下所示：
 
 ```groovy
@@ -1021,7 +1021,7 @@ def eb = vertx.eventBus()
 
 每个Vert.x实例只有一个事件总线实例。
 
-#### 注册处理程序 {#Registering_Handlers}
+#### 注册处理程序
 注册处理程序的最简单方法是使用`consumer`。 这是一个例子：
 
 ```groovy
@@ -1063,7 +1063,7 @@ consumer.completionHandler({ res ->
 })
 ```
 
-#### 取消注册处理程序 {#Un_registering_Handlers}
+#### 取消注册处理程序
 要取消注册处理程序，请调用`unregister`。
 
 如果您在集群事件总线上，则注销可能需要一些时间才能在节点上传播。 如果您想在完成时收到通知，请使用`unregister`。
@@ -1078,7 +1078,7 @@ consumer.unregister({ res ->
 })
 ```
 
-#### 发布消息 {#Publishing_messages}
+#### 发布消息
 发布消息很简单。 只需使用`publish`指定发布地址即可。
 
 ```groovy
@@ -1087,7 +1087,7 @@ eventBus.publish("news.uk.sport", "Yay! Someone kicked a ball")
 
 然后，该消息将传递给在地址`news.uk.sport`注册的所有处理程序。
 
-#### 发送消息 {#Sending_messages}
+#### 发送消息
 发送消息将导致仅在接收消息的地址注册一个处理程序。这就是点对点消息传递模式。处理程序以非严格的循环方式选择。
 
 您可以通过`send`发送信息。
@@ -1096,7 +1096,7 @@ eventBus.publish("news.uk.sport", "Yay! Someone kicked a ball")
 eventBus.send("news.uk.sport", "Yay! Someone kicked a ball")
 ```
 
-#### 在消息上设置标题 {#Setting_headers_on_messages}
+#### 在消息上设置标题
 通过事件总线发送的消息也可以包含*header*。 可以通过在发送或发布时设置选项来指定：
 
 ```groovy
@@ -1116,17 +1116,17 @@ vertx.eventBus().consumer("news.uk.sport",  { e ->
 });
 ```
 
-#### 消息顺序 {#Message_ordering}
+#### 消息顺序
 Vert.x将按照从任何特定发件人发送的顺序将消息传递到任何特定处理程序。
 
-#### 消息对象 {#The_Message_object}
+#### 消息对象
 您在消息处理程序中收到的对象是`Message`。
 
 消息的`body`对应于已发送或发布的对象。
 
 消息的头可与`headers`一起使用。
 
-#### 确认消息/发送回复 {#Acknowledging_messages___sending_replies}
+#### 确认消息/发送回复
 
 当使用`send`时，事件总线尝试将消息传递到在事件总线上注册的`MessageConsumer`。
 
@@ -1168,14 +1168,14 @@ eventBus.request("news.uk.sport", "Yay! Someone kicked a ball across a patch of 
 - 实现持久队列的消息使用者，如果消息已成功持久存储在消息中，则可能会以`true`进行确认，否则将以`false`进行确认。
 - 成功处理完订单后，处理订单的消息使用者可能会以`true`确认，因此可以将其从数据库中删除
 
-#### 发送与超时 {#Sending_with_timeouts}
+#### 发送与超时
 当发送带有回复处理程序的消息时，您可以在`DeliveryOptions`中指定超时。
 
 如果在此时间内未收到答复，则将以失败的方式调用答复处理程序。
 
 默认超时为30秒。
 
-#### 发送失败 {#Send_Failures}
+#### 发送失败
 消息发送可能由于其他原因而失败，包括：
 
 - 没有可用于将消息发送到的处理程序
@@ -1183,7 +1183,7 @@ eventBus.request("news.uk.sport", "Yay! Someone kicked a ball across a patch of 
 
 在所有情况下，将使用特定的故障调用应答处理程序。
 
-#### 消息的编解码器 {#Message_Codecs}
+#### 消息的编解码器
 如果定义并注册了`消息编解码器`，则可以在事件总线上发送任何您喜欢的对象。
 
 消息编解码器具有名称，您可以在发送或发布消息时在`DeliveryOptions`中指定该名称：
@@ -1210,10 +1210,10 @@ eventBus.send("orders", new MyPOJO());
 
 消息编解码器不必总是编码和解码为相同的类型。 例如，您可以编写允许发送MyPOJO类的编解码器，但是当该消息发送到处理程序时，它将作为MyOtherPOJO类到达。
 
-#### 集群事件总线 {#Clustered_Event_Bus}
+#### 集群事件总线
 事件总线不仅存在于单个Vert.x实例中。 通过在网络上将不同的Vert.x实例群集在一起，它们可以形成单一的分布式事件总线。
 
-#### 以编程方式建立集群 {#Clustering_programmatically}
+#### 以编程方式建立集群
 如果您以编程方式创建Vert.x实例，则可以通过将Vert.x实例配置为集群来获得集群事件总线；
 
 ```groovy
@@ -1231,7 +1231,7 @@ Vertx.clusteredVertx(options, { res ->
 
 您还应该确保在类路径上具有`ClusterManager`实现，例如Hazelcast集群管理器。
 
-#### 在命令行上进行集群 {#Clustering_on_the_command_line}
+#### 在命令行上进行集群
 您可以使用以下命令行运行Vert.x集群
 
 ```bash
@@ -1242,7 +1242,7 @@ vertx run my-verticle.js -cluster
 
 如果您是从Verticle内部注册事件总线处理程序，则在取消部署Verticle时，这些处理程序将自动注销。
 
-## 配置事件总线 {#Configuring_the_event_bus}
+## 配置事件总线
 可以配置事件总线。当事件总线集群化时，它特别有用。在底层，事件总线使用TCP连接发送和接收消息，因此`EventBusOptions`允许您配置这些TCP连接的所有方面。由于事件总线充当服务器和客户机，所以配置接近于`NetClientOptions`和`NetServerOptions`。
 
 ```groovy
@@ -1295,7 +1295,7 @@ Vertx.clusteredVertx(options, res -> {
 });
 ```
 
-## JSON {#JSON}
+## JSON
 To manipulate JSON object, Vert.x proposes its own implementation of `JsonObject` and `JsonArray`. This is because, unlike some other languages, Java does not have first class support for [JSON](https://json.org/).
 
 When developping a vert.x application with Groovy, you can rely on these two classes, or use the ([JSON support from Groovy](http://www.groovy-lang.org/json.html)). This section explains how to use the Vert.x classes.
@@ -1304,14 +1304,14 @@ When developping a vert.x application with Groovy, you can rely on these two cla
 | ---- | ------------------------------------------------------------ |
 |      |                                                              |
 
-### JSON objects {#JSON_objects}
+### JSON objects
 The `JsonObject` class represents JSON objects.
 
 A JSON object is basically just a map which has string keys and values can be of one of the JSON supported types (string, number, boolean).
 
 JSON objects also support `null` values.
 
-#### Creating JSON objects {#Creating_JSON_objects}
+#### Creating JSON objects
 Empty JSON objects can be created with the default constructor.
 
 You can create a JSON object from a string or g-string JSON representation as follows:
@@ -1334,7 +1334,7 @@ def json = new JsonObject(map)
 
 Nested maps are transformed to nested JSON objects.
 
-#### Putting entries into a JSON object {#Putting_entries_into_a_JSON_object}
+#### Putting entries into a JSON object
 Use the `put` methods to put values into the JSON object.
 
 The method invocations can be chained because of the fluent API:
@@ -1344,7 +1344,7 @@ def object = new JsonObject()
 object.put("foo", "bar").put("num", 123).put("mybool", true)
 ```
 
-#### Getting values from a JSON object {#Getting_values_from_a_JSON_object}
+#### Getting values from a JSON object
 You get values from a JSON object using the `getXXX` methods, for example:
 
 ```
@@ -1352,17 +1352,17 @@ dev val1 = jsonObject.getString("some-key")
 def val2 = jsonObject.getInteger("some-other-key")
 ```
 
-#### Encoding the JSON object to a String {#Encoding_the_JSON_object_to_a_String}
+#### Encoding the JSON object to a String
 You use `encode` to encode the object to a String form. There is also a `encodePrettily` that makes the output pretty (understand multi-line and indented).
 
-### JSON arrays {#JSON_arrays}
+### JSON arrays
 The `JsonArray` class represents JSON arrays.
 
 A JSON array is a sequence of values (string, number, boolean).
 
 JSON arrays can also contain `null` values.
 
-#### Creating JSON arrays {#Creating_JSON_arrays}
+#### Creating JSON arrays
 Empty JSON arrays can be created with the default constructor.
 
 You can create a JSON array from a string JSON representation or a map as follows:
@@ -1372,7 +1372,7 @@ def object = new JsonObject("""{foo:["bar", "baz"}""")
 def object2 = new JsonObject(["foo": ["bar", "baz"]])
 ```
 
-#### Adding entries into a JSON array {#Adding_entries_into_a_JSON_array}
+#### Adding entries into a JSON array
 You add entries to a JSON array using the `add` methods.
 
 ```
@@ -1380,7 +1380,7 @@ def array = new JsonArray()
 array.add("foo").add(123).add(false)
 ```
 
-#### Getting values from a JSON array {#Getting_values_from_a_JSON_array}
+#### Getting values from a JSON array
 You get values from a JSON array using the `getXXX` methods, for example:
 
 ```
@@ -1389,10 +1389,10 @@ def intVal = array.getInteger(1)
 def boolVal = array.getBoolean(2)
 ```
 
-#### Encoding the JSON array to a String {#Encoding_the_JSON_array_to_a_String}
+#### Encoding the JSON array to a String
 You use `encode` to encode the array to a String form. There is also a `encodePrettily` that makes the output pretty (understand multi-line and indented).
 
-## Json Pointers {#Json_Pointers}
+## Json Pointers
 Vert.x provides an implementation of [Json Pointers from RFC6901](https://tools.ietf.org/html/rfc6901). You can use pointers both for querying and for writing. You can build your `JsonPointer` using a string, a URI or manually appending paths:
 
 ```
@@ -1417,12 +1417,12 @@ arrayPointer.writeJson(jsonArray, "new element")
 
 You can use Vert.x Json Pointer with any object model by providing a custom implementation of `JsonPointerIterator`
 
-## Buffers {#Buffers}
+## Buffers
 Most data is shuffled around inside Vert.x using buffers.
 
 A buffer is a sequence of zero or more bytes that can read from or written to and which expands automatically as necessary to accommodate any bytes written to it. You can perhaps think of a buffer as smart byte array.
 
-### Creating buffers {#Creating_buffers}
+### Creating buffers
 Buffers can create by using one of the static `Buffer.buffer` methods.
 
 Buffers can be initialised from strings or byte arrays, or empty buffers can be created.
@@ -1455,10 +1455,10 @@ Note that buffers created this way **are empty**. It does not create a buffer fi
 def buff = Buffer.buffer(10000)
 ```
 
-### Writing to a Buffer {#Writing_to_a_Buffer}
+### Writing to a Buffer
 There are two ways to write to a buffer: appending, and random access. In either case buffers will always expand automatically to encompass the bytes. It’s not possible to get an `IndexOutOfBoundsException` with a buffer.
 
-#### Appending to a Buffer {#Appending_to_a_Buffer}
+#### Appending to a Buffer
 To append to a buffer, you use the `appendXXX` methods. Append methods exist for appending various different types.
 
 The return value of the `appendXXX` methods is the buffer itself, so these can be chained:
@@ -1471,7 +1471,7 @@ buff.appendInt(123).appendString("hello\n")
 socket.write(buff)
 ```
 
-#### Random access buffer writes {#Random_access_buffer_writes}
+#### Random access buffer writes
 You can also write into the buffer at a specific index, by using the `setXXX` methods. Set methods exist for various different data types. All the set methods take an index as the first argument - this represents the position in the buffer where to start writing the data.
 
 The buffer will always expand as necessary to accommodate the data.
@@ -1483,7 +1483,7 @@ buff.setInt(1000, 123)
 buff.setString(0, "hello")
 ```
 
-### Reading from a Buffer {#Reading_from_a_Buffer}
+### Reading from a Buffer
 Data is read from a buffer using the `getXXX` methods. Get methods exist for various datatypes. The first argument to these methods is an index in the buffer from where to get the data.
 
 ```
@@ -1493,7 +1493,7 @@ for (def i = 0;i < buff.length();4) {
 }
 ```
 
-### Working with unsigned numbers {#Working_with_unsigned_numbers}
+### Working with unsigned numbers
 Unsigned numbers can be read from or appended/set to a buffer with the `getUnsignedXXX`, `appendUnsignedXXX` and `setUnsignedXXX` methods. This is useful when implementing a codec for a network protocol optimized to minimize bandwidth consumption.
 
 In the following example, value 200 is set at specified position with just one byte:
@@ -1507,29 +1507,29 @@ println(buff.getUnsignedByte(pos))
 
 The console shows '200'.
 
-### Buffer length {#Buffer_length}
+### Buffer length
 Use `length` to obtain the length of the buffer. The length of a buffer is the index of the byte in the buffer with the largest index + 1.
 
-### Copying buffers {#Copying_buffers}
+### Copying buffers
 Use `copy` to make a copy of the buffer
 
-### Slicing buffers {#Slicing_buffers}
+### Slicing buffers
 A sliced buffer is a new buffer which backs onto the original buffer, i.e. it does not copy the underlying data. Use `slice` to create a sliced buffers
 
-### Buffer re-use {#Buffer_re_use}
+### Buffer re-use
 After writing a buffer to a socket or other similar place, they cannot be re-used.
 
-## Writing TCP servers and clients {#Writing_TCP_servers_and_clients}
+## Writing TCP servers and clients
 Vert.x allows you to easily write non blocking TCP clients and servers.
 
-### Creating a TCP server {#Creating_a_TCP_server}
+### Creating a TCP server
 The simplest way to create a TCP server, using all default options is as follows:
 
 ```
 def server = vertx.createNetServer()
 ```
 
-### Configuring a TCP server {#Configuring_a_TCP_server}
+### Configuring a TCP server
 If you don’t want the default, a server can be configured by passing in a `NetServerOptions` instance when creating it:
 
 ```
@@ -1539,7 +1539,7 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-### Start the Server Listening {#Start_the_Server_Listening}
+### Start the Server Listening
 To tell the server to listen for incoming requests you use one of the `listen` alternatives.
 
 To tell the server to listen at the host and port as specified in the options:
@@ -1573,7 +1573,7 @@ server.listen(1234, "localhost", { res ->
 })
 ```
 
-### Listening on a random port {#Listening_on_a_random_port}
+### Listening on a random port
 If `0` is used as the listening port, the server will find an unused random port to listen on.
 
 To find out the real port the server is listening on you can call `actualPort`.
@@ -1589,7 +1589,7 @@ server.listen(0, "localhost", { res ->
 })
 ```
 
-### Getting notified of incoming connections {#Getting_notified_of_incoming_connections}
+### Getting notified of incoming connections
 To be notified when a connection is made you need to set a `connectHandler`:
 
 ```
@@ -1603,7 +1603,7 @@ When a connection is made the handler will be called with an instance of `NetSoc
 
 This is a socket-like interface to the actual connection, and allows you to read and write data as well as do various other things like close the socket.
 
-### Reading data from the socket {#Reading_data_from_the_socket}
+### Reading data from the socket
 To read data from the socket you set the `handler` on the socket.
 
 This handler will be called with an instance of `Buffer` every time data is received on the socket.
@@ -1617,7 +1617,7 @@ server.connectHandler({ socket ->
 })
 ```
 
-### Writing data to a socket {#Writing_data_to_a_socket}
+### Writing data to a socket
 You write to a socket using one of `write`.
 
 ```
@@ -1634,7 +1634,7 @@ socket.write("some data", "UTF-16")
 
 Write operations are asynchronous and may not occur until some time after the call to write has returned.
 
-### Closed handler {#Closed_handler}
+### Closed handler
 If you want to be notified when a socket is closed, you can set a `closeHandler` on it:
 
 ```
@@ -1643,24 +1643,24 @@ socket.closeHandler({ v ->
 })
 ```
 
-### Handling exceptions {#Handling_exceptions}
+### Handling exceptions
 You can set an `exceptionHandler` to receive any exceptions that happen on the socket.
 
 You can set an `exceptionHandler` to receive any exceptions that happens before the connection is passed to the `connectHandler` , e.g during the TLS handshake.
 
-### Event bus write handler {#Event_bus_write_handler}
+### Event bus write handler
 Every socket automatically registers a handler on the event bus, and when any buffers are received in this handler, it writes them to itself.
 
 This enables you to write data to a socket which is potentially in a completely different verticle or even in a different Vert.x instance by sending the buffer to the address of that handler.
 
 The address of the handler is given by `writeHandlerID`
 
-### Local and remote addresses {#Local_and_remote_addresses}
+### Local and remote addresses
 The local address of a `NetSocket` can be retrieved using `localAddress`.
 
 The remote address, (i.e. the address of the other end of the connection) of a `NetSocket` can be retrieved using `remoteAddress`.
 
-### Sending files or resources from the classpath {#Sending_files_or_resources_from_the_classpath}
+### Sending files or resources from the classpath
 Files and classpath resources can be written to the socket directly using `sendFile`. This can be a very efficient way to send files, as it can be handled by the OS kernel directly where supported by the operating system.
 
 Please see the chapter about [serving files from the classpath](https://vertx.io/docs/vertx-core/groovy/#classpath) for restrictions of the classpath resolution or disabling it.
@@ -1669,17 +1669,17 @@ Please see the chapter about [serving files from the classpath](https://vertx.io
 socket.sendFile("myfile.dat")
 ```
 
-### Streaming sockets {#Streaming_sockets}
+### Streaming sockets
 Instances of `NetSocket` are also `ReadStream` and `WriteStream` instances so they can be used to pump data to or from other read and write streams.
 
 See the chapter on [streams and pumps](https://vertx.io/docs/vertx-core/groovy/#streams) for more information.
 
-### Upgrading connections to SSL/TLS {#Upgrading_connections_to_SSL_TLS}
+### Upgrading connections to SSL/TLS
 A non SSL/TLS connection can be upgraded to SSL/TLS using `upgradeToSsl`.
 
 The server or client must be configured for SSL/TLS for this to work correctly. Please see the [chapter on SSL/TLS](https://vertx.io/docs/vertx-core/groovy/#ssl) for more information.
 
-### Closing a TCP Server {#Closing_a_TCP_Server}
+### Closing a TCP Server
 Call `close` to close the server. Closing the server closes any open connections and releases all server resources.
 
 The close is actually asynchronous and might not complete until some time after the call has returned. If you want to be notified when the actual close has completed then you can pass in a handler.
@@ -1696,10 +1696,10 @@ server.close({ res ->
 })
 ```
 
-### Automatic clean-up in verticles {#Automatic_clean_up_in_verticles}
+### Automatic clean-up in verticles
 If you’re creating TCP servers and clients from inside verticles, those servers and clients will be automatically closed when the verticle is undeployed.
 
-### Scaling - sharing TCP servers {#Scaling___sharing_TCP_servers}
+### Scaling - sharing TCP servers
 The handlers of any TCP server are always executed on the same event loop thread.
 
 This means that if you are running on a server with a lot of cores, and you only have this one instance deployed then you will have at most one core utilised on your server.
@@ -1748,14 +1748,14 @@ Instead it internally maintains just a single server, and, as incoming connectio
 
 Consequently Vert.x TCP servers can scale over available cores while each instance remains single threaded.
 
-### Creating a TCP client {#Creating_a_TCP_client}
+### Creating a TCP client
 The simplest way to create a TCP client, using all default options is as follows:
 
 ```
 def client = vertx.createNetClient()
 ```
 
-### Configuring a TCP client {#Configuring_a_TCP_client}
+### Configuring a TCP client
 If you don’t want the default, a client can be configured by passing in a `NetClientOptions` instance when creating it:
 
 ```
@@ -1765,7 +1765,7 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-### Making connections {#Making_connections}
+### Making connections
 To make a connection to a server you use `connect`, specifying the port and host of the server and a handler that will be called with a result containing the `NetSocket` when connection is successful or with a failure if connection failed.
 
 ```
@@ -1783,7 +1783,7 @@ client.connect(4321, "localhost", { res ->
 })
 ```
 
-### Configuring connection attempts {#Configuring_connection_attempts}
+### Configuring connection attempts
 A client can be configured to automatically retry connecting to the server in the event that it cannot connect. This is configured with `setReconnectInterval` and `setReconnectAttempts`.
 
 | NOTE | Currently Vert.x will not attempt to reconnect if a connection fails, reconnect attempts and interval only apply to creating initial connections. |
@@ -1801,7 +1801,7 @@ def client = vertx.createNetClient(options)
 
 By default, multiple connection attempts are disabled.
 
-### Logging network activity {#Logging_network_activity}
+### Logging network activity
 For debugging purposes, network activity can be logged:
 
 ```
@@ -1829,17 +1829,17 @@ Network activity is logged by Netty with the `DEBUG` level and with the `io.nett
 
 You should read the [Netty logging](https://vertx.io/docs/vertx-core/groovy/#netty-logging) section.
 
-### Configuring servers and clients to work with SSL/TLS {#Configuring_servers_and_clients_to_work_with_SSL_TLS}
+### Configuring servers and clients to work with SSL/TLS
 TCP clients and servers can be configured to use [Transport Layer Security](https://en.wikipedia.org/wiki/Transport_Layer_Security) - earlier versions of TLS were known as SSL.
 
 The APIs of the servers and clients are identical whether or not SSL/TLS is used, and it’s enabled by configuring the `NetClientOptions` or `NetServerOptions` instances used to create the servers or clients.
 
-#### Enabling SSL/TLS on the server {#Enabling_SSL_TLS_on_the_server}
+#### Enabling SSL/TLS on the server
 SSL/TLS is enabled with `ssl`.
 
 By default it is disabled.
 
-#### Specifying key/certificate for the server {#Specifying_key_certificate_for_the_server}
+#### Specifying key/certificate for the server
 SSL/TLS servers usually provide certificates to clients in order verify their identity to clients.
 
 Certificates/keys can be configured for servers in several ways:
@@ -1939,7 +1939,7 @@ Vert.x supports reading of unencrypted RSA and/or ECC based private keys from PK
 | ------- | ------------------------------------------------------------ |
 |         |                                                              |
 
-#### Specifying trust for the server {#Specifying_trust_for_the_server}
+#### Specifying trust for the server
 SSL/TLS servers can use a certificate authority in order to verify the identity of the clients.
 
 Certificate authorities can be configured for servers in several ways:
@@ -2035,12 +2035,12 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-#### Enabling SSL/TLS on the client {#Enabling_SSL_TLS_on_the_client}
+#### Enabling SSL/TLS on the client
 Net Clients can also be easily configured to use SSL. They have the exact same API when using SSL as when using standard sockets.
 
 To enable SSL on a NetClient the function setSSL(true) is called.
 
-#### Client trust configuration {#Client_trust_configuration}
+#### Client trust configuration
 If the `trustALl` is set to true on the client, then the client will trust all server certificates. The connection will still be encrypted but this mode is vulnerable to 'man in the middle' attacks. I.e. you can’t be sure who you are connecting to. Use this with caution. Default value is false.
 
 ```
