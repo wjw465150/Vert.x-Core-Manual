@@ -1,4 +1,4 @@
-# VertX核心手册
+# VertX核心手册 Groovy版
 
 Vert.x的核心是一组Java API，我们称为**Vert.x Core**
 
@@ -2150,7 +2150,7 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-#### Specifying key/certificate for the client {#Specifying_key_certificate_for_the_client}
+#### Specifying key/certificate for the client
 If the server requires client authentication then the client must present its own certificate to the server when connecting. The client can be configured in several ways:
 
 The first method is by specifying the location of a Java key-store which contains the key and certificate. Again it’s just a regular Java key store. The client keystore location is set by using the function `path` on the `jks options`.
@@ -2240,7 +2240,7 @@ def client = vertx.createNetClient(options)
 
 Keep in mind that pem configuration, the private key is not crypted.
 
-#### Self-signed certificates for testing and development purposes {#Self_signed_certificates_for_testing_and_development_purposes}
+#### Self-signed certificates for testing and development purposes
 | CAUTION | Do not use this in production settings, and note that the generated keys are very insecure. |
 | ------- | ------------------------------------------------------------ |
 |         |                                                              |
@@ -2303,7 +2303,7 @@ vertx.createHttpServer([
 }).listen(8080)
 ```
 
-#### Revoking certificate authorities {#Revoking_certificate_authorities}
+#### Revoking certificate authorities
 Trust can be configured to use a certificate revocation list (CRL) for revoked certificates that should no longer be trusted. The `crlPath` configures the crl list to use:
 
 ```
@@ -2331,7 +2331,7 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-#### Configuring the Cipher suite {#Configuring_the_Cipher_suite}
+#### Configuring the Cipher suite
 By default, the TLS configuration will use the Cipher suite of the JVM running Vert.x. This Cipher suite can be configured with a suite of enabled ciphers:
 
 ```
@@ -2350,7 +2350,7 @@ def server = vertx.createNetServer(options)
 
 Cipher suite can be specified on the `NetServerOptions` or `NetClientOptions` configuration.
 
-#### Configuring TLS protocol versions {#Configuring_TLS_protocol_versions}
+#### Configuring TLS protocol versions
 By default, the TLS configuration will use the following protocol versions: SSLv2Hello, TLSv1, TLSv1.1 and TLSv1.2. Protocol versions can be configured by explicitly adding enabled protocols:
 
 ```
@@ -2359,7 +2359,7 @@ Code not translatable
 
 Protocol versions can be specified on the `NetServerOptions` or `NetClientOptions` configuration.
 
-#### SSL engine {#SSL_engine}
+#### SSL engine
 The engine implementation can be configured to use [OpenSSL](https://www.openssl.org/) instead of the JDK implementation. OpenSSL provides better performances and CPU usage than the JDK engine, as well as JDK version independence.
 
 The engine options to use is
@@ -2389,7 +2389,7 @@ options = [
 ]
 ```
 
-#### Server Name Indication (SNI) {#Server_Name_Indication__SNI_}
+#### Server Name Indication (SNI)
 Server Name Indication (SNI) is a TLS extension by which a client specifies a hostname attempting to connect: during the TLS handshake the client gives a server name and the server can use it to respond with a specific certificate for this server name instead of the default deployed certificate. If the server requires client authentication the server can use a specific trusted CA certificate depending on the indicated server name.
 
 When SNI is active the server uses
@@ -2462,7 +2462,7 @@ It can be used for different purposes:
 - present a server name while connecting to an IP
 - force to present a server name when using shortname
 
-#### Application-Layer Protocol Negotiation (ALPN) {#Application_Layer_Protocol_Negotiation__ALPN_}
+#### Application-Layer Protocol Negotiation (ALPN)
 Application-Layer Protocol Negotiation (ALPN) is a TLS extension for application layer protocol negotiation. It is used by HTTP/2: during the TLS handshake the client gives the list of application protocols it accepts and the server responds with a protocol it supports.
 
 If you are using Java 9, you are fine and you can use HTTP/2 out of the box without extra steps.
@@ -2479,12 +2479,12 @@ The engine options to use is
 - `OpenSSLEngineOptions` when ALPN is available for OpenSSL
 - otherwise it fails
 
-##### OpenSSL ALPN support {#OpenSSL_ALPN_support}
+##### OpenSSL ALPN support
 OpenSSL provides native ALPN support.
 
 OpenSSL requires to configure `setOpenSslEngineOptions` and use [netty-tcnative](http://netty.io/wiki/forked-tomcat-native.html) jar on the classpath. Using tcnative may require OpenSSL to be installed on your OS depending on the tcnative implementation.
 
-##### Jetty-ALPN support {#Jetty_ALPN_support}
+##### Jetty-ALPN support
 Jetty-ALPN is a small jar that overrides a few classes of Java 8 distribution to support ALPN.
 
 The JVM must be started with the *alpn-boot-${version}.jar* in its `bootclasspath`:
@@ -2503,7 +2503,7 @@ To solve this problem the *[Jetty ALPN agent](https://github.com/jetty-project/j
 -javaagent:/path/to/alpn/agent
 ```
 
-### Using a proxy for client connections {#Using_a_proxy_for_client_connections}
+### Using a proxy for client connections
 The `NetClient` supports either a HTTP/1.x *CONNECT*, *SOCKS4a* or *SOCKS5* proxy.
 
 The proxy can be configured in the `NetClientOptions` by setting a `ProxyOptions` object containing proxy type, hostname, port and optionally username and password.
@@ -2525,21 +2525,21 @@ def client = vertx.createNetClient(options)
 
 The DNS resolution is always done on the proxy server, to achieve the functionality of a SOCKS4 client, it is necessary to resolve the DNS address locally.
 
-## Writing HTTP servers and clients {#Writing_HTTP_servers_and_clients}
+## Writing HTTP servers and clients
 Vert.x allows you to easily write non blocking HTTP clients and servers.
 
 Vert.x supports the HTTP/1.0, HTTP/1.1 and HTTP/2 protocols.
 
 The base API for HTTP is the same for HTTP/1.x and HTTP/2, specific API features are available for dealing with the HTTP/2 protocol.
 
-### Creating an HTTP Server {#Creating_an_HTTP_Server}
+### Creating an HTTP Server
 The simplest way to create an HTTP server, using all default options is as follows:
 
 ```
 def server = vertx.createHttpServer()
 ```
 
-### Configuring an HTTP server {#Configuring_an_HTTP_server}
+### Configuring an HTTP server
 If you don’t want the default, a server can be configured by passing in a `HttpServerOptions` instance when creating it:
 
 ```
@@ -2550,7 +2550,7 @@ def options = [
 def server = vertx.createHttpServer(options)
 ```
 
-### Configuring an HTTP/2 server {#Configuring_an_HTTP_2_server}
+### Configuring an HTTP/2 server
 Vert.x supports HTTP/2 over TLS `h2` and over TCP `h2c`.
 
 - `h2` identifies the HTTP/2 protocol when used over TLS negotiated by [Application-Layer Protocol Negotiation](https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation) (ALPN)
@@ -2591,7 +2591,7 @@ When a server accepts an HTTP/2 connection, it sends to the client its `initial 
 | ---- | ----------------------------------------------- |
 |      |                                                 |
 
-### Logging network server activity {#Logging_network_server_activity}
+### Logging network server activity
 For debugging purposes, network activity can be logged.
 
 ```
@@ -2604,7 +2604,7 @@ def server = vertx.createHttpServer(options)
 
 See the chapter on [logging network activity](https://vertx.io/docs/vertx-core/groovy/#logging_network_activity) for a detailed explanation.
 
-### Start the Server Listening {#Start_the_Server_Listening}
+### Start the Server Listening
 To tell the server to listen for incoming requests you use one of the `listen` alternatives.
 
 To tell the server to listen at the host and port as specified in the options:
@@ -2638,7 +2638,7 @@ server.listen(8080, "myhost.com", { res ->
 })
 ```
 
-### Getting notified of incoming requests {#Getting_notified_of_incoming_requests}
+### Getting notified of incoming requests
 To be notified when a request arrives you need to set a `requestHandler`:
 
 ```
@@ -2648,7 +2648,7 @@ server.requestHandler({ request ->
 })
 ```
 
-### Handling requests {#Handling_requests}
+### Handling requests
 When a request arrives, the request handler is called passing in an instance of `HttpServerRequest`. This object represents the server side HTTP request.
 
 The handler is called when the headers of the request have been fully read.
@@ -2667,20 +2667,20 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-#### Request version {#Request_version}
+#### Request version
 The version of HTTP specified in the request can be retrieved with `version`
 
-#### Request method {#Request_method}
+#### Request method
 Use `method` to retrieve the HTTP method of the request. (i.e. whether it’s GET, POST, PUT, DELETE, HEAD, OPTIONS, etc).
 
-#### Request URI {#Request_URI}
+#### Request URI
 Use `uri` to retrieve the URI of the request.
 
 Note that this is the actual URI as passed in the HTTP request, and it’s almost always a relative URI.
 
 The URI is as defined in [Section 5.1.2 of the HTTP specification - Request-URI](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html)
 
-#### Request path {#Request_path}
+#### Request path
 Use `path` to return the path part of the URI
 
 For example, if the request URI was:
@@ -2691,7 +2691,7 @@ Then the path would be
 
 /a/b/c/page.html
 
-#### Request query {#Request_query}
+#### Request query
 Use `query` to return the query part of the URI
 
 For example, if the request URI was:
@@ -2702,7 +2702,7 @@ Then the query would be
 
 param1=abc&param2=xyz
 
-#### Request headers {#Request_headers}
+#### Request headers
 Use `headers` to return the headers of the HTTP request.
 
 This returns an instance of `MultiMap` - which is like a normal Map or Hash but allows multiple values for the same key - this is because HTTP allows multiple header values with the same key.
@@ -2719,12 +2719,12 @@ println("User agent is ${headers.get("user-agent")}")
 println("User agent is ${headers.get("User-Agent")}")
 ```
 
-#### Request host {#Request_host}
+#### Request host
 Use `host` to return the host of the HTTP request.
 
 For HTTP/1.x requests the `host` header is returned, for HTTP/1 requests the `:authority` pseudo header is returned.
 
-#### Request parameters {#Request_parameters}
+#### Request parameters
 Use `params` to return the parameters of the HTTP request.
 
 Just like `headers` this returns an instance of `MultiMap` as there can be more than one parameter with the same name.
@@ -2742,16 +2742,16 @@ param2: 'xyz
 
 Note that these request parameters are retrieved from the URL of the request. If you have form attributes that have been sent as part of the submission of an HTML form submitted in the body of a `multi-part/form-data` request then they will not appear in the params here.
 
-#### Remote address {#Remote_address}
+#### Remote address
 The address of the sender of the request can be retrieved with `remoteAddress`.
 
-#### Absolute URI {#Absolute_URI}
+#### Absolute URI
 The URI passed in an HTTP request is usually relative. If you wish to retrieve the absolute URI corresponding to the request, you can get it with `absoluteURI`
 
-#### End handler {#End_handler}
+#### End handler
 The `endHandler` of the request is invoked when the entire request, including any body has been fully read.
 
-#### Reading Data from the Request Body {#Reading_Data_from_the_Request_Body}
+#### Reading Data from the Request Body
 Often an HTTP request contains a body that we want to read. As previously mentioned the request handler is called when just the headers of the request have arrived so the request object does not have a body at that point.
 
 This is because the body may be very large (e.g. a file upload) and we don’t generally want to buffer the entire body in memory before handing it to you, as that could cause the server to exhaust available memory.
@@ -2790,12 +2790,12 @@ request.bodyHandler({ totalBuffer ->
 })
 ```
 
-#### Pumping requests {#Pumping_requests}
+#### Pumping requests
 The request object is a `ReadStream` so you can pump the request body to any `WriteStream` instance.
 
 See the chapter on [streams and pumps](https://vertx.io/docs/vertx-core/groovy/#streams) for a detailed explanation.
 
-#### Handling HTML forms {#Handling_HTML_forms}
+#### Handling HTML forms
 HTML forms can be submitted with either a content type of `application/x-www-form-urlencoded` or `multipart/form-data`.
 
 For url encoded forms, the form attributes are encoded in the url, just like normal query parameters.
@@ -2816,7 +2816,7 @@ server.requestHandler({ request ->
 })
 ```
 
-#### Handling form file uploads {#Handling_form_file_uploads}
+#### Handling form file uploads
 Vert.x can also handle file uploads which are encoded in a multi-part request body.
 
 To receive file uploads you tell Vert.x to expect a multi-part form and set an `uploadHandler` on the request.
@@ -2858,7 +2858,7 @@ request.uploadHandler({ upload ->
 | ------- | ------------------------------------------------------------ |
 |         |                                                              |
 
-#### Handling cookies {#Handling_cookies}
+#### Handling cookies
 You use `getCookie` to retrieve a cookie by name, or use `cookieMap` to retrieve all the cookies.
 
 To remove a cookie, use `removeCookie`.
@@ -2881,14 +2881,14 @@ def cookieValue = someCookie.getValue()
 request.response().addCookie(Cookie.cookie("othercookie", "somevalue"))
 ```
 
-#### Handling compressed body {#Handling_compressed_body}
+#### Handling compressed body
 Vert.x can handle compressed body payloads which are encoded by the client with the *deflate* or *gzip* algorithms.
 
 To enable decompression set `setDecompressionSupported` on the options when creating the server.
 
 By default decompression is disabled.
 
-#### Receiving custom HTTP/2 frames {#Receiving_custom_HTTP_2_frames}
+#### Receiving custom HTTP/2 frames
 HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
 
 To receive custom frames, you can use the `customFrameHandler` on the request, this will get called every time a custom frame arrives. Here’s an example:
@@ -2902,15 +2902,15 @@ request.customFrameHandler({ frame ->
 
 HTTP/2 frames are not subject to flow control - the frame handler will be called immediatly when a custom frame is received whether the request is paused or is not
 
-#### Non standard HTTP methods {#Non_standard_HTTP_methods}
+#### Non standard HTTP methods
 The `OTHER` HTTP method is used for non standard methods, in this case `rawMethod` returns the HTTP method as sent by the client.
 
-### Sending back responses {#Sending_back_responses}
+### Sending back responses
 The server response object is an instance of `HttpServerResponse` and is obtained from the request with `response`.
 
 You use the response object to write a response back to the HTTP client.
 
-#### Setting status code and message {#Setting_status_code_and_message}
+#### Setting status code and message
 The default HTTP status code for a response is `200`, representing `OK`.
 
 Use `setStatusCode` to set a different code.
@@ -2923,7 +2923,7 @@ If you don’t specify a status message, the default one corresponding to the st
 | ---- | ------------------------------------------------------------ |
 |      |                                                              |
 
-#### Writing HTTP responses {#Writing_HTTP_responses}
+#### Writing HTTP responses
 To write data to an HTTP response, you use one of the `write` operations.
 
 These can be invoked multiple times before the response is ended. They can be invoked in a few ways:
@@ -2955,7 +2955,7 @@ If you are just writing a single string or buffer to the HTTP response you can w
 
 The first call to write results in the response header being written to the response. Consequently, if you are not using HTTP chunking then you must set the `Content-Length` header before writing to the response, since it will be too late otherwise. If you are using HTTP chunking you do not have to worry.
 
-#### Ending HTTP responses {#Ending_HTTP_responses}
+#### Ending HTTP responses
 Once you have finished with the HTTP response you should `end` it.
 
 This can be done in several ways:
@@ -2975,7 +2975,7 @@ def response = request.response()
 response.end("hello world!")
 ```
 
-#### Closing the underlying connection {#Closing_the_underlying_connection}
+#### Closing the underlying connection
 You can close the underlying TCP connection with `close`.
 
 Non keep-alive connections will be automatically closed by Vert.x when the response is ended.
@@ -2984,7 +2984,7 @@ Keep-alive connections are not automatically closed by Vert.x by default. If you
 
 HTTP/2 connections send a {@literal GOAWAY} frame before closing the response.
 
-#### Setting response headers {#Setting_response_headers}
+#### Setting response headers
 HTTP response headers can be added to the response by adding them directly to the `headers`:
 
 ```
@@ -3003,7 +3003,7 @@ response.putHeader("content-type", "text/html").putHeader("other-header", "wibbl
 
 Headers must all be added before any parts of the response body are written.
 
-#### Chunked HTTP responses and trailers {#Chunked_HTTP_responses_and_trailers}
+#### Chunked HTTP responses and trailers
 Vert.x supports [HTTP Chunked Transfer Encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding).
 
 This allows the HTTP response body to be written in chunks, and is normally used when a large response body is being streamed to a client and the total size is not known in advance.
@@ -3040,7 +3040,7 @@ response.setChunked(true)
 response.putTrailer("X-wibble", "woobble").putTrailer("X-quux", "flooble")
 ```
 
-#### Serving files directly from disk or the classpath {#Serving_files_directly_from_disk_or_the_classpath}
+#### Serving files directly from disk or the classpath
 If you were writing a web server, one way to serve a file from disk would be to open it as an `AsyncFile` and pump it to the HTTP response.
 
 Or you could load it it one go using `readFile` and write it straight to the response.
@@ -3115,7 +3115,7 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-#### Pumping responses {#Pumping_responses}
+#### Pumping responses
 The server response is a `WriteStream` instance so you can pump to it from any `ReadStream`, e.g. `AsyncFile`, `NetSocket`, `WebSocket` or `HttpServerRequest`.
 
 Here’s an example which echoes the request body back in the response for any PUT methods. It uses a pump for the body, so it will work even if the HTTP request body is much larger than can fit in memory at any one time:
@@ -3135,7 +3135,7 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-#### Writing HTTP/2 frames {#Writing_HTTP_2_frames}
+#### Writing HTTP/2 frames
 HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
 
 To send such frames, you can use the `writeCustomFrame` on the response. Here’s an example:
@@ -3151,7 +3151,7 @@ response.writeCustomFrame(frameType, frameStatus, payload)
 
 These frames are sent immediately and are not subject to flow control - when such frame is sent there it may be done before other {@literal DATA} frames.
 
-#### Stream reset {#Stream_reset}
+#### Stream reset
 HTTP/1.x does not allow a clean reset of a request or a response stream, for example when a client uploads a resource already present on the server, the server needs to accept the entire response.
 
 HTTP/2 supports stream reset at any time during the request/response:
@@ -3181,7 +3181,7 @@ request.response().exceptionHandler({ err ->
 })
 ```
 
-#### Server push {#Server_push}
+#### Server push
 Server push is a new feature of HTTP/2 that enables sending multiple responses in parallel for a single client request.
 
 When a server process a request, it can push a request/response to the client:
@@ -3214,10 +3214,10 @@ The push response handler may receive a failure, for instance the client may can
 
 The `push` method must be called before the initiating response ends, however the pushed response can be written after.
 
-#### Handling exceptions {#Handling_exceptions}
+#### Handling exceptions
 You can set an `exceptionHandler` to receive any exceptions that happens before the connection is passed to the `requestHandler` or to the `websocketHandler`, e.g during the TLS handshake.
 
-### HTTP Compression {#HTTP_Compression}
+### HTTP Compression
 Vert.x comes with support for HTTP Compression out of the box.
 
 This means you are able to automatically compress the body of the responses before they are sent back to the client.
@@ -3253,7 +3253,7 @@ Using compression levels higher that 1-2 usually allows to save just some bytes 
 
 By default - if compression is enabled via `setCompressionSupported` - Vert.x will use '6' as compression level, but the parameter can be configured to address any case with `setCompressionLevel`.
 
-### Creating an HTTP client {#Creating_an_HTTP_client}
+### Creating an HTTP client
 You create an `HttpClient` instance with default options as follows:
 
 ```
@@ -3302,7 +3302,7 @@ The http server may not support HTTP/2, the actual version can be checked with `
 
 When a clients connects to an HTTP/2 server, it sends to the server its `initial settings`. The settings define how the server can use the connection, the default initial settings for a client are the default values defined by the HTTP/2 RFC.
 
-### Logging network client activity {#Logging_network_client_activity}
+### Logging network client activity
 For debugging purposes, network activity can be logged.
 
 ```
@@ -3314,7 +3314,7 @@ def client = vertx.createHttpClient(options)
 
 See the chapter on [logging network activity](https://vertx.io/docs/vertx-core/groovy/#logging_network_activity) for a detailed explanation.
 
-### Making requests {#Making_requests}
+### Making requests
 The http client is very flexible and there are various ways you can make requests with it.
 
 Often you want to make many requests to the same host/port with an http client. To avoid you repeating the host/port every time you make a request you can configure the client with a default host/port:
@@ -3349,7 +3349,7 @@ client.getNow("foo.othercompany.com", "/other-uri", { response ->
 
 Both methods of specifying host/port are supported for all the different ways of making requests with the client.
 
-#### Simple requests with no request body {#Simple_requests_with_no_request_body}
+#### Simple requests with no request body
 Often, you’ll want to make HTTP requests with no request body. This is usually the case with HTTP GET, OPTIONS and HEAD requests.
 
 The simplest way to do this with the Vert.x http client is using the methods suffixed with `Now`. For example `getNow`.
@@ -3370,7 +3370,7 @@ client.headNow("/other-uri", { response ->
 })
 ```
 
-#### Writing general requests {#Writing_general_requests}
+#### Writing general requests
 At other times you don’t know the request method you want to send until run-time. For that use case we provide general purpose request methods such as `request` which allow you to specify the HTTP method at run-time:
 
 ```
@@ -3385,7 +3385,7 @@ client.request(HttpMethod.POST, "foo-uri", { response ->
 }).end("some-data")
 ```
 
-#### Writing request bodies {#Writing_request_bodies}
+#### Writing request bodies
 Sometimes you’ll want to write requests which have a body, or perhaps you want to write headers to a request before sending it.
 
 To do this you can call one of the specific request methods such as `post` or one of the general purpose request methods such as `request`.
@@ -3460,7 +3460,7 @@ If you are calling one of the `end` methods that take a string or buffer then Ve
 
 If you are using HTTP chunking a a `Content-Length` header is not required, so you do not have to calculate the size up-front.
 
-#### Writing request headers {#Writing_request_headers}
+#### Writing request headers
 You can write headers to a request using the `headers` multi-map as follows:
 
 ```
@@ -3482,10 +3482,10 @@ request.putHeader("content-type", "application/json").putHeader("other-header", 
 
 If you wish to write headers to the request you must do so before any part of the request body is written.
 
-#### Non standard HTTP methods {#Non_standard_HTTP_methods}
+#### Non standard HTTP methods
 The `OTHER` HTTP method is used for non standard methods, when this method is used, `setRawMethod` must be used to set the raw method to send to the server.
 
-#### Ending HTTP requests {#Ending_HTTP_requests}
+#### Ending HTTP requests
 Once you have finished with the HTTP request you must end it with one of the `end` operations.
 
 Ending a request causes any headers to be written, if they have not already been written and the request to be marked as complete.
@@ -3507,7 +3507,7 @@ def buffer = Buffer.buffer().appendFloat(12.3f).appendInt(321)
 request.end(buffer)
 ```
 
-#### Chunked HTTP requests {#Chunked_HTTP_requests}
+#### Chunked HTTP requests
 Vert.x supports [HTTP Chunked Transfer Encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) for requests.
 
 This allows the HTTP request body to be written in chunks, and is normally used when a large request body is being streamed to the server, whose size is not known in advance.
@@ -3527,12 +3527,12 @@ request.setChunked(true)
 request.end()
 ```
 
-#### Request timeouts {#Request_timeouts}
+#### Request timeouts
 You can set a timeout for a specific http request using `setTimeout`.
 
 If the request does not return any data within the timeout period an exception will be passed to the exception handler (if provided) and the request will be closed.
 
-#### Handling exceptions {#Handling_exceptions}
+#### Handling exceptions
 You can handle exceptions corresponding to a request by setting an exception handler on the `HttpClientRequest` instance:
 
 ```
@@ -3565,7 +3565,7 @@ request.end()
 | --------- | ----------------------------------------------------- |
 |           |                                                       |
 
-#### Specifying a handler on the client request {#Specifying_a_handler_on_the_client_request}
+#### Specifying a handler on the client request
 Instead of providing a response handler in the call to create the client request object, alternatively, you can not provide a handler when the request is created and set it later on the request object itself, using `handler`, for example:
 
 ```
@@ -3575,7 +3575,7 @@ request.handler({ response ->
 })
 ```
 
-#### Using the request as a stream {#Using_the_request_as_a_stream}
+#### Using the request as a stream
 The `HttpClientRequest` instance is also a `WriteStream` which means you can pump to it from any `ReadStream` instance.
 
 For, example, you could pump a file on disk to a http request body as follows:
@@ -3589,7 +3589,7 @@ file.endHandler({ v ->
 pump.start()
 ```
 
-#### Writing HTTP/2 frames {#Writing_HTTP_2_frames}
+#### Writing HTTP/2 frames
 HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
 
 To send such frames, you can use the `write` on the request. Here’s an example:
@@ -3603,7 +3603,7 @@ def payload = Buffer.buffer("some data")
 request.writeCustomFrame(frameType, frameStatus, payload)
 ```
 
-#### Stream reset {#Stream_reset}
+#### Stream reset
 HTTP/1.x does not allow a clean reset of a request or a response stream, for example when a client uploads a resource already present on the server, the server needs to accept the entire response.
 
 HTTP/2 supports stream reset at any time during the request/response:
@@ -3631,7 +3631,7 @@ request.exceptionHandler({ err ->
 })
 ```
 
-### Handling HTTP responses {#Handling_HTTP_responses}
+### Handling HTTP responses
 You receive an instance of `HttpClientResponse` into the handler that you specify in of the request methods or by setting a handler directly on the `HttpClientRequest` object.
 
 You can query the status code and the status message of the response with `statusCode` and `statusMessage`.
@@ -3646,10 +3646,10 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-#### Using the response as a stream {#Using_the_response_as_a_stream}
+#### Using the response as a stream
 The `HttpClientResponse` instance is also a `ReadStream` which means you can pump it to any `WriteStream` instance.
 
-#### Response headers and trailers {#Response_headers_and_trailers}
+#### Response headers and trailers
 Http responses can contain headers. Use `headers` to get the headers.
 
 The object returned is a `MultiMap` as HTTP headers can contain multiple values for single keys.
@@ -3663,7 +3663,7 @@ Chunked HTTP responses can also contain trailers - these are sent in the last ch
 
 You use `trailers` to get the trailers. Trailers are also a `MultiMap`.
 
-#### Reading the request body {#Reading_the_request_body}
+#### Reading the request body
 The response handler is called when the headers of the response have been read from the wire.
 
 If the response has a body this might arrive in several pieces some time after the headers have been read. We don’t wait for all the body to arrive before calling the response handler as the response could be very large and we might be waiting a long time, or run out of memory for large responses.
@@ -3712,15 +3712,15 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-#### Response end handler {#Response_end_handler}
+#### Response end handler
 The response `endHandler` is called when the entire response body has been read or immediately after the headers have been read and the response handler has been called if there is no body.
 
-#### Reading cookies from the response {#Reading_cookies_from_the_response}
+#### Reading cookies from the response
 You can retrieve the list of cookies from a response using `cookies`.
 
 Alternatively you can just parse the `Set-Cookie` headers yourself in the response.
 
-#### 30x redirection handling {#x_redirection_handling}
+#### 30x redirection handling
 The client can be configured to follow HTTP redirections provided by the `Location` response header when the client receives:
 
 - a `301`, `302`, `307` or `308` status code along with a HTTP GET or HEAD method
@@ -3784,7 +3784,7 @@ Most of the original request settings will be propagated to the new request:
 - request exception handler
 - request timeout
 
-#### 100-Continue handling {#Continue_handling}
+#### 100-Continue handling
 According to the [HTTP 1.1 specification](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) a client can set a header `Expect: 100-Continue` and send the request header before sending the rest of the request body.
 
 The server can then respond with an interim response status `Status: 100 (Continue)` to signify to the client that it is ok to send the rest of the body.
@@ -3862,7 +3862,7 @@ httpServer.requestHandler({ request ->
 })
 ```
 
-#### Client push {#Client_push}
+#### Client push
 Server push is a new feature of HTTP/2 that enables sending multiple responses in parallel for a single client request.
 
 A push handler can be set on a request to receive the request/response pushed by the server:
@@ -3902,7 +3902,7 @@ request.pushHandler({ pushedRequest ->
 
 When no handler is set, any stream pushed will be automatically cancelled by the client with a stream reset (`8` error code).
 
-#### Receiving custom HTTP/2 frames {#Receiving_custom_HTTP_2_frames}
+#### Receiving custom HTTP/2 frames
 HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
 
 To receive custom frames, you can use the customFrameHandler on the request, this will get called every time a custom frame arrives. Here’s an example:
@@ -3914,7 +3914,7 @@ response.customFrameHandler({ frame ->
 })
 ```
 
-### Enabling compression on the client {#Enabling_compression_on_the_client}
+### Enabling compression on the client
 The http client comes with support for HTTP Compression out of the box.
 
 This means the client can let the remote http server know that it supports compression, and will be able to handle compressed response bodies.
@@ -3935,7 +3935,7 @@ To enable compression set `setTryUseCompression` on the options used when creati
 
 By default compression is disabled.
 
-### HTTP/1.x pooling and keep alive {#HTTP_1_x_pooling_and_keep_alive}
+### HTTP/1.x pooling and keep alive
 Http keep alive allows http connections to be used for more than one request. This can be a more efficient use of connections when you’re making multiple requests to the same server.
 
 For HTTP/1.x versions, the http client supports pooling of connections, allowing you to reuse connections between requests.
@@ -3956,7 +3956,7 @@ keep-alive: timeout=30
 
 You can set the default timeout using `setKeepAliveTimeout` - any connections not used within this timeout will be closed. Please note the timeout value is in seconds not milliseconds.
 
-### HTTP/1.1 pipe-lining {#HTTP_1_1_pipe_lining}
+### HTTP/1.1 pipe-lining
 The client also supports pipe-lining of requests on a connection.
 
 Pipe-lining means another request is sent on the same connection before the response from the preceding one has returned. Pipe-lining is not appropriate for all requests.
@@ -3967,7 +3967,7 @@ When pipe-lining is enabled requests will be written to connections without wait
 
 The number of pipe-lined requests over a single connection is limited by `setPipeliningLimit`. This option defines the maximum number of http requests sent to the server awaiting for a response. This limit ensures the fairness of the distribution of the client requests over the connections to the same server.
 
-### HTTP/2 multiplexing {#HTTP_2_multiplexing}
+### HTTP/2 multiplexing
 HTTP/2 advocates to use a single connection to a server, by default the http client uses a single connection for each server, all the streams to the same server are multiplexed over the same connection.
 
 When the clients needs to use more than a single connection and use pooling, the `setHttp2MaxPoolSize` shall be used.
@@ -3990,14 +3990,14 @@ HTTP/2 connections will not be closed by the client automatically. To close them
 
 Alternatively you can set idle timeout using `setIdleTimeout` - any connections not used within this timeout will be closed. Please note the idle timeout value is in seconds not milliseconds.
 
-### HTTP connections {#HTTP_connections}
+### HTTP connections
 The `HttpConnection` offers the API for dealing with HTTP connection events, lifecycle and settings.
 
 HTTP/2 implements fully the `HttpConnection` API.
 
 HTTP/1.x implements partially the `HttpConnection` API: only the close operation, the close handler and exception handler are implemented. This protocol does not provide semantics for the other operations.
 
-#### Server connections {#Server_connections}
+#### Server connections
 The `connection` method returns the request connection on the server:
 
 ```
@@ -4014,7 +4014,7 @@ server.connectionHandler({ connection ->
 })
 ```
 
-#### Client connections {#Client_connections}
+#### Client connections
 The `connection` method returns the request connection on the client:
 
 ```
@@ -4029,7 +4029,7 @@ request.connectionHandler({ connection ->
 })
 ```
 
-#### Connection settings {#Connection_settings}
+#### Connection settings
 The configuration of an HTTP/2 is configured by the `Http2Settings` data object.
 
 Each endpoint must respect the settings sent by the other side of the connection.
@@ -4068,7 +4068,7 @@ connection.remoteSettingsHandler({ settings ->
 | ---- | ---------------------------------------- |
 |      |                                          |
 
-#### Connection ping {#Connection_ping}
+#### Connection ping
 HTTP/2 connection ping is useful for determining the connection round-trip time or check the connection validity: `ping` sends a {@literal PING} frame to the remote endpoint:
 
 ```
@@ -4095,7 +4095,7 @@ The handler is just notified, the acknowledgement is sent whatsoever. Such featu
 | ---- | ---------------------------------------- |
 |      |                                          |
 
-#### Connection shutdown and go away {#Connection_shutdown_and_go_away}
+#### Connection shutdown and go away
 Calling `shutdown` will send a {@literal GOAWAY} frame to the remote side of the connection, asking it to stop creating streams: a client will stop doing new requests and a server will stop pushing responses. After the {@literal GOAWAY} frame is sent, the connection waits some time (30 seconds by default) until all current streams closed and close the connection:
 
 ```
@@ -4135,7 +4135,7 @@ This applies also when a {@literal GOAWAY} is received.
 | ---- | ---------------------------------------- |
 |      |                                          |
 
-#### Connection close {#Connection_close}
+#### Connection close
 Connection `close` closes the connection:
 
 - it closes the socket for HTTP/1.x
@@ -4143,7 +4143,7 @@ Connection `close` closes the connection:
 
 The `closeHandler` notifies when a connection is closed.
 
-### HttpClient usage {#HttpClient_usage}
+### HttpClient usage
 The HttpClient can be used in a Verticle or embedded.
 
 When used in a Verticle, the Verticle **should use its own client instance**.
@@ -4160,7 +4160,7 @@ Reusing a connection with a different context: an HttpClient is probably shared 
 
 The HttpClient can be embedded in a non Vert.x thread like a unit test or a plain java `main`: the client handlers will be called by different Vert.x threads and contexts, such contexts are created as needed. For production this usage is not recommended.
 
-### Server sharing {#Server_sharing}
+### Server sharing
 When several HTTP servers listen on the same port, vert.x orchestrates the request handling using a round-robin strategy.
 
 Let’s take a verticle creating a HTTP server such as:
@@ -4199,7 +4199,7 @@ Hello from i.v.e.h.s.HttpServerVerticle@2
 
 Consequently the servers can scale over available cores while each Vert.x verticle instance remains strictly single threaded, and you don’t have to do any special tricks like writing load-balancers in order to scale your server on your multi-core machine.
 
-### Using HTTPS with Vert.x {#Using_HTTPS_with_Vert_x}
+### Using HTTPS with Vert.x
 Vert.x http servers and clients can be configured to use HTTPS in exactly the same way as net servers.
 
 Please see [configuring net servers to use SSL](https://vertx.io/docs/vertx-core/groovy/#ssl) for more information.
@@ -4226,20 +4226,20 @@ The `setSsl` overrides the default client setting
 
 Likewise `requestAbs` scheme also overrides the default client setting.
 
-#### Server Name Indication (SNI) {#Server_Name_Indication__SNI_}
+#### Server Name Indication (SNI)
 Vert.x http servers can be configured to use SNI in exactly the same way as {@linkplain io.vertx.core.net net servers}.
 
 Vert.x http client will present the actual hostname as *server name* during the TLS handshake.
 
-### WebSockets {#WebSockets}
+### WebSockets
 [WebSockets](https://en.wikipedia.org/wiki/WebSocket) are a web technology that allows a full duplex socket-like connection between HTTP servers and HTTP clients (typically browsers).
 
 Vert.x supports WebSockets on both the client and server-side.
 
-#### WebSockets on the server {#WebSockets_on_the_server}
+#### WebSockets on the server
 There are two ways of handling WebSockets on the server side.
 
-##### WebSocket handler {#WebSocket_handler}
+##### WebSocket handler
 The first way involves providing a `websocketHandler` on the server instance.
 
 When a WebSocket connection is made to the server, the handler will be called, passing in an instance of `ServerWebSocket`.
@@ -4285,7 +4285,7 @@ server.websocketHandler({ websocket ->
 | ---- | ------------------------------------------------------------ |
 |      |                                                              |
 
-##### Upgrading to WebSocket {#Upgrading_to_WebSocket}
+##### Upgrading to WebSocket
 The second way of handling WebSockets is to handle the HTTP Upgrade request that was sent from the client, and call `upgrade` on the server request.
 
 ```
@@ -4302,10 +4302,10 @@ server.requestHandler({ request ->
 })
 ```
 
-##### The server WebSocket {#The_server_WebSocket}
+##### The server WebSocket
 The `ServerWebSocket` instance enables you to retrieve the `headers`, `path`, `query` and `URI` of the HTTP request of the WebSocket handshake.
 
-#### WebSockets on the client {#WebSockets_on_the_client}
+#### WebSockets on the client
 The Vert.x `HttpClient` supports WebSockets.
 
 You can connect a WebSocket to a server using one of the `webSocket` operations and providing a handler.
@@ -4321,7 +4321,7 @@ client.webSocket("/some-uri", { res ->
 })
 ```
 
-#### Writing messages to WebSockets {#Writing_messages_to_WebSockets}
+#### Writing messages to WebSockets
 If you wish to write a single WebSocket message to the WebSocket you can do this with `writeBinaryMessage` or `writeTextMessage` :
 
 ```
@@ -4336,7 +4336,7 @@ websocket.writeTextMessage(message)
 
 If the WebSocket message is larger than the maximum websocket frame size as configured with `setMaxWebsocketFrameSize` then Vert.x will split it into multiple WebSocket frames before sending it on the wire.
 
-#### Writing frames to WebSockets {#Writing_frames_to_WebSockets}
+#### Writing frames to WebSockets
 A WebSocket message can be composed of multiple frames. In this case the first frame is either a *binary* or *text* frame followed by zero or more *continuation* frames.
 
 The last frame in the message is marked as *final*.
@@ -4373,7 +4373,7 @@ def buff = Buffer.buffer().appendInt(12).appendString("foo")
 websocket.writeFinalBinaryFrame(buff)
 ```
 
-#### Reading frames from WebSockets {#Reading_frames_from_WebSockets}
+#### Reading frames from WebSockets
 To read frames from a WebSocket you use the `frameHandler`.
 
 The frame handler will be called with instances of `WebSocketFrame` when a frame arrives, for example:
@@ -4384,15 +4384,15 @@ websocket.frameHandler({ frame ->
 })
 ```
 
-#### Closing WebSockets {#Closing_WebSockets}
+#### Closing WebSockets
 Use `close` to close the WebSocket connection when you have finished with it.
 
-#### Streaming WebSockets {#Streaming_WebSockets}
+#### Streaming WebSockets
 The `WebSocket` instance is also a `ReadStream` and a `WriteStream` so it can be used with pumps.
 
 When using a WebSocket as a write stream or a read stream it can only be used with WebSockets connections that are used with binary frames that are no split over multiple frames.
 
-### Using a proxy for HTTP/HTTPS connections {#Using_a_proxy_for_HTTP_HTTPS_connections}
+### Using a proxy for HTTP/HTTPS connections
 The http client supports accessing http/https URLs via a HTTP proxy (e.g. Squid) or *SOCKS4a* or *SOCKS5* proxy. The CONNECT protocol uses HTTP/1.x but can connect to HTTP/1.x and HTTP/2 servers.
 
 Connecting to h2c (unencrypted HTTP/2 servers) is likely not supported by http proxies since they will support HTTP/1.1 only.
@@ -4435,7 +4435,7 @@ def client = vertx.createHttpClient(options)
 
 The DNS resolution is always done on the proxy server, to achieve the functionality of a SOCKS4 client, it is necessary to resolve the DNS address locally.
 
-#### Handling of other protocols {#Handling_of_other_protocols}
+#### Handling of other protocols
 The HTTP proxy implementation supports getting ftp:// urls if the proxy supports that, which isn’t available in non-proxy getAbs requests.
 
 ```
@@ -4452,10 +4452,10 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", { response ->
 
 Support for other protocols is not available since java.net.URL does not support them (gopher:// for example).
 
-### Automatic clean-up in verticles {#Automatic_clean_up_in_verticles}
+### Automatic clean-up in verticles
 If you’re creating http servers and clients from inside verticles, those servers and clients will be automatically closed when the verticle is undeployed.
 
-## Using the SharedData API {#Using_the_SharedData_API}
+## Using the SharedData API
 As its name suggests, the `SharedData` API allows you to safely share data between:
 
 - different parts of your application, or
@@ -4473,7 +4473,7 @@ In practice, it provides:
 | --------- | ------------------------------------------------------------ |
 |           |                                                              |
 
-### Local maps {#Local_maps}
+### Local maps
 `Local maps` allow you to share data safely between different event loops (e.g. different verticles) in the same Vert.x instance.
 
 They only allow certain data types to be used as keys and values:
@@ -4509,7 +4509,7 @@ map2 = sharedData.getLocalMap("mymap2")
 def buff = map2.get("eek")
 ```
 
-### Asynchronous shared maps {#Asynchronous_shared_maps}
+### Asynchronous shared maps
 `Asynchronous shared maps` allow data to be put in the map and retrieved locally or from any other node.
 
 This makes them really useful for things like storing session state in a farm of servers hosting a Vert.x Web application.
@@ -4549,7 +4549,7 @@ sharedData.getLocalAsyncMap("mymap", { res ->
 })
 ```
 
-#### Putting data in a map {#Putting_data_in_a_map}
+#### Putting data in a map
 You put data in a map with `put`.
 
 The actual put is asynchronous and the handler is notified once it is complete:
@@ -4564,7 +4564,7 @@ map.put("foo", "bar", { resPut ->
 })
 ```
 
-#### Getting data from a map {#Getting_data_from_a_map}
+#### Getting data from a map
 You get data from a map with `get`.
 
 The actual get is asynchronous and the handler is notified with the result some time later:
@@ -4580,12 +4580,12 @@ map.get("foo", { resGet ->
 })
 ```
 
-##### Other map operations {#Other_map_operations}
+##### Other map operations
 You can also remove entries from an asynchronous map, clear them and get the size.
 
 See the `API docs` for a detailed list of map operations.
 
-### Asynchronous locks {#Asynchronous_locks}
+### Asynchronous locks
 `Asynchronous locks` allow you to obtain exclusive locks locally or across the cluster. This is useful when you want to do something or access a resource on only one node of a cluster at any one time.
 
 Asynchronous locks have an asynchronous API unlike most lock APIs which block the calling thread until the lock is obtained.
@@ -4660,7 +4660,7 @@ sharedData.getLocalLock("mylock", { res ->
 })
 ```
 
-### Asynchronous counters {#Asynchronous_counters}
+### Asynchronous counters
 It’s often useful to maintain an atomic counter locally or across the different nodes of your application.
 
 You can do this with `Counter`.
@@ -4702,7 +4702,7 @@ sharedData.getLocalCounter("mycounter", { res ->
 })
 ```
 
-## Using the file system with Vert.x {#Using_the_file_system_with_Vert_x}
+## Using the file system with Vert.x
 The Vert.x `FileSystem` object provides many operations for manipulating the file system.
 
 There is one file system object per Vert.x instance, and you obtain it with `fileSystem`.
@@ -4779,7 +4779,7 @@ vertx.fileSystem().exists("target/classes/junk.txt", { result ->
 })
 ```
 
-### Asynchronous files {#Asynchronous_files}
+### Asynchronous files
 Vert.x provides an asynchronous file abstraction that allows you to manipulate a file on the file system.
 
 You open an `AsyncFile` as follows:
@@ -4799,7 +4799,7 @@ fileSystem.open("myfile.txt", options, { res ->
 
 They also allow you to read and write directly to them.
 
-#### Random access writes {#Random_access_writes}
+#### Random access writes
 To use an `AsyncFile` for random access writing you use the `write` method.
 
 The parameters to the method are:
@@ -4831,7 +4831,7 @@ vertx.fileSystem().open("target/classes/hello.txt", [:], { result ->
 })
 ```
 
-#### Random access reads {#Random_access_reads}
+#### Random access reads
 To use an `AsyncFile` for random access reads you use the `read` method.
 
 The parameters to the method are:
@@ -4864,19 +4864,19 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", [:], { result ->
 })
 ```
 
-#### Opening Options {#Opening_Options}
+#### Opening Options
 When opening an `AsyncFile`, you pass an `OpenOptions` instance. These options describe the behavior of the file access. For instance, you can configure the file permissions with the `setRead`, `setWrite` and `setPerms` methods.
 
 You can also configure the behavior if the open file already exists with `setCreateNew` and `setTruncateExisting`.
 
 You can also mark the file to be deleted on close or when the JVM is shutdown with `setDeleteOnClose`.
 
-#### Flushing data to underlying storage. {#Flushing_data_to_underlying_storage_}
+#### Flushing data to underlying storage.
 In the `OpenOptions`, you can enable/disable the automatic synchronisation of the content on every write using `setDsync`. In that case, you can manually flush any writes from the OS cache by calling the `flush` method.
 
 This method can also be called with an handler which will be called when the flush is complete.
 
-#### Using AsyncFile as ReadStream and WriteStream {#Using_AsyncFile_as_ReadStream_and_WriteStream}
+#### Using AsyncFile as ReadStream and WriteStream
 `AsyncFile` implements `ReadStream` and `WriteStream`. You can then use them with a *pump* to pump data to and from other read and write streams. For example, this would copy the content to another `AsyncFile`:
 
 ```
@@ -4897,7 +4897,7 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", [:], { result ->
 
 You can also use the *pump* to write file content into HTTP responses, or more generally in any `WriteStream`.
 
-#### Accessing files from the classpath {#Accessing_files_from_the_classpath}
+#### Accessing files from the classpath
 When vert.x cannot find the file on the filesystem it tries to resolve the file from the class path. Note that classpath resource paths never start with a `/`.
 
 Due to the fact that Java does not offer async access to classpath resources, the file is copied to the filesystem in a worker thread when the classpath resource is accessed the very first time and served from there asynchronously. When the same resource is accessed a second time, the file from the filesystem is served directly from the filesystem. The original content is served even if the classpath resource changes (e.g. in a development system).
@@ -4914,10 +4914,10 @@ The whole classpath resolving feature can be disabled system-wide by setting the
 
 If you want to disable classpath resolving for a particular application but keep it enabled by default system-wide, you can do so via the `setClassPathResolvingEnabled` option.
 
-#### Closing an AsyncFile {#Closing_an_AsyncFile}
+#### Closing an AsyncFile
 To close an `AsyncFile` call the `close` method. Closing is asynchronous and if you want to be notified when the close has been completed you can specify a handler function as an argument.
 
-## Datagram sockets (UDP) {#Datagram_sockets__UDP_}
+## Datagram sockets (UDP)
 Using User Datagram Protocol (UDP) with Vert.x is a piece of cake.
 
 UDP is a connection-less transport which basically means you have no persistent connection to a remote peer.
@@ -4938,7 +4938,7 @@ Because of the nature of UDP it is best fit for Applications where you are allow
 
 The benefits are that it has a lot less overhead compared to TCP, which can be handled by the NetServer and NetClient (see above).
 
-### Creating a DatagramSocket {#Creating_a_DatagramSocket}
+### Creating a DatagramSocket
 To use UDP you first need t create a `DatagramSocket`. It does not matter here if you only want to send data or send and receive.
 
 ```
@@ -4947,7 +4947,7 @@ def socket = vertx.createDatagramSocket([:])
 
 The returned `DatagramSocket` will not be bound to a specific port. This is not a problem if you only want to send data (like a client), but more on this in the next section.
 
-### Sending Datagram packets {#Sending_Datagram_packets}
+### Sending Datagram packets
 As mentioned before, User Datagram Protocol (UDP) sends data in packets to remote peers but is not connected to them in a persistent fashion.
 
 This means each packet can be sent to a different remote peer.
@@ -4967,7 +4967,7 @@ socket.send("A string used as content", 1234, "10.0.0.1", { asyncResult ->
 })
 ```
 
-### Receiving Datagram packets {#Receiving_Datagram_packets}
+### Receiving Datagram packets
 If you want to receive packets you need to bind the `DatagramSocket` by calling `listen(…)}` on it.
 
 This way you will be able to receive `DatagramPacket`s that were sent to the address and port on which the `DatagramSocket` listens.
@@ -4998,8 +4998,8 @@ Be aware that even if the {code AsyncResult} is successed it only means it might
 
 If you need such a guarantee then you want to use TCP with some handshaking logic build on top.
 
-### Multicast {#Multicast}
-#### Sending Multicast packets {#Sending_Multicast_packets}
+### Multicast
+#### Sending Multicast packets
 Multicast allows multiple sockets to receive the same packets. This works by having the sockets join the same multicast group to which you can then send packets.
 
 We will look at how you can join a Multicast Group and receive packets in the next section.
@@ -5019,7 +5019,7 @@ socket.send(buffer, 1234, "230.0.0.1", { asyncResult ->
 
 All sockets that have joined the multicast group 230.0.0.1 will receive the packet.
 
-##### Receiving Multicast packets {#Receiving_Multicast_packets}
+##### Receiving Multicast packets
 If you want to receive packets for specific Multicast group you need to bind the `DatagramSocket` by calling `listen(…)` on it to join the Multicast group.
 
 This way you will receive DatagramPackets that were sent to the address and port on which the `DatagramSocket` listens and also to those sent to the Multicast group.
@@ -5051,7 +5051,7 @@ socket.listen(1234, "0.0.0.0", { asyncResult ->
 })
 ```
 
-##### Unlisten / leave a Multicast group {#Unlisten___leave_a_Multicast_group}
+##### Unlisten / leave a Multicast group
 There are sometimes situations where you want to receive packets for a Multicast group for a limited time.
 
 In this situations you can first start to listen for them and then later unlisten.
@@ -5086,7 +5086,7 @@ socket.listen(1234, "0.0.0.0", { asyncResult ->
 })
 ```
 
-##### Blocking multicast {#Blocking_multicast}
+##### Blocking multicast
 Beside unlisten a Multicast address it’s also possible to just block multicast for a specific sender address.
 
 Be aware this only work on some Operating Systems and kernel versions. So please check the Operating System documentation if it’s supported.
@@ -5106,7 +5106,7 @@ socket.blockMulticastGroup("230.0.0.1", "10.0.0.2", { asyncResult ->
 })
 ```
 
-#### DatagramSocket properties {#DatagramSocket_properties}
+#### DatagramSocket properties
 When creating a `DatagramSocket` there are multiple properties you can set to change it’s behaviour with the `DatagramSocketOptions` object. Those are listed here:
 
 - `setSendBufferSize` Sets the send buffer size in bytes.
@@ -5117,13 +5117,13 @@ When creating a `DatagramSocket` there are multiple properties you can set to ch
 - `setMulticastNetworkInterface` Sets or clears the IP_MULTICAST_LOOP socket option. When this option is set, multicast packets will also be received on the local interface.
 - `setMulticastTimeToLive` Sets the IP_MULTICAST_TTL socket option. TTL stands for "Time to Live," but in this context it specifies the number of IP hops that a packet is allowed to go through, specifically for multicast traffic. Each router or gateway that forwards a packet decrements the TTL. If the TTL is decremented to 0 by a router, it will not be forwarded.
 
-#### DatagramSocket Local Address {#DatagramSocket_Local_Address}
+#### DatagramSocket Local Address
 You can find out the local address of the socket (i.e. the address of this side of the UDP Socket) by calling `localAddress`. This will only return an `InetSocketAddress` if you bound the `DatagramSocket` with `listen(…)` before, otherwise it will return null.
 
-#### Closing a DatagramSocket {#Closing_a_DatagramSocket}
+#### Closing a DatagramSocket
 You can close a socket by invoking the `close` method. This will close the socket and release all resources
 
-## DNS client {#DNS_client}
+## DNS client
 Often you will find yourself in situations where you need to obtain DNS informations in an asynchronous fashion. Unfortunally this is not possible with the API that is shipped with the Java Virtual Machine itself. Because of this Vert.x offers it’s own API for DNS resolution which is fully asynchronous.
 
 To obtain a DnsClient instance you will create a new via the Vertx instance.
@@ -5153,7 +5153,7 @@ def client2 = vertx.createDnsClient([
 ])
 ```
 
-### lookup {#lookup}
+### lookup
 Try to lookup the A (ipv4) or AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
 
 To lookup the A / AAAA record for "vertx.io" you would typically use it like:
@@ -5169,7 +5169,7 @@ client.lookup("vertx.io", { ar ->
 })
 ```
 
-### lookup4 {#lookup4}
+### lookup4
 Try to lookup the A (ipv4) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
 
 To lookup the A record for "vertx.io" you would typically use it like:
@@ -5185,7 +5185,7 @@ client.lookup4("vertx.io", { ar ->
 })
 ```
 
-### lookup6 {#lookup6}
+### lookup6
 Try to lookup the AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
 
 To lookup the A record for "vertx.io" you would typically use it like:
@@ -5201,7 +5201,7 @@ client.lookup6("vertx.io", { ar ->
 })
 ```
 
-### resolveA {#resolveA}
+### resolveA
 Try to resolve all A (ipv4) records for a given name. This is quite similar to using "dig" on unix like operation systems.
 
 To lookup all the A records for "vertx.io" you would typically do:
@@ -5220,7 +5220,7 @@ client.resolveA("vertx.io", { ar ->
 })
 ```
 
-### resolveAAAA {#resolveAAAA}
+### resolveAAAA
 Try to resolve all AAAA (ipv6) records for a given name. This is quite similar to using "dig" on unix like operation systems.
 
 To lookup all the AAAAA records for "vertx.io" you would typically do:
@@ -5239,7 +5239,7 @@ client.resolveAAAA("vertx.io", { ar ->
 })
 ```
 
-### resolveCNAME {#resolveCNAME}
+### resolveCNAME
 Try to resolve all CNAME records for a given name. This is quite similar to using "dig" on unix like operation systems.
 
 To lookup all the CNAME records for "vertx.io" you would typically do:
@@ -5258,7 +5258,7 @@ client.resolveCNAME("vertx.io", { ar ->
 })
 ```
 
-### resolveMX {#resolveMX}
+### resolveMX
 Try to resolve all MX records for a given name. The MX records are used to define which Mail-Server accepts emails for a given domain.
 
 To lookup all the MX records for "vertx.io" you would typically do:
@@ -5286,7 +5286,7 @@ record.priority()
 record.name()
 ```
 
-### resolveTXT {#resolveTXT}
+### resolveTXT
 Try to resolve all TXT records for a given name. TXT records are often used to define extra informations for a domain.
 
 To resolve all the TXT records for "vertx.io" you could use something along these lines:
@@ -5305,7 +5305,7 @@ client.resolveTXT("vertx.io", { ar ->
 })
 ```
 
-### resolveNS {#resolveNS}
+### resolveNS
 Try to resolve all NS records for a given name. The NS records specify which DNS Server hosts the DNS informations for a given domain.
 
 To resolve all the NS records for "vertx.io" you could use something along these lines:
@@ -5324,7 +5324,7 @@ client.resolveNS("vertx.io", { ar ->
 })
 ```
 
-### resolveSRV {#resolveSRV}
+### resolveSRV
 Try to resolve all SRV records for a given name. The SRV records are used to define extra informations like port and hostname of services. Some protocols need this extra informations.
 
 To lookup all the SRV records for "vertx.io" you would typically do:
@@ -5359,7 +5359,7 @@ record.target()
 
 Please refer to the API docs for the exact details.
 
-### resolvePTR {#resolvePTR}
+### resolvePTR
 Try to resolve the PTR record for a given name. The PTR record maps an ipaddress to a name.
 
 To resolve the PTR record for the ipaddress 10.0.0.1 you would use the PTR notion of "1.0.0.10.in-addr.arpa"
@@ -5376,7 +5376,7 @@ client.resolvePTR("1.0.0.10.in-addr.arpa", { ar ->
 })
 ```
 
-### reverseLookup {#reverseLookup}
+### reverseLookup
 Try to do a reverse lookup for an ipaddress. This is basically the same as resolve a PTR record, but allows you to just pass in the ipaddress and not a valid PTR query string.
 
 To do a reverse lookup for the ipaddress 10.0.0.1 do something similar like this:
@@ -5393,7 +5393,7 @@ client.reverseLookup("10.0.0.1", { ar ->
 })
 ```
 
-### Error handling {#Error_handling}
+### Error handling
 As you saw in previous sections the DnsClient allows you to pass in a Handler which will be notified with an AsyncResult once the query was complete. In case of an error it will be notified with a DnsException which will hole a `DnsResponseCode` that indicate why the resolution failed. This DnsResponseCode can be used to inspect the cause in more detail.
 
 Possible DnsResponseCodes are:
@@ -5436,7 +5436,7 @@ if (ar.succeeded()) {
 })
 ```
 
-## Streams {#Streams}
+## Streams
 There are several objects in Vert.x that allow items to be read from and written.
 
 In previous versions the `io.vertx.core.streams` package was manipulating `Buffer` objects exclusively. From now, streams are not coupled to buffers anymore and they work with any kind of objects.
@@ -5623,7 +5623,7 @@ src.pipe().endOnSuccess(false).to(dst, { rs ->
 
 Let’s now look at the methods on `ReadStream` and `WriteStream` in more detail:
 
-### ReadStream {#ReadStream}
+### ReadStream
 `ReadStream` is implemented by `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
 
 Functions:
@@ -5634,7 +5634,7 @@ Functions:
 - `exceptionHandler`: Will be called if an exception occurs on the ReadStream.
 - `endHandler`: Will be called when end of stream is reached. This might be when EOF is reached if the ReadStream represents a file, or when end of request is reached if it’s an HTTP request, or when the connection is closed if it’s a TCP socket.
 
-### WriteStream {#WriteStream}
+### WriteStream
 ```
 WriteStream` is implemented by `HttpClientRequest`, `HttpServerResponse` `WebSocket`, `NetSocket`, `AsyncFile`, and `MessageProducer
 ```
@@ -5647,7 +5647,7 @@ Functions:
 - `exceptionHandler`: Will be called if an exception occurs on the `WriteStream`.
 - `drainHandler`: The handler will be called if the `WriteStream` is considered no longer full.
 
-### Pump {#Pump}
+### Pump
 The pump exposes a subset of the pipe API and only transfers the items between streams, it does not handle the completion or failure of the transfer operation.
 
 ```
@@ -5674,7 +5674,7 @@ A pump can be started and stopped multiple times.
 
 When a pump is first created it is *not* started. You need to call the `start()` method to start it.
 
-## Record Parser {#Record_Parser}
+## Record Parser
 The record parser allows you to easily parse protocols which are delimited by a sequence of bytes, or fixed size records. It transforms a sequence of input buffer to a sequence of buffer structured as configured (either fixed size or separated records).
 
 For example, if you have a simple ASCII text protocol delimited by '\n' and the input is the following:
@@ -5717,7 +5717,7 @@ RecordParser.newFixed(4, { h ->
 
 For more details, check out the `RecordParser` class.
 
-## Json Parser {#Json_Parser}
+## Json Parser
 You can easily parse JSON structures but that requires to provide the JSON content at once, but it may not be convenient when you need to parse very large structures.
 
 The non-blocking JSON parser is an event driven parser able to deal with very large structures. It transforms a sequence of input buffer to a sequence of JSON parse events.
@@ -5800,19 +5800,19 @@ The parser also parses json streams:
 
 For more details, check out the `JsonParser` class.
 
-## Thread safety {#Thread_safety}
+## Thread safety
 Most Vert.x objects are safe to access from different threads. *However* performance is optimised when they are accessed from the same context they were created from.
 
 For example if you have deployed a verticle which creates a `NetServer` which provides `NetSocket` instances in it’s handler, then it’s best to always access that socket instance from the event loop of the verticle.
 
 If you stick to the standard Vert.x verticle deployment model and avoid sharing objects between verticles then this should be the case without you having to think about it.
 
-## Metrics SPI {#Metrics_SPI}
+## Metrics SPI
 By default Vert.x does not record any metrics. Instead it provides an SPI for others to implement which can be added to the classpath. The metrics SPI is an advanced feature which allows implementers to capture events from Vert.x in order to gather metrics. For more information on this, please consult the `API Documentation`.
 
 You can also specify a metrics factory programmatically if embedding Vert.x using `setFactory`.
 
-## OSGi {#OSGi}
+## OSGi
 Vert.x Core is packaged as an OSGi bundle, so can be used in any OSGi R4.2+ environment such as Apache Felix or Eclipse Equinox. The bundle exports `io.vertx.core*`.
 
 However, the bundle has some dependencies on Jackson and Netty. To get the vert.x core bundle resolved deploy:
@@ -5846,14 +5846,14 @@ Here is a working deployment on Apache Felix 5.2.0:
 
 On Equinox, you may want to disable the `ContextFinder` with the following framework property: `eclipse.bundle.setTCCL=false`
 
-## The 'vertx' command line {#The__vertx__command_line}
+## The 'vertx' command line
 The `vertx` command is used to interact with Vert.x from the command line. It’s main use is to run Vert.x verticles. To do this you need to download and install a Vert.x distribution, and add the `bin` directory of the installation to your `PATH` environment variable. Also make sure you have a Java 8 JDK on your `PATH`.
 
 | NOTE | The JDK is required to support on the fly compilation of Java code. |
 | ---- | ------------------------------------------------------------ |
 |      |                                                              |
 
-### Run verticles {#Run_verticles}
+### Run verticles
 You can run raw Vert.x verticles directly from the command line using `vertx run`. Here is a couple of examples of the `run` *command*:
 
 ```
@@ -5958,7 +5958,7 @@ vertx bare
 
 Depending on your cluster configuration, you may have to append the `cluster-host` and `cluster-port` parameters.
 
-### Executing a Vert.x application packaged as a fat jar {#Executing_a_Vert_x_application_packaged_as_a_fat_jar}
+### Executing a Vert.x application packaged as a fat jar
 A *fat jar* is an executable jar embedding its dependencies. This means you don’t have to have Vert.x pre-installed on the machine on which you execute the jar. Like any executable Java jar it can be executed with.
 
 ```
@@ -5987,14 +5987,14 @@ java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cl
 
 A fat jar executes the `run` command, by default.
 
-### Displaying version of Vert.x {#Displaying_version_of_Vert_x}
+### Displaying version of Vert.x
 To display the vert.x version, just launch:
 
 ```
 vertx version
 ```
 
-### Other commands {#Other_commands}
+### Other commands
 The `vertx` command line and the `Launcher` also provide other *commands* in addition to `run` and `version`:
 
 You can create a `bare` instance using:
@@ -6041,7 +6041,7 @@ As the `start` command spawns a new process, the java options passed to the JVM 
 
 The set of commands is extensible, refer to the [Extending the vert.x Launcher](https://vertx.io/docs/vertx-core/groovy/#_extending_the_vert_x_launcher) section.
 
-### Live Redeploy {#Live_Redeploy}
+### Live Redeploy
 When developing it may be convenient to automatically redeploy your application upon file changes. The `vertx` command line tool and more generally the `Launcher` class offers this feature. Here are some examples:
 
 ```
@@ -6086,7 +6086,7 @@ The redeploy feature also supports the following settings:
 - `redeploy-grace-period` : the amount of time (in milliseconds) to wait between 2 re-deployments, 1000ms by default
 - `redeploy-termination-period` : the amount of time to wait after having stopped the application (before launching user command). This is useful on Windows, where the process is not killed immediately. The time is given in milliseconds. 0 ms by default.
 
-## Cluster Managers {#Cluster_Managers}
+## Cluster Managers
 In Vert.x a cluster manager is used for various functions including:
 
 - Discovery and group membership of Vert.x nodes in a cluster
@@ -6107,22 +6107,22 @@ If you are using Vert.x from a Maven or Gradle project just add the cluster mana
 
 You can also specify cluster managers programmatically if embedding Vert.x using `setClusterManager`.
 
-## Logging {#Logging}
+## Logging
 Vert.x logs using it’s in-built logging API. The default implementation uses the JDK (JUL) logging so no extra logging dependencies are needed.
 
-### Configuring JUL logging {#Configuring_JUL_logging}
+### Configuring JUL logging
 A JUL logging configuration file can be specified in the normal JUL way by providing a system property called: `java.util.logging.config.file` with the value being your configuration file. For more information on this and the structure of a JUL config file please consult the JUL logging documentation.
 
 Vert.x also provides a slightly more convenient way to specify a configuration file without having to set a system property. Just provide a JUL config file with the name `vertx-default-jul-logging.properties` on your classpath (e.g. inside your fatjar) and Vert.x will use that to configure JUL.
 
-### Using another logging framework {#Using_another_logging_framework}
+### Using another logging framework
 If you don’t want Vert.x to use JUL for it’s own logging you can configure it to use another logging framework, e.g. Log4J or SLF4J.
 
 To do this you should set a system property called `vertx.logger-delegate-factory-class-name` with the name of a Java class which implements the interface `LogDelegateFactory`. We provide pre-built implementations for Log4J (version 1), Log4J 2 and SLF4J with the class names `io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` and `io.vertx.core.logging.SLF4JLogDelegateFactory` respectively. If you want to use these implementations you should also make sure the relevant Log4J or SLF4J jars are on your classpath.
 
 Notice that, the provided delegate for Log4J 1 does not support parameterized message. The delegate for Log4J 2 uses the `{}` syntax like the SLF4J delegate. JUL delegate uses the `{x}` syntax.
 
-### Netty logging {#Netty_logging}
+### Netty logging
 When configuring logging, you should care about configuring Netty logging as well.
 
 Netty does not rely on external logging configuration (e.g system properties) and instead implements a logging configuration based on the logging libraries visible from the Netty classes:
@@ -6138,8 +6138,8 @@ The logger implementation can be forced to a specific implementation by setting 
 InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
 ```
 
-### Troubleshooting {#Troubleshooting}
-#### SLF4J warning at startup {#SLF4J_warning_at_startup}
+### Troubleshooting
+#### SLF4J warning at startup
 If, when you start your application, you see the following message:
 
 ```
@@ -6152,7 +6152,7 @@ It means that you have SLF4J-API in your classpath but no actual binding. Messag
 
 Be aware that Netty looks for the SLF4-API jar and uses it by default.
 
-#### Connection reset by peer {#Connection_reset_by_peer}
+#### Connection reset by peer
 If your logs show a bunch of:
 
 ```
@@ -6164,10 +6164,10 @@ It means that the client is resetting the HTTP connection instead of closing it.
 
 Unresolved directive in index.adoc - include::override/hostname-resolution.adoc[]
 
-## High Availability and Fail-Over {#High_Availability_and_Fail_Over}
+## High Availability and Fail-Over
 Vert.x allows you to run your verticles with high availability (HA) support. In that case, when a vert.x instance running a verticle dies abruptly, the verticle is migrated to another vertx instance. The vert.x instances must be in the same cluster.
 
-### Automatic failover {#Automatic_failover}
+### Automatic failover
 When vert.x runs with *HA* enabled, if a vert.x instance where a verticle runs fails or dies, the verticle is redeployed automatically on another vert.x instance of the cluster. We call this *verticle fail-over*.
 
 To run vert.x with the *HA* enabled, just add the `-ha` flag to the command line:
@@ -6204,7 +6204,7 @@ When using the `-ha` switch you do not need to provide the `-cluster` switch, as
 | ---- | ------------------------------------------------------------ |
 |      |                                                              |
 
-### HA groups {#HA_groups}
+### HA groups
 When running a Vert.x instance with HA you can also optional specify a *HA group*. A HA group denotes a logical group of nodes in the cluster. Only nodes with the same HA group will failover onto one another. If you don’t specify a HA group the default group `__DEFAULT__` is used.
 
 To specify an HA group you use the `-hagroup` switch when running the verticle, e.g.
@@ -6237,7 +6237,7 @@ If we kill the instance in terminal 1, it will fail over to the instance in term
 
 If we kill the instance in terminal 3, it won’t get failed over as there is no other vert.x instance in that group.
 
-### Dealing with network partitions - Quora {#Dealing_with_network_partitions___Quora}
+### Dealing with network partitions - Quora
 The HA implementation also supports quora. A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system.
 
 When starting a Vert.x instance you can instruct it that it requires a `quorum` before any HA deployments will be deployed. In this context, a quorum is a minimum number of nodes for a particular group in the cluster. Typically you chose your quorum size to `Q = 1 + N/2` where `N` is the number of nodes in the group. If there are less than `Q` nodes in the cluster the HA deployments will undeploy. They will redeploy again if/when a quorum is re-attained. By doing this you can prevent against network partitions, a.k.a. *split brain*.
@@ -6274,12 +6274,12 @@ If we now close or kill one of the nodes the modules will automatically undeploy
 
 Quora can also be used in conjunction with ha groups. In that case, quora are resolved for each particular group.
 
-## Native transports {#Native_transports}
+## Native transports
 Vert.x can run with [native transports](http://netty.io/wiki/native-transports.html) (when available) on BSD (OSX) and Linux:
 
 Unresolved directive in index.adoc - include::override/configuring-native.adoc[]
 
-### Native Linux Transport {#Native_Linux_Transport}
+### Native Linux Transport
 You need to add the following dependency in your classpath:
 
 ```
@@ -6308,7 +6308,7 @@ vertx.createHttpServer([
 ])
 ```
 
-### Native BSD Transport {#Native_BSD_Transport}
+### Native BSD Transport
 You need to add the following dependency in your classpath:
 
 ```
@@ -6333,7 +6333,7 @@ vertx.createHttpServer([
 ])
 ```
 
-### Domain sockets {#Domain_sockets}
+### Domain sockets
 Natives provide domain sockets support for servers:
 
 ```
@@ -6389,12 +6389,12 @@ httpClient.request(HttpMethod.GET, addr, 8080, "localhost", "/", { resp ->
 }).end()
 ```
 
-## Security notes {#Security_notes}
+## Security notes
 Vert.x is a toolkit, not an opinionated framework where we force you to do things in a certain way. This gives you great power as a developer but with that comes great responsibility.
 
 As with any toolkit, it’s possible to write insecure applications, so you should always be careful when developing your application especially if it’s exposed to the public (e.g. over the internet).
 
-### Web applications {#Web_applications}
+### Web applications
 If writing a web application it’s highly recommended that you use Vert.x-Web instead of Vert.x core directly for serving resources and handling file uploads.
 
 Vert.x-Web normalises the path in requests to prevent malicious clients from crafting URLs to access resources outside of the web root.
@@ -6403,15 +6403,15 @@ Similarly for file uploads Vert.x-Web provides functionality for uploading to a 
 
 Vert.x core itself does not provide such checks so it would be up to you as a developer to implement them yourself.
 
-### Clustered event bus traffic {#Clustered_event_bus_traffic}
+### Clustered event bus traffic
 When clustering the event bus between different Vert.x nodes on a network, the traffic is sent un-encrypted across the wire, so do not use this if you have confidential data to send and your Vert.x nodes are not on a trusted network.
 
-### Standard security best practices {#Standard_security_best_practices}
+### Standard security best practices
 Any service can have potentially vulnerabilities whether it’s written using Vert.x or any other toolkit so always follow security best practice, especially if your service is public facing.
 
 For example you should always run them in a DMZ and with an user account that has limited rights in order to limit the extent of damage in case the service was compromised.
 
-## Vert.x Command Line Interface API {#Vert_x_Command_Line_Interface_API}
+## Vert.x Command Line Interface API
 Vert.x Core provides an API for parsing command line arguments passed to programs. It’s also able to print help messages detailing the options available for a command line tool. Even if such features are far from the Vert.x core topics, this API is used in the `Launcher` class that you can use in *fat-jar* and in the `vertx` command line tools. In addition, it’s polyglot (can be used from any supported language) and is used in Vert.x Shell.
 
 Vert.x CLI provides a model to describe your command line interface, but also a parser. This parser supports different types of syntax:
@@ -6428,7 +6428,7 @@ Using the CLI api is a 3-steps process:
 2. The parsing of the user command line
 3. The query / interrogation
 
-### Definition Stage {#Definition_Stage}
+### Definition Stage
 Each command line interface must define the set of options and arguments that will be used. It also requires a name. The CLI API uses the `Option` and `Argument` classes to describe options and arguments:
 
 ```
@@ -6450,7 +6450,7 @@ def cli = CLI.create("copy").setSummary("A command line interface to copy files.
 
 As you can see, you can create a new `CLI` using `CLI.create`. The passed string is the name of the CLI. Once created you can set the summary and description. The summary is intended to be short (one line), while the description can contain more details. Each option and argument are also added on the `CLI` object using the `addArgument` and `addOption` methods.
 
-#### Options {#Options}
+#### Options
 An `Option` is a command line parameter identified by a *key* present in the user command line. Options must have at least a long name or a short name. Long name are generally used using a `--` prefix, while short names are used with a single `-`. Options can get a description displayed in the usage (see below). Options can receive 0, 1 or several values. An option receiving 0 values is a `flag`, and must be declared using `setFlag`. By default, options receive a single value, however, you can configure the option to receive several values using `setMultiValued`:
 
 ```
@@ -6510,7 +6510,7 @@ def cli = CLI.create("some-name").addOption([
 
 Options can also be instantiated from their JSON form.
 
-#### Arguments {#Arguments}
+#### Arguments
 Unlike options, arguments do not have a *key* and are identified by their *index*. For example, in `java com.acme.Foo`, `com.acme.Foo` is an argument.
 
 Arguments do not have a name, there are identified using a 0-based index. The first parameter has the index `0`:
@@ -6550,7 +6550,7 @@ As options, `Argument` can:
 
 Arguments can also be instantiated from their JSON form.
 
-#### Usage generation {#Usage_generation}
+#### Usage generation
 Once your `CLI` instance is configured, you can generate the *usage* message:
 
 ```
@@ -6585,7 +6585,7 @@ A command line interface to copy files.
 
 If you need to tune the usage message, check the `UsageMessageFormatter` class.
 
-### Parsing Stage {#Parsing_Stage}
+### Parsing Stage
 Once your `CLI` instance is configured, you can parse the user command line to evaluate each option and argument:
 
 ```
@@ -6596,7 +6596,7 @@ The `parse` method returns a `CommandLine` object containing the values. By defa
 
 You can check whether or not the `CommandLine` is valid using `isValid`.
 
-### Query / Interrogation Stage {#Query___Interrogation_Stage}
+### Query / Interrogation Stage
 Once parsed, you can retrieve the values of the options and arguments from the `CommandLine` object returned by the `parse` method:
 
 ```
@@ -6629,10 +6629,10 @@ if (!line.isValid() && line.isAskingForHelp()) {
 }
 ```
 
-## The vert.x Launcher {#The_vert_x_Launcher}
+## The vert.x Launcher
 The vert.x `Launcher` is used in *fat jar* as main class, and by the `vertx` command line utility. It executes a set of *commands* such as *run*, *bare*, *start*…
 
-### Extending the vert.x Launcher {#Extending_the_vert_x_Launcher}
+### Extending the vert.x Launcher
 You can extend the set of command by implementing your own `Command` (in Java only):
 
 ```
@@ -6679,12 +6679,12 @@ vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ```
 
-### Using the Launcher in fat jars {#Using_the_Launcher_in_fat_jars}
+### Using the Launcher in fat jars
 To use the `Launcher` class in a *fat-jar* just set the `Main-Class` of the *MANIFEST* to `io.vertx.core.Launcher`. In addition, set the `Main-Verticle` *MANIFEST* entry to the name of your main verticle.
 
 By default, it executed the `run` command. However, you can configure the default command by setting the `Main-Command` *MANIFEST* entry. The default command is used if the *fat jar* is launched without a command.
 
-### Sub-classing the Launcher {#Sub_classing_the_Launcher}
+### Sub-classing the Launcher
 You can also create a sub-class of `Launcher` to start your application. The class has been designed to be easily extensible.
 
 A `Launcher` sub-class can:
@@ -6694,7 +6694,7 @@ A `Launcher` sub-class can:
 - configure the default verticle and command with `getMainVerticle` and `getDefaultCommand`
 - add / remove commands using `register` and `unregister`
 
-### Launcher and exit code {#Launcher_and_exit_code}
+### Launcher and exit code
 When you use the `Launcher` class as main class, it uses the following exit code:
 
 - `0` if the process ends smoothly, or if an uncaught error is thrown
@@ -6704,7 +6704,7 @@ When you use the `Launcher` class as main class, it uses the following exit code
 - `14` if the system configuration is not meeting the system requirement (shc as java not found)
 - `15` if the main verticle cannot be deployed
 
-## Configuring Vert.x cache {#Configuring_Vert_x_cache}
+## Configuring Vert.x cache
 When Vert.x needs to read a file from the classpath (embedded in a fat jar, in a jar form the classpath or a file that is on the classpath), it copies it to a cache directory. The reason behind this is simple: reading a file from a jar or from an input stream is blocking. So to avoid to pay the price every time, Vert.x copies the file to its cache directory and reads it from there every subsequent read. This behavior can be configured.
 
 First, by default, Vert.x uses `$CWD/.vertx` as cache directory. It creates a unique directory inside this one to avoid conflicts. This location can be configured by using the `vertx.cacheDirBase` system property. For instance if the current working directory is not writable (such as in an immutable container context), launch your application with:
