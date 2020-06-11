@@ -1238,7 +1238,7 @@ Vertx.clusteredVertx(options, res -> {
 vertx run my-verticle.js -cluster
 ```
 
-### Automatic clean-up in verticles {verticles自动清理}
+### verticles自动清理
 
 如果您是从Verticle内部注册事件总线处理程序，则在取消部署Verticle时，这些处理程序将自动注销。
 
@@ -1277,7 +1277,7 @@ Vertx.clusteredVertx(options, res -> {
 
 `EventBusOptions`还允许您指定事件总线是否集群、端口和主机。
 
-When used in containers, you can also configure the public host and port:
+在容器中使用时，还可以配置公共主机和端口:
 
 ```java
 VertxOptions options = new VertxOptions()
@@ -1307,7 +1307,7 @@ Vertx.clusteredVertx(options, res -> {
 
 JSON对象基本上只是一个具有字符串键的映射，并且值可以是JSON支持的类型之一（字符串，数字，布尔值）。
 
-JSON对象还支持空值。
+JSON对象还支持空值`null`。
 
 <a name="65_____创建JSON对象"></a>
 #### 创建JSON对象
@@ -1378,7 +1378,7 @@ request.bodyHandler(buff -> {
 
 JSON数组是一系列值（字符串，数字，布尔值）。
 
-JSON数组也可以包含空值。
+JSON数组也可以包含空值`null`。
 
 <a name="71_____创建JSON数组"></a>
 #### 创建JSON数组
@@ -1514,7 +1514,7 @@ Buffer buff = Buffer.buffer(10000);
 #### 追加到缓冲区
 要追加到缓冲区，可以使用`appendXXX`方法。 存在用于附加各种不同类型的附加方法。
 
- `appendXXX`方法的返回值是缓冲区本身，因此可以将它们链接起来：
+`appendXXX`方法的返回值是缓冲区本身，因此可以将它们链接起来：
 
 ```java
 Buffer buff = Buffer.buffer();
@@ -2036,7 +2036,7 @@ NetServerOptions options = new NetServerOptions().
 NetServer server = vertx.createNetServer(options);
 ```
 
-PKCS#2格式([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))的证书颁发机构，通常带有`.pfx`或`.p12`扩展名也可以类似于JKS信任库的方式加载：
+PKCS#12格式([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))的证书颁发机构，通常带有`.pfx`或`.p12`扩展名也可以类似于JKS信任库的方式加载：
 
 ```java
 NetServerOptions options = new NetServerOptions().
@@ -2525,7 +2525,7 @@ Jetty-ALPN是一个小jar，它覆盖了Java 8分发的一些类以支持ALPN。
 
 JVM必须在其`bootclasspath`中以*alpn-boot-${version}.jar*启动：
 
-```java
+```bash
 -Xbootclasspath/p:/path/to/alpn-boot${version}.jar
 ```
 
@@ -2535,7 +2535,7 @@ JVM必须在其`bootclasspath`中以*alpn-boot-${version}.jar*启动：
 
 为了解决这个问题，可以使用*[Jetty ALPN agent](https://github.com/jetty-project/jetty-alpn-agent)*。 该代理是一个JVM代理，它将为运行它的JVM选择正确的ALPN版本：
 
-```java
+```bash
 -javaagent:/path/to/alpn/agent
 ```
 
@@ -2694,7 +2694,7 @@ server.requestHandler(request -> {
 
 每个服务器请求对象都与一个服务器响应对象相关联。 您可以使用`response`来获取对`HttpServerResponse`对象的引用。
 
-这是服务器处理请求并以“ hello world”回复的简单示例。
+这是服务器处理请求并以"hello world"回复的简单示例。
 
 ```java
 vertx.createHttpServer().requestHandler(request -> {
@@ -2731,7 +2731,7 @@ URI如[HTTP规范的5.1.2节-请求URI](https://www.w3.org/Protocols/rfc2616/rfc
 `/a/b/c/page.html`
 
 <a name="140_____Request_query"></a>
-#### Request query
+#### Request 查询
 使用`query`返回URI的查询部分
 
 例如，如果请求URI为：
@@ -2761,7 +2761,7 @@ System.out.println("User agent is " + headers.get("User-Agent"));
 ```
 
 <a name="142_____Request_host"></a>
-#### Request host
+#### Request 主机
 使用`host`返回HTTP请求的主机。
 
 对于HTTP/1.x请求，返回`host`头，对于HTTP/1请求，返回`:authority`伪头。
@@ -2778,7 +2778,7 @@ System.out.println("User agent is " + headers.get("User-Agent"));
 
 那么参数将包含以下内容:
 
-```
+```groovy
 param1: 'abc'
 param2: 'xyz
 ```
@@ -2893,7 +2893,7 @@ request.uploadHandler(upload -> {
 });
 ```
 
-上传对象是一个ReadStream，因此您可以将请求正文泵送到任何一个`WriteStream`实例。 有关详细说明，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
+上传对象是一个`ReadStream`，因此您可以将请求正文泵送到任何一个`WriteStream`实例。 有关详细说明，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
 如果您只想将文件上传到磁盘上的某个地方，可以使用`streamToFileSystem`：
 
@@ -3353,7 +3353,7 @@ HttpClientOptions options = new HttpClientOptions().
 HttpClient client = vertx.createHttpClient(options);
 ```
 
-For `h2c` requests, TLS must be disabled, the client will do an HTTP/1.1 requests and try an upgrade to HTTP/2:
+对于`h2c`请求，必须禁用TLS，客户端将执行HTTP/1.1请求并尝试升级到HTTP/2：
 
 ```java
 HttpClientOptions options = new HttpClientOptions().setProtocolVersion(HttpVersion.HTTP_2);

@@ -1238,7 +1238,7 @@ Vertx.clusteredVertx(options, { res ->
 vertx run my-verticle.js -cluster
 ```
 
-### Automatic clean-up in verticles {verticles自动清理}
+### verticles自动清理
 
 如果您是从Verticle内部注册事件总线处理程序，则在取消部署Verticle时，这些处理程序将自动注销。
 
@@ -1265,19 +1265,20 @@ Vertx.clusteredVertx(options, res -> {
 });
 ```
 
-The previous snippet depicts how you can use SSL connections for the event bus, instead of plain TCP connections.
+上一片段描述了如何将SSL连接用于事件总线，而不是普通的TCP连接。
 
 ------
-> **警告:** to enforce the security in clustered mode, you **must** configure the cluster manager to use encryption or enforce security. Refer to the documentation of the cluster manager for further details.
+> **警告:** 要在集群模式下实施安全性，您**必须**配置集群管理器以使用加密或实施安全性。有关详细信息，请参阅集群管理器的文档。
+> 
 ------
 
-The event bus configuration needs to be consistent in all the cluster nodes.
+事件总线配置需要在所有集群节点中保持一致。
 
-The `EventBusOptions` also lets you specify whether or not the event bus is clustered, the port and host.
+`EventBusOptions`还允许您指定事件总线是否集群、端口和主机。
 
-When used in containers, you can also configure the public host and port:
+在容器中使用时，还可以配置公共主机和端口:
 
-```
+```groovy
 VertxOptions options = new VertxOptions()
     .setEventBusOptions(new EventBusOptions()
         .setClusterPublicHost("whatever")
@@ -1296,27 +1297,28 @@ Vertx.clusteredVertx(options, res -> {
 ```
 
 ## JSON
-To manipulate JSON object, Vert.x proposes its own implementation of `JsonObject` and `JsonArray`. This is because, unlike some other languages, Java does not have first class support for [JSON](https://json.org/).
+为了操作JSON对象，Vert.x提出了自己的`JsonObject`和`JsonArray`实现。这是因为，与其他一些语言不同，Java没有对[JSON](https://json.org/)的一级支持。
 
-When developping a vert.x application with Groovy, you can rely on these two classes, or use the ([JSON support from Groovy](http://www.groovy-lang.org/json.html)). This section explains how to use the Vert.x classes.
+当使用Groovy开发vert.x应用程序时，您可以依赖于这两个类，或者使用([来自Groovy的JSON支持](http://www.groovy-lang.org/json.html))。本节解释如何使用Vert.x类。
 
-| NOTE | Most vert.x methods taking a JSON object as argument in their Java version, take a map instead. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 大多数采用JSON对象作为参数的vert.x方法在其Java版本中采用Map。
+> 
+------
 
-### JSON objects
-The `JsonObject` class represents JSON objects.
+### JSON对象
+`JsonObject`类表示JSON对象。
 
-A JSON object is basically just a map which has string keys and values can be of one of the JSON supported types (string, number, boolean).
+JSON对象基本上只是一个具有字符串键的映射，并且值可以是JSON支持的类型之一（字符串，数字，布尔值）。
 
-JSON objects also support `null` values.
+JSON对象还支持空值`null`。
 
-#### Creating JSON objects
-Empty JSON objects can be created with the default constructor.
+#### 创建JSON对象
+可以使用默认构造函数创建空的JSON对象。
 
-You can create a JSON object from a string or g-string JSON representation as follows:
+你可以创建一个JSON对象从一个字符串或g-string JSON表示形式:，如下所示：
 
-```
+```groovy
 def object = new JsonObject("{\"foo\":\"bar\"}")
 def object2 = new JsonObject("""
 {
@@ -1325,86 +1327,86 @@ def object2 = new JsonObject("""
 """)
 ```
 
-In Groovy it’s also convenient to create a JSON object from a map:
+在Groovy中，从Map创建JSON对象也很方便：
 
-```
+```groovy
 def map = [ "foo" : "bar" ]
 def json = new JsonObject(map)
 ```
 
-Nested maps are transformed to nested JSON objects.
+嵌套maps将转换为嵌套JSON对象。
 
-#### Putting entries into a JSON object
-Use the `put` methods to put values into the JSON object.
+#### 将条目放入JSON对象
+使用`put`方法将值放入JSON对象。
 
-The method invocations can be chained because of the fluent API:
+可以使用流畅的API链接方法调用：
 
-```
+```groovy
 def object = new JsonObject()
 object.put("foo", "bar").put("num", 123).put("mybool", true)
 ```
 
-#### Getting values from a JSON object
-You get values from a JSON object using the `getXXX` methods, for example:
+#### 从JSON对象获取值
+您可以使用`getXXX`方法从JSON对象获取值，例如：
 
-```
+```groovy
 dev val1 = jsonObject.getString("some-key")
 def val2 = jsonObject.getInteger("some-other-key")
 ```
 
-#### Encoding the JSON object to a String
-You use `encode` to encode the object to a String form. There is also a `encodePrettily` that makes the output pretty (understand multi-line and indented).
+#### 将JSON对象编码为字符串
+您可以使用`encode`将对象编码为String形式。 还有一个`encodePrettily`使输出漂亮（多行和缩进）。
 
-### JSON arrays
-The `JsonArray` class represents JSON arrays.
+### JSON 数组
+`JsonArray`类表示JSON数组。
 
-A JSON array is a sequence of values (string, number, boolean).
+JSON数组是一系列值（字符串，数字，布尔值）。
 
-JSON arrays can also contain `null` values.
+JSON数组也可以包含空值`null`。
 
-#### Creating JSON arrays
-Empty JSON arrays can be created with the default constructor.
+#### 创建JSON数组
+可以使用默认构造函数创建空的JSON数组。
 
-You can create a JSON array from a string JSON representation or a map as follows:
+您可以从字符串JSON表示形式创建JSON数组，如下所示：
 
-```
+```groovy
 def object = new JsonObject("""{foo:["bar", "baz"}""")
 def object2 = new JsonObject(["foo": ["bar", "baz"]])
 ```
 
-#### Adding entries into a JSON array
-You add entries to a JSON array using the `add` methods.
+#### 将条目添加到JSON数组中
+您可以使用`add`方法将条目添加到JSON数组中。
 
-```
+```groovy
 def array = new JsonArray()
 array.add("foo").add(123).add(false)
 ```
 
-#### Getting values from a JSON array
-You get values from a JSON array using the `getXXX` methods, for example:
+#### 从JSON数组获取值
+您可以使用`getXXX`方法从JSON数组中获取值，例如：
 
-```
+```groovy
 def val = array.getString(0)
 def intVal = array.getInteger(1)
 def boolVal = array.getBoolean(2)
 ```
 
-#### Encoding the JSON array to a String
-You use `encode` to encode the array to a String form. There is also a `encodePrettily` that makes the output pretty (understand multi-line and indented).
+#### 将JSON数组编码为字符串
+您可以使用`encode`将数组编码为String形式。 还有一个`encodePrettily`使输出漂亮（多行和缩进）。
 
-## Json Pointers
-Vert.x provides an implementation of [Json Pointers from RFC6901](https://tools.ietf.org/html/rfc6901). You can use pointers both for querying and for writing. You can build your `JsonPointer` using a string, a URI or manually appending paths:
+## Json指针
+Vert.x提供了[来自RFC6901的Json指针](https://tools.ietf.org/html/rfc6901)的实现。 您可以将指针用于查询和编写。 您可以使用字符串，URI或手动添加路径来构建`JsonPointer`：
 
-```
+```groovy
 // Build a pointer from a string
 def pointer1 = JsonPointer.from("/hello/world")
 // Build a pointer manually
 def pointer2 = JsonPointer.create().append("hello").append("world")
 ```
 
-After instantiating your pointer, use `queryJson` to query a JSON value. You can update a Json Value using `writeJson`:
+实例化指针后，使用`queryJson`来查询JSON值。 您可以使用`writeJson`来更新Json值：
 
-```
+```groovy
 // Query a JsonObject
 def result1 = objectPointer.queryJson(jsonObject)
 // Query a JsonArray
@@ -1415,55 +1417,55 @@ objectPointer.writeJson(jsonObject, "new element")
 arrayPointer.writeJson(jsonArray, "new element")
 ```
 
-You can use Vert.x Json Pointer with any object model by providing a custom implementation of `JsonPointerIterator`
+您可以通过提供`JsonPointerIterator`的自定义实现，将Vert.x的Json指针与任何对象模型一起使用
 
-## Buffers
-Most data is shuffled around inside Vert.x using buffers.
+## 缓冲区
+大多数数据使用缓冲区在Vert.x内部混洗。
 
-A buffer is a sequence of zero or more bytes that can read from or written to and which expands automatically as necessary to accommodate any bytes written to it. You can perhaps think of a buffer as smart byte array.
+缓冲区是可以读取或写入的零个或多个字节的序列，并根据需要自动扩展以容纳写入其中的任何字节。 您也许可以将缓冲区视为智能字节数组。
 
-### Creating buffers
-Buffers can create by using one of the static `Buffer.buffer` methods.
+### 创建缓冲区
+可以使用静态的`Buffer.buffer`方法之一来创建缓冲区。
 
-Buffers can be initialised from strings or byte arrays, or empty buffers can be created.
+可以从字符串或字节数组初始化缓冲区，也可以创建空缓冲区。
 
-Here are some examples of creating buffers:
+以下是一些创建缓冲区的示例：
 
-Create a new empty buffer:
+创建一个新的空缓冲区：
 
-```
+```groovy
 def buff = Buffer.buffer()
 ```
 
-Create a buffer from a String. The String will be encoded in the buffer using UTF-8.
+从字符串创建缓冲区。 字符串将使用UTF-8在缓冲区中编码。
 
-```
+```groovy
 def buff = Buffer.buffer("some string")
 ```
 
-Create a buffer from a String: The String will be encoded using the specified encoding, e.g:
+从字符串创建缓冲区：将使用指定的编码对字符串进行编码，例如：
 
-```
+```groovy
 def buff = Buffer.buffer("some string", "UTF-16")
 ```
 
-Create a buffer with an initial size hint. If you know your buffer will have a certain amount of data written to it you can create the buffer and specify this size. This makes the buffer initially allocate that much memory and is more efficient than the buffer automatically resizing multiple times as data is written to it.
+创建一个带有初始大小提示的缓冲区。 如果您知道缓冲区中将写入一定数量的数据，则可以创建缓冲区并指定此大小。 这使得缓冲区最初分配了那么多内存，并且比缓冲区在将数据写入缓冲区时自动多次调整大小的效率更高。
 
-Note that buffers created this way **are empty**. It does not create a buffer filled with zeros up to the specified size.
+注意，以这种方式创建的缓冲区是**空的**。它不会创建一个满是0到指定大小的缓冲区。
 
-```
+```groovy
 def buff = Buffer.buffer(10000)
 ```
 
-### Writing to a Buffer
-There are two ways to write to a buffer: appending, and random access. In either case buffers will always expand automatically to encompass the bytes. It’s not possible to get an `IndexOutOfBoundsException` with a buffer.
+### 写入缓冲区
+有两种写入缓冲区的方法：追加和随机访问。 无论哪种情况，缓冲区将始终自动扩展以包含字节。 带有缓冲区的`IndexOutOfBoundsException`是不可能的。
 
-#### Appending to a Buffer
-To append to a buffer, you use the `appendXXX` methods. Append methods exist for appending various different types.
+#### 追加到缓冲区
+要追加到缓冲区，可以使用`appendXXX`方法。 存在用于附加各种不同类型的附加方法。
 
-The return value of the `appendXXX` methods is the buffer itself, so these can be chained:
+`appendXXX`方法的返回值是缓冲区本身，因此可以将它们链接起来：
 
-```
+```groovy
 def buff = Buffer.buffer()
 
 buff.appendInt(123).appendString("hello\n")
@@ -1471,98 +1473,98 @@ buff.appendInt(123).appendString("hello\n")
 socket.write(buff)
 ```
 
-#### Random access buffer writes
-You can also write into the buffer at a specific index, by using the `setXXX` methods. Set methods exist for various different data types. All the set methods take an index as the first argument - this represents the position in the buffer where to start writing the data.
+#### 随机存取缓冲区写入
+您也可以使用`setXXX`方法以特定的索引写入缓冲区。 存在用于各种不同数据类型的设置方法。 所有set方法都将索引作为第一个参数-这表示缓冲区中开始写入数据的位置。
 
-The buffer will always expand as necessary to accommodate the data.
+缓冲区将始终根据需要扩展以容纳数据。
 
-```
+```groovy
 def buff = Buffer.buffer()
 
 buff.setInt(1000, 123)
 buff.setString(0, "hello")
 ```
 
-### Reading from a Buffer
-Data is read from a buffer using the `getXXX` methods. Get methods exist for various datatypes. The first argument to these methods is an index in the buffer from where to get the data.
+### 从缓冲区读取
+使用`getXXX`方法从缓冲区读取数据。 存在各种数据类型的Get方法。 这些方法的第一个参数是缓冲区中从何处获取数据的索引。
 
-```
+```groovy
 def buff = Buffer.buffer()
 for (def i = 0;i < buff.length();4) {
   println("int value at ${i} is ${buff.getInt(i)}")
 }
 ```
 
-### Working with unsigned numbers
-Unsigned numbers can be read from or appended/set to a buffer with the `getUnsignedXXX`, `appendUnsignedXXX` and `setUnsignedXXX` methods. This is useful when implementing a codec for a network protocol optimized to minimize bandwidth consumption.
+### 使用无符号数字
+可以使用`getUnsignedXXX`，`appendUnsignedXXX`和`setUnsignedXXX`方法从缓冲区读取无符号的数字或将其附加/设置到缓冲区。 在为网络协议实现编解码器时最有用的，该编解码器已优化以最小化带宽消耗。
 
-In the following example, value 200 is set at specified position with just one byte:
+在下面的例子中，值200被设置在指定的位置，只有一个字节:
 
-```
+```groovy
 def buff = Buffer.buffer(128)
 def pos = 15
 buff.setUnsignedByte(pos, 200)
 println(buff.getUnsignedByte(pos))
 ```
 
-The console shows '200'.
+控制台显示“200”。
 
-### Buffer length
-Use `length` to obtain the length of the buffer. The length of a buffer is the index of the byte in the buffer with the largest index + 1.
+### 缓冲区长度
+使用`length`获得缓冲区的长度。 缓冲区的长度是缓冲区的最大索引+ 1。
 
-### Copying buffers
-Use `copy` to make a copy of the buffer
+### 复制缓冲区
+使用`copy`制作缓冲区的副本
 
-### Slicing buffers
-A sliced buffer is a new buffer which backs onto the original buffer, i.e. it does not copy the underlying data. Use `slice` to create a sliced buffers
+### 切片缓冲区
+切片缓冲区是一个新的缓冲区，它返回到原始缓冲区，即它不复制底层数据。使用`slice`创建一个切片缓冲区
 
-### Buffer re-use
-After writing a buffer to a socket or other similar place, they cannot be re-used.
+### 缓冲区重用
+将缓冲区写入套接字或其他类似位置后，将无法重复使用它们。
 
-## Writing TCP servers and clients
-Vert.x allows you to easily write non blocking TCP clients and servers.
+## 编写TCP服务器和客户端
+Vert.x允许您轻松编写不阻塞的TCP客户端和服务器。
 
-### Creating a TCP server
-The simplest way to create a TCP server, using all default options is as follows:
+### 创建一个TCP服务器
+使用所有默认选项创建TCP服务器的最简单方法如下：
 
-```
+```groovy
 def server = vertx.createNetServer()
 ```
 
-### Configuring a TCP server
-If you don’t want the default, a server can be configured by passing in a `NetServerOptions` instance when creating it:
+### 配置TCP服务器
+如果您不希望使用默认值，则可以通过在创建服务器时传入`NetServerOptions`实例来配置服务器：when creating it:
 
-```
+```groovy
 def options = [
   port:4321
 ]
 def server = vertx.createNetServer(options)
 ```
 
-### Start the Server Listening
-To tell the server to listen for incoming requests you use one of the `listen` alternatives.
+### 开始服务器监听
+要告诉服务器侦听传入请求，可以使用`listen`替代方法之一。
 
-To tell the server to listen at the host and port as specified in the options:
+要告诉服务器侦听选项中指定的主机和端口：
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.listen()
 ```
 
-Or to specify the host and port in the call to listen, ignoring what is configured in the options:
+或在调用中指定要监听的主机和端口，而忽略选项中配置的内容：
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.listen(1234, "localhost")
 ```
 
-The default host is `0.0.0.0` which means 'listen on all available addresses' and the default port is `0`, which is a special value that instructs the server to find a random unused local port and use that.
+默认主机为`0.0.0.0`，表示“监听所有可用地址”，默认端口为`0`，这是一个特殊值，指示服务器查找随机未使用的本地端口并使用该端口。
 
-The actual bind is asynchronous so the server might not actually be listening until some time **after** the call to listen has returned.
+实际的绑定是异步的，因此服务器可能调用返回之后一段时间才真正在监听。
 
-If you want to be notified when the server is actually listening you can provide a handler to the `listen` call. For example:
+如果希望在服务器实际监听时收到通知，则可以为`listen`调用提供处理程序。 例如：
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.listen(1234, "localhost", { res ->
   if (res.succeeded()) {
@@ -1573,12 +1575,12 @@ server.listen(1234, "localhost", { res ->
 })
 ```
 
-### Listening on a random port
-If `0` is used as the listening port, the server will find an unused random port to listen on.
+### 在随机端口上监听
+如果将`0`用作侦听端口，则服务器将找到一个未使用的随机端口进行侦听。
 
-To find out the real port the server is listening on you can call `actualPort`.
+要找出服务器正在监听的真实端口，可以调用`actualPort`。
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.listen(0, "localhost", { res ->
   if (res.succeeded()) {
@@ -1589,26 +1591,26 @@ server.listen(0, "localhost", { res ->
 })
 ```
 
-### Getting notified of incoming connections
-To be notified when a connection is made you need to set a `connectHandler`:
+### 收到传入连接的通知
+要在建立连接时收到通知，您需要设置一个`connectHandler`：
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.connectHandler({ socket ->
   // Handle the connection in here
 })
 ```
 
-When a connection is made the handler will be called with an instance of `NetSocket`.
+建立连接后，将使用`NetSocket`实例调用处理程序。
 
-This is a socket-like interface to the actual connection, and allows you to read and write data as well as do various other things like close the socket.
+这是实际连接的类似于套接字的接口，它允许您读取和写入数据以及执行其他各种操作，例如关闭套接字。
 
-### Reading data from the socket
-To read data from the socket you set the `handler` on the socket.
+### 从套接字读取数据
+要从套接字读取数据，请在套接字上设置`handler`。
 
-This handler will be called with an instance of `Buffer` every time data is received on the socket.
+每次在套接字上接收到数据时，将使用`Buffer`实例调用此处理程序。
 
-```
+```groovy
 def server = vertx.createNetServer()
 server.connectHandler({ socket ->
   socket.handler({ buffer ->
@@ -1617,10 +1619,10 @@ server.connectHandler({ socket ->
 })
 ```
 
-### Writing data to a socket
-You write to a socket using one of `write`.
+### 将数据写入套接字
+您使用`write`之一写入套接字。
 
-```
+```groovy
 // Write a buffer
 def buffer = Buffer.buffer().appendFloat(12.34f).appendInt(123)
 socket.write(buffer)
@@ -1632,61 +1634,61 @@ socket.write("some data")
 socket.write("some data", "UTF-16")
 ```
 
-Write operations are asynchronous and may not occur until some time after the call to write has returned.
+写操作是异步的，直到写调用返回后一段时间才可能发生。
 
-### Closed handler
-If you want to be notified when a socket is closed, you can set a `closeHandler` on it:
+### 关闭处理程序
+如果您想在套接字关闭时收到通知，可以在其上设置一个`closeHandler`：
 
-```
+```groovy
 socket.closeHandler({ v ->
   println("The socket has been closed")
 })
 ```
 
-### Handling exceptions
-You can set an `exceptionHandler` to receive any exceptions that happen on the socket.
+### 处理异常
+您可以设置`exceptionHandler`来接收套接字上发生的任何异常。
 
-You can set an `exceptionHandler` to receive any exceptions that happens before the connection is passed to the `connectHandler` , e.g during the TLS handshake.
+您可以设置`exceptionHandler`来接收将连接传递给`connectHandler`之前发生的任何异常，例如在TLS握手期间。
 
-### Event bus write handler
-Every socket automatically registers a handler on the event bus, and when any buffers are received in this handler, it writes them to itself.
+### 事件总线写处理程序
+每个套接字都会在事件总线上自动注册一个处理程序，并且在此处理程序中接收到任何缓冲区时，它将它们写入自身。
 
-This enables you to write data to a socket which is potentially in a completely different verticle or even in a different Vert.x instance by sending the buffer to the address of that handler.
+这使您能够将数据写入socket，socket可能位于完全不同的verticle，甚至可能位于不同的 Vert.x实例。将缓冲区发送到该处理程序的地址。
 
-The address of the handler is given by `writeHandlerID`
+处理程序的地址是`writeHandlerID`
 
-### Local and remote addresses
-The local address of a `NetSocket` can be retrieved using `localAddress`.
+### 本地和远程地址
+可以使用`localAddress`检索`NetSocket`的本地地址。
 
-The remote address, (i.e. the address of the other end of the connection) of a `NetSocket` can be retrieved using `remoteAddress`.
+可以使用`remoteAddress`来检索`NetSocket`的远程地址（即连接另一端的地址）。
 
-### Sending files or resources from the classpath
-Files and classpath resources can be written to the socket directly using `sendFile`. This can be a very efficient way to send files, as it can be handled by the OS kernel directly where supported by the operating system.
+### 从类路径发送文件或资源
+文件和类路径资源可以直接使用`sendFile`写入套接字。 这是一种非常有效的发送文件的方式，因为它可以由OS内核直接在操作系统支持的地方进行处理。
 
-Please see the chapter about [serving files from the classpath](https://vertx.io/docs/vertx-core/groovy/#classpath) for restrictions of the classpath resolution or disabling it.
+有关限制或禁用类路径解析的信息，请参阅有关[从类路径提供文件](https://vertx.io/docs/vertx-core/java/#classpath)的章节。
 
-```
+```groovy
 socket.sendFile("myfile.dat")
 ```
 
-### Streaming sockets
-Instances of `NetSocket` are also `ReadStream` and `WriteStream` instances so they can be used to pump data to or from other read and write streams.
+### 流式套接字
+`NetSocket`的实例同时也是`ReadStream`和`WriteStream`实例，因此它们可用于向其他读写流中泵送数据。
 
-See the chapter on [streams and pumps](https://vertx.io/docs/vertx-core/groovy/#streams) for more information.
+有关更多信息，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
-### Upgrading connections to SSL/TLS
-A non SSL/TLS connection can be upgraded to SSL/TLS using `upgradeToSsl`.
+### 将连接升级到SSL/TLS
+非SSL/TLS连接可以使用`upgradeToSsl`升级到SSL/TLS。
 
-The server or client must be configured for SSL/TLS for this to work correctly. Please see the [chapter on SSL/TLS](https://vertx.io/docs/vertx-core/groovy/#ssl) for more information.
+必须为SSL/TLS配置服务器或客户端才能正常工作。 有关更多信息，请参见[SSL/TLS章节](https://vertx.io/docs/vertx-core/java/#ssl) 。
 
-### Closing a TCP Server
-Call `close` to close the server. Closing the server closes any open connections and releases all server resources.
+### 关闭TCP服务器
+调用`close`关闭服务器。 关闭服务器将关闭所有打开的连接并释放所有服务器资源。
 
-The close is actually asynchronous and might not complete until some time after the call has returned. If you want to be notified when the actual close has completed then you can pass in a handler.
+关闭实际上是异步的，并且可能直到调用返回后的一段时间才能完成。 如果您想在实际关闭完成时收到通知，则可以传入处理程序。
 
-This handler will then be called when the close has fully completed.
+关闭完成后，将调用此处理程序。
 
-```
+```groovy
 server.close({ res ->
   if (res.succeeded()) {
     println("Server is now closed")
@@ -1696,19 +1698,19 @@ server.close({ res ->
 })
 ```
 
-### Automatic clean-up in verticles
-If you’re creating TCP servers and clients from inside verticles, those servers and clients will be automatically closed when the verticle is undeployed.
+### 自动清理的verticles
+如果您要从verticles中创建TCP服务器和客户端，则取消部署verticles时，这些服务器和客户端将自动关闭。
 
-### Scaling - sharing TCP servers
-The handlers of any TCP server are always executed on the same event loop thread.
+### 扩展-共享TCP服务器
+任何TCP服务器的处理程序始终在同一事件循环线程上执行。
 
-This means that if you are running on a server with a lot of cores, and you only have this one instance deployed then you will have at most one core utilised on your server.
+这意味着，如果您在具有很多核心的服务器上运行，并且仅部署了一个实例，那么您的服务器上最多将使用一个核心。
 
-In order to utilise more cores of your server you will need to deploy more instances of the server.
+为了利用服务器的更多核心，您将需要部署服务器的更多实例。
 
-You can instantiate more instances programmatically in your code:
+您可以在代码中以编程方式实例化更多实例：
 
-```
+```groovy
 // Create a few instances so we can utilise cores
 
 (0..<10).each { i ->
@@ -1723,52 +1725,52 @@ You can instantiate more instances programmatically in your code:
 }
 ```
 
-or, if you are using verticles you can simply deploy more instances of your server verticle by using the `-instances` option on the command line:
+或者，如果您使用的是verticle，则可以通过在命令行上使用`-instances`选项来简单地部署服务器verticle的更多实例：
 
-vertx run com.mycompany.MyVerticle -instances 10
+vertx 运行 `com.mycompany.MyVerticle -instances 10`
 
-or when programmatically deploying your verticle
+或以编程方式部署verticle
 
-```
+```groovy
 def options = [
   instances:10
 ]
 vertx.deployVerticle("com.mycompany.MyVerticle", options)
 ```
 
-Once you do this you will find the echo server works functionally identically to before, but all your cores on your server can be utilised and more work can be handled.
+完成此操作后，您将发现echo服务器在功能上与以前相同，但是可以利用服务器上的所有内核，并且可以处理更多工作。
 
-At this point you might be asking yourself **'How can you have more than one server listening on the same host and port? Surely you will get port conflicts as soon as you try and deploy more than one instance?'**
+此时，您可能会问自己 **'如何让多个服务器监听同一主机和端口?当您尝试并部署多个实例时，您肯定会遇到端口冲突吗?'**
 
-*Vert.x does a little magic here.**
+**Vert.x在这里做了一点魔术。**
 
-When you deploy another server on the same host and port as an existing server it doesn’t actually try and create a new server listening on the same host/port.
+当您在与现有服务器相同的主机和端口上部署另一台服务器时，实际上并不会尝试创建在同一主机/端口上侦听的新服务器。
 
-Instead it internally maintains just a single server, and, as incoming connections arrive it distributes them in a round-robin fashion to any of the connect handlers.
+相反，它在内部仅维护一台服务器，并且随着传入连接的到达，它将以循环方式将它们分配给任何连接处理程序。
 
-Consequently Vert.x TCP servers can scale over available cores while each instance remains single threaded.
+因此，Vert.x TCP服务器可以扩展可用核心，而每个实例保持单线程。
 
-### Creating a TCP client
-The simplest way to create a TCP client, using all default options is as follows:
+### 创建一个TCP客户端
+使用所有默认选项创建TCP客户端的最简单方法如下：
 
-```
+```groovy
 def client = vertx.createNetClient()
 ```
 
-### Configuring a TCP client
-If you don’t want the default, a client can be configured by passing in a `NetClientOptions` instance when creating it:
+### 配置TCP客户端
+如果您不希望使用默认值，则可以通过在创建客户端时传入`NetClientOptions`实例来配置客户端：
 
-```
+```groovy
 def options = [
   connectTimeout:10000
 ]
 def client = vertx.createNetClient(options)
 ```
 
-### Making connections
-To make a connection to a server you use `connect`, specifying the port and host of the server and a handler that will be called with a result containing the `NetSocket` when connection is successful or with a failure if connection failed.
+### 建立连接
+要与服务器建立连接，请使用`connect`，指定服务器的端口和主机以及将被调用的处理程序，连接成功时将包含`NetSocket`的结果，如果连接失败则返回错误。
 
-```
+```groovy
 def options = [
   connectTimeout:10000
 ]
@@ -1783,14 +1785,15 @@ client.connect(4321, "localhost", { res ->
 })
 ```
 
-### Configuring connection attempts
-A client can be configured to automatically retry connecting to the server in the event that it cannot connect. This is configured with `setReconnectInterval` and `setReconnectAttempts`.
+### 配置连接尝试
+可以将客户端配置为在无法连接的情况下自动重试连接服务器。 这是通过`setReconnectInterval`和`setReconnectAttempts`配置的。
 
-| NOTE | Currently Vert.x will not attempt to reconnect if a connection fails, reconnect attempts and interval only apply to creating initial connections. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 当前，如果连接失败，Vert.x将不会尝试重新连接，重新连接尝试和间隔仅适用于创建初始连接。
+> 
+------
 
-```
+```groovy
 def options = [
   reconnectAttempts:10,
   reconnectInterval:500
@@ -1799,12 +1802,12 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-By default, multiple connection attempts are disabled.
+默认情况下，禁用多次连接尝试。
 
-### Logging network activity
-For debugging purposes, network activity can be logged:
+### 记录网络活动
+出于调试目的，可以记录网络活动：
 
-```
+```groovy
 def options = [
   logActivity:true
 ]
@@ -1812,9 +1815,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-for the client
+客户端
 
-```
+```groovy
 def options = [
   logActivity:true
 ]
@@ -1822,35 +1825,35 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Network activity is logged by Netty with the `DEBUG` level and with the `io.netty.handler.logging.LoggingHandler` name. When using network activity logging there are a few things to keep in mind:
+Netty用`DEBUG`级别和`io.netty.handler.logging.LoggingHandler`名称记录网络活动。 使用网络活动日志记录时，请记住以下几点：
 
-- logging is not performed by Vert.x logging but by Netty
-- this is **not** a production feature
+- 记录不是由Vert.x记录执行，而是由Netty执行
+- 这**不是**生产功能
 
-You should read the [Netty logging](https://vertx.io/docs/vertx-core/groovy/#netty-logging) section.
+您应该阅读[Netty日志记录](https://vertx.io/docs/vertx-core/java/#netty-logging)部分。
 
-### Configuring servers and clients to work with SSL/TLS
-TCP clients and servers can be configured to use [Transport Layer Security](https://en.wikipedia.org/wiki/Transport_Layer_Security) - earlier versions of TLS were known as SSL.
+### 配置服务器和客户端以使用SSL/TLS
+可以将TCP客户端和服务器配置为使用[传输层安全性](https://en.wikipedia.org/wiki/Transport_Layer_Security)-TLS的早期版本称为SSL。
 
-The APIs of the servers and clients are identical whether or not SSL/TLS is used, and it’s enabled by configuring the `NetClientOptions` or `NetServerOptions` instances used to create the servers or clients.
+无论是否使用SSL/TLS，服务器和客户端的API都是相同的，并且可以通过配置用于创建服务器或客户端的`NetClientOptions` 或 `NetServerOptions`实例来启用它们。
 
-#### Enabling SSL/TLS on the server
-SSL/TLS is enabled with `ssl`.
+#### 在服务器上启用SSL/TLS
+SSL/TLS通过`ssl`启用。
 
-By default it is disabled.
+默认情况下，它是禁用的。
 
-#### Specifying key/certificate for the server
-SSL/TLS servers usually provide certificates to clients in order verify their identity to clients.
+#### 指定服务器的密钥/证书
+SSL/TLS服务器通常向客户端提供证书，以便向客户端验证其身份。
 
-Certificates/keys can be configured for servers in several ways:
+可以通过多种方式为服务器配置证书/密钥：
 
-The first method is by specifying the location of a Java key-store which contains the certificate and private key.
+第一种方法是通过指定包含证书和私钥的Java密钥存储的位置。
 
-Java key stores can be managed with the [keytool](https://docs.oracle.com/javase/6/docs/technotes/tools/solaris/keytool.html) utility which ships with the JDK.
+可以使用JDK附带的[keytool](https://docs.oracle.com/javase/6/docs/technotes/tools/solaris/keytool.html)实用程序来管理Java密钥库。
 
-The password for the key store should also be provided:
+还应提供密钥库的密码：
 
-```
+```groovy
 def options = [
   ssl:true,
   keyStoreOptions:[
@@ -1861,9 +1864,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Alternatively you can read the key store yourself as a buffer and provide that directly:
+或者，您可以自己将密钥存储区作为缓冲区读取并直接提供：
 
-```
+```groovy
 def myKeyStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/server-keystore.jks")
 def jksOptions = [
   value:myKeyStoreAsABuffer,
@@ -1876,9 +1879,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Key/certificate in PKCS#12 format ([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12)), usually with the `.pfx` or the `.p12` extension can also be loaded in a similar fashion than JKS key stores:
+密钥/证书，格式为PKCS#12([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))，通常带有`.pfx`或`.p12`扩展名也可以以与JKS密钥库类似的方式加载：
 
-```
+```groovy
 def options = [
   ssl:true,
   pfxKeyCertOptions:[
@@ -1889,9 +1892,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myKeyStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/server-keystore.pfx")
 def pfxOptions = [
   value:myKeyStoreAsABuffer,
@@ -1904,9 +1907,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Another way of providing server private key and certificate separately using `.pem` files.
+使用`.pem`文件分别提供服务器私钥和证书的另一种方法。
 
-```
+```groovy
 def options = [
   ssl:true,
   pemKeyCertOptions:[
@@ -1917,9 +1920,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myKeyAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/server-key.pem")
 def myCertAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/server-cert.pem")
 def pemOptions = [
@@ -1933,22 +1936,23 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Vert.x supports reading of unencrypted RSA and/or ECC based private keys from PKCS8 PEM files. RSA based private keys can also be read from PKCS1 PEM files. X.509 certificates can be read from PEM files containing a textual encoding of the certificate as defined by [RFC 7468, Section 5](https://tools.ietf.org/html/rfc7468#section-5).
+Vert.x支持从PKCS8 PEM文件中读取未加密的基于RSA和/或ECC的私钥。 还可以从PKCS1 PEM文件中读取基于RSA的私钥。 可以从包含[RFC 7468，第5节](https://tools.ietf.org/html/rfc7468#section-5)定义的证书文本编码的PEM文件中读取X.509证书。
 
-| WARNING | Keep in mind that the keys contained in an unencrypted PKCS8 or a PKCS1 PEM file can be extracted by anybody who can read the file. Thus, make sure to put proper access restrictions on such PEM files in order to prevent misuse. |
-| ------- | ------------------------------------------------------------ |
-|         |                                                              |
+------
+> **警告:** 请记住，任何可以读取该文件的人都可以提取未加密的PKCS8或PKCS1 PEM文件中包含的密钥。 因此，请确保对此类PEM文件设置适当的访问限制，以防止滥用。
+>
+------
 
-#### Specifying trust for the server
-SSL/TLS servers can use a certificate authority in order to verify the identity of the clients.
+#### 指定服务器的信任
+SSL/TLS服务器可以使用证书颁发机构来验证客户端的身份。
 
-Certificate authorities can be configured for servers in several ways:
+可以通过多种方式为服务器配置证书颁发机构：
 
-Java trust stores can be managed with the [keytool](https://docs.oracle.com/javase/6/docs/technotes/tools/solaris/keytool.html) utility which ships with the JDK.
+可以使用JDK附带的[keytool](https://docs.oracle.com/javase/6/docs/technotes/tools/solaris/keytool.html)实用程序来管理Java信任库。
 
-The password for the trust store should also be provided:
+还应提供信任库的密码：
 
-```
+```groovy
 def options = [
   ssl:true,
   clientAuth:"REQUIRED",
@@ -1960,9 +1964,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Alternatively you can read the trust store yourself as a buffer and provide that directly:
+或者，您可以自己将信任库作为缓冲区读取，并直接提供该缓冲区：
 
-```
+```groovy
 def myTrustStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/truststore.jks")
 def options = [
   ssl:true,
@@ -1975,9 +1979,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Certificate authority in PKCS#12 format ([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12)), usually with the `.pfx` or the `.p12` extension can also be loaded in a similar fashion than JKS trust stores:
+PKCS#12格式([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))的证书颁发机构，通常带有`.pfx`或`.p12`扩展名也可以类似于JKS信任库的方式加载：
 
-```
+```groovy
 def options = [
   ssl:true,
   clientAuth:"REQUIRED",
@@ -1989,9 +1993,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myTrustStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/truststore.pfx")
 def options = [
   ssl:true,
@@ -2004,9 +2008,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Another way of providing server certificate authority using a list `.pem` files.
+使用列表`.pem`文件提供服务器证书颁发机构的另一种方法。
 
-```
+```groovy
 def options = [
   ssl:true,
   clientAuth:"REQUIRED",
@@ -2019,9 +2023,9 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myCaAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/server-ca.pfx")
 def options = [
   ssl:true,
@@ -2035,15 +2039,15 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-#### Enabling SSL/TLS on the client
-Net Clients can also be easily configured to use SSL. They have the exact same API when using SSL as when using standard sockets.
+#### 在客户端上启用SSL/TLS
+Net Client也可以轻松配置为使用SSL。 使用SSL和使用标准套接字时，它们具有完全相同的API。
 
-To enable SSL on a NetClient the function setSSL(true) is called.
+要在NetClient上启用SSL，请调用函数`setSSL(true)`。
 
-#### Client trust configuration
-If the `trustALl` is set to true on the client, then the client will trust all server certificates. The connection will still be encrypted but this mode is vulnerable to 'man in the middle' attacks. I.e. you can’t be sure who you are connecting to. Use this with caution. Default value is false.
+#### 客户端信任配置
+如果在客户端上将`trustAll`设置为true，则客户端将信任所有服务器证书。 连接仍将被加密，但是此模式容易受到“中间人”攻击。 即 您不确定要连接到谁。 请谨慎使用。 默认值为false。
 
-```
+```groovy
 def options = [
   ssl:true,
   trustAll:true
@@ -2051,11 +2055,11 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-If `trustAll` is not set then a client trust store must be configured and should contain the certificates of the servers that the client trusts.
+如果未设置`trustAll`，则必须配置客户端信任存储，并且应包含客户端信任的服务器的证书。
 
-By default, host verification is disabled on the client. To enable host verification, set the algorithm to use on your client (only HTTPS and LDAPS is currently supported):
+默认情况下，在客户端上禁用主机验证。 要启用主机验证，请设置要在客户端上使用的算法（当前仅支持HTTPS和LDAPS）：
 
-```
+```groovy
 def options = [
   ssl:true,
   hostnameVerificationAlgorithm:"HTTPS"
@@ -2063,13 +2067,13 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Likewise server configuration, the client trust can be configured in several ways:
+与服务器配置相同，可以通过以下几种方式配置客户端信任：
 
-The first method is by specifying the location of a Java trust-store which contains the certificate authority.
+第一种方法是通过指定包含证书颁发机构的Java信任库的位置。
 
-It is just a standard Java key store, the same as the key stores on the server side. The client trust store location is set by using the function `path` on the `jks options`. If a server presents a certificate during connection which is not in the client trust store, the connection attempt will not succeed.
+它只是一个标准的Java密钥库，与服务器端的密钥库相同。 客户信任库位置是通过使用`jks options`上的函数`path`来设置的。 如果服务器在连接过程中出示的证书不在客户端信任存储区中，则连接尝试将不会成功。
 
-```
+```groovy
 def options = [
   ssl:true,
   trustStoreOptions:[
@@ -2080,9 +2084,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myTrustStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/truststore.jks")
 def options = [
   ssl:true,
@@ -2094,9 +2098,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Certificate authority in PKCS#12 format ([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12)), usually with the `.pfx` or the `.p12` extension can also be loaded in a similar fashion than JKS trust stores:
+PKCS#12格式([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))的证书颁发机构，通常带有`.pfx`或`.p12`扩展名也可以类似于JKS信任库的方式加载：
 
-```
+```groovy
 def options = [
   ssl:true,
   pfxTrustOptions:[
@@ -2107,9 +2111,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myTrustStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/truststore.pfx")
 def options = [
   ssl:true,
@@ -2121,9 +2125,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Another way of providing server certificate authority using a list `.pem` files.
+使用列表`.pem`文件提供服务器证书颁发机构的另一种方法。
 
-```
+```groovy
 def options = [
   ssl:true,
   pemTrustOptions:[
@@ -2135,9 +2139,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myTrustStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/ca-cert.pem")
 def options = [
   ssl:true,
@@ -2150,12 +2154,12 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-#### Specifying key/certificate for the client
-If the server requires client authentication then the client must present its own certificate to the server when connecting. The client can be configured in several ways:
+#### 指定客户端的密钥/证书
+如果服务器要求客户端身份验证，则客户端在连接时必须向服务器出示自己的证书。 可以通过几种方式配置客户端：
 
-The first method is by specifying the location of a Java key-store which contains the key and certificate. Again it’s just a regular Java key store. The client keystore location is set by using the function `path` on the `jks options`.
+第一种方法是通过指定包含密钥和证书的Java密钥存储的位置。 同样，它只是常规的Java密钥存储区。 客户端密钥库的位置是通过使用`jks options`上的函数`path`来设置的。
 
-```
+```groovy
 def options = [
   ssl:true,
   keyStoreOptions:[
@@ -2166,9 +2170,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myKeyStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/client-keystore.jks")
 def jksOptions = [
   value:myKeyStoreAsABuffer,
@@ -2181,9 +2185,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Key/certificate in PKCS#12 format ([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12)), usually with the `.pfx` or the `.p12` extension can also be loaded in a similar fashion than JKS key stores:
+密钥/证书，格式为PKCS#12([http://en.wikipedia.org/wiki/PKCS_12](https://en.wikipedia.org/wiki/PKCS_12))，通常带有`.pfx`或`.p12扩展名也可以以与JKS密钥库类似的方式加载：
 
-```
+```groovy
 def options = [
   ssl:true,
   pfxKeyCertOptions:[
@@ -2194,9 +2198,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myKeyStoreAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/client-keystore.pfx")
 def pfxOptions = [
   value:myKeyStoreAsABuffer,
@@ -2209,9 +2213,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Another way of providing server private key and certificate separately using `.pem` files.
+使用`.pem`文件分别提供服务器私钥和证书的另一种方法。
 
-```
+```groovy
 def options = [
   ssl:true,
   pemKeyCertOptions:[
@@ -2222,9 +2226,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myKeyAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/client-key.pem")
 def myCertAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/client-cert.pem")
 def pemOptions = [
@@ -2238,18 +2242,20 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Keep in mind that pem configuration, the private key is not crypted.
+请记住，pem配置中，私钥未加密。
 
-#### Self-signed certificates for testing and development purposes
-| CAUTION | Do not use this in production settings, and note that the generated keys are very insecure. |
-| ------- | ------------------------------------------------------------ |
-|         |                                                              |
+#### 用于测试和开发目的的自签名证书
 
-It is very often the case that self-signed certificates are required, be it for unit / integration tests or for running a development version of an application.
+------
+> **慎重:** 不要在生产设置中使用此功能，请注意，生成的密钥非常不安全。
+>
+------
 
-`SelfSignedCertificate` can be used to provide self-signed PEM certificate helpers and give `KeyCertOptions` and `TrustOptions` configurations:
+通常，需要自签名证书，无论是用于单元/集成测试还是用于运行应用程序的开发版本。
 
-```
+`SelfSignedCertificate`可用于提供自签名的PEM证书助手，并提供`KeyCertOptions`和`TrustOptions`配置：
+
+```groovy
 def certificate = SelfSignedCertificate.create()
 
 def serverOptions = [
@@ -2280,18 +2286,18 @@ client.connect(1234, "localhost", { ar ->
 })
 ```
 
-The client can also be configured to trust all certificates:
+客户端也可以配置为信任所有证书：
 
-```
+```groovy
 def clientOptions = [
   ssl:true,
   trustAll:true
 ]
 ```
 
-Note that self-signed certificates also work for other TCP protocols like HTTPS:
+请注意，自签名证书还适用于其他TCP协议（例如HTTPS）：
 
-```
+```groovy
 def certificate = SelfSignedCertificate.create()
 
 vertx.createHttpServer([
@@ -2303,10 +2309,10 @@ vertx.createHttpServer([
 }).listen(8080)
 ```
 
-#### Revoking certificate authorities
-Trust can be configured to use a certificate revocation list (CRL) for revoked certificates that should no longer be trusted. The `crlPath` configures the crl list to use:
+#### 吊销证书颁发机构
+可以将信任配置为使用证书吊销列表（CRL）来处理应该不再受信任的吊销证书。 `crlPath`配置crl列表以使用：
 
-```
+```groovy
 def options = [
   ssl:true,
   trustStoreOptions:trustOptions,
@@ -2317,9 +2323,9 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-Buffer configuration is also supported:
+还支持缓冲区配置：
 
-```
+```groovy
 def myCrlAsABuffer = vertx.fileSystem().readFileBlocking("/path/to/your/crl.pem")
 def options = [
   ssl:true,
@@ -2331,10 +2337,10 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-#### Configuring the Cipher suite
-By default, the TLS configuration will use the Cipher suite of the JVM running Vert.x. This Cipher suite can be configured with a suite of enabled ciphers:
+#### 配置密码套件
+默认情况下，TLS配置将使用运行Vert.x的JVM的Cipher套件。 可以使用以下一组启用密码来配置此密码套件：
 
-```
+```groovy
 def options = [
   ssl:true,
   keyStoreOptions:keyStoreOptions,
@@ -2348,26 +2354,26 @@ def options = [
 def server = vertx.createNetServer(options)
 ```
 
-Cipher suite can be specified on the `NetServerOptions` or `NetClientOptions` configuration.
+密码套件可以在`NetServerOptions`或`NetClientOptions`配置中指定。
 
-#### Configuring TLS protocol versions
-By default, the TLS configuration will use the following protocol versions: SSLv2Hello, TLSv1, TLSv1.1 and TLSv1.2. Protocol versions can be configured by explicitly adding enabled protocols:
+#### 配置TLS协议版本
+默认情况下，TLS配置将使用以下协议版本：SSLv2Hello，TLSv1，TLSv1.1和TLSv1.2。 可以通过显式添加启用的协议来配置协议版本：
 
-```
+```groovy
 Code not translatable
 ```
 
-Protocol versions can be specified on the `NetServerOptions` or `NetClientOptions` configuration.
+协议版本可以在`NetServerOptions`或`NetClientOptions`配置中指定。
 
-#### SSL engine
-The engine implementation can be configured to use [OpenSSL](https://www.openssl.org/) instead of the JDK implementation. OpenSSL provides better performances and CPU usage than the JDK engine, as well as JDK version independence.
+#### SSL引擎
+可以将引擎实现配置为使用[OpenSSL](https://www.openssl.org/)而不是JDK实现。 与JDK引擎相比，OpenSSL提供了更好的性能和CPU使用率，并且具有JDK版本独立性。
 
-The engine options to use is
+使用的引擎选项是
 
-- the `getSslEngineOptions` options when it is set
-- otherwise `JdkSSLEngineOptions`
+- 设置时的`getSslEngineOptions`选项
+- 否则`JdkSSLEngineOptions`
 
-```
+```groovy
 // Use JDK SSL engine
 def options = [
   ssl:true,
@@ -2389,25 +2395,25 @@ options = [
 ]
 ```
 
-#### Server Name Indication (SNI)
-Server Name Indication (SNI) is a TLS extension by which a client specifies a hostname attempting to connect: during the TLS handshake the client gives a server name and the server can use it to respond with a specific certificate for this server name instead of the default deployed certificate. If the server requires client authentication the server can use a specific trusted CA certificate depending on the indicated server name.
+#### 服务器名称指示(SNI)
+服务器名称指示（SNI）是TLS扩展，客户端通过该扩展名指定尝试连接的主机名：在TLS握手期间，客户端提供服务器名称，服务器可以使用该名称来响应该服务器名称的特定证书而不是 默认部署的证书。 如果服务器要求客户端身份验证，则服务器可以根据指定的服务器名称使用特定的受信任CA证书。
 
-When SNI is active the server uses
+当SNI处于活动状态时，服务器使用
 
-- the certificate CN or SAN DNS (Subject Alternative Name with DNS) to do an exact match, e.g `www.example.com`
-- the certificate CN or SAN DNS certificate to match a wildcard name, e.g `*.example.com`
-- otherwise the first certificate when the client does not present a server name or the presented server name cannot be matched
+- 证书CN或SAN DNS（带有DNS的主题备用名称）进行完全匹配，例如`www.example.com`
+- 证书CN或SAN DNS证书以匹配通配符名称，例如`*.example.com`
+- 否则，当客户端不提供服务器名称或提供的服务器名称时，第一个证书无法匹配
 
-When the server additionally requires client authentication:
+当服务器另外要求客户端身份验证时：
 
-- if `JksOptions` were used to set the trust options (`options`) then an exact match with the trust store alias is done
-- otherwise the available CA certificates are used in the same way as if no SNI is in place
+- 如果使用`JksOptions`来设置信任选项(`options`)，则将与信任库别名完全匹配
+- 否则，可用的CA证书的使用方式与没有SNI的使用方式相同
 
-You can enable SNI on the server by setting `setSni` to `true` and configured the server with multiple key/certificate pairs.
+您可以通过将`setSni`设置为`true`并在服务器上配置多个密钥/证书对来在服务器上启用SNI。
 
-Java KeyStore files or PKCS12 files can store multiple key/cert pairs out of the box.
+Java KeyStore文件或PKCS12文件可以开箱即用地存储多个密钥/证书对。
 
-```
+```groovy
 def keyCertOptions = [
   path:"keystore.jks",
   password:"wibble"
@@ -2420,9 +2426,9 @@ def netServer = vertx.createNetServer([
 ])
 ```
 
-`PemKeyCertOptions` can be configured to hold multiple entries:
+可以将`PemKeyCertOptions`配置为保存多个条目：
 
-```
+```groovy
 def keyCertOptions = [
   keyPaths:["default-key.pem", "host1-key.pem", "etc..."],
   certPaths:["default-cert.pem", "host2-key.pem", "etc..."]
@@ -2435,11 +2441,11 @@ def netServer = vertx.createNetServer([
 ])
 ```
 
-The client implicitly sends the connecting host as an SNI server name for Fully Qualified Domain Name (FQDN).
+客户端隐式发送连接主机作为完全合格域名（FQDN）的SNI服务器名称。
 
-You can provide an explicit server name when connecting a socket
+您可以在连接套接字时提供一个明确的服务器名称
 
-```
+```groovy
 def client = vertx.createNetClient([
   trustStoreOptions:trustOptions,
   ssl:true
@@ -2456,61 +2462,60 @@ client.connect(1234, "localhost", "server.name", { res ->
 })
 ```
 
-It can be used for different purposes:
+它可以用于不同的目的：
 
-- present a server name different than the server host
-- present a server name while connecting to an IP
-- force to present a server name when using shortname
+- 提供与服务器主机不同的服务器名称
+- 连接到IP时显示服务器名称
+- 使用短名称时强制显示服务器名称
 
-#### Application-Layer Protocol Negotiation (ALPN)
-Application-Layer Protocol Negotiation (ALPN) is a TLS extension for application layer protocol negotiation. It is used by HTTP/2: during the TLS handshake the client gives the list of application protocols it accepts and the server responds with a protocol it supports.
+#### 应用层协议协商(ALPN)
+应用程序层协议协商（ALPN）是用于应用程序层协议协商的TLS扩展。 它由HTTP/2使用：在TLS握手期间，客户端会提供其接受的应用程序协议列表，服务器将以其支持的协议进行响应。
 
-If you are using Java 9, you are fine and you can use HTTP/2 out of the box without extra steps.
+如果您使用的是Java 9，那很好，您可以直接使用HTTP/2，而无需执行其他步骤。
 
-Java 8 does not supports ALPN out of the box, so ALPN should be enabled by other means:
+Java 8不支持现成的ALPN，因此应通过其他方式启用ALPN：
 
-- *OpenSSL* support
-- *Jetty-ALPN* support
+- *OpenSSL* 支持
+- *Jetty-ALPN* 支持
 
-The engine options to use is
+使用的引擎选项是
 
-- the `getSslEngineOptions` options when it is set
-- `JdkSSLEngineOptions` when ALPN is available for JDK
-- `OpenSSLEngineOptions` when ALPN is available for OpenSSL
-- otherwise it fails
+- 设置时的`getSslEngineOptions`选项
+- 当ALPN可用于JDK时，将使用`JdkSSLEngineOptions`
+- ALPN可用于OpenSSL时使用`OpenSSLEngineOptions`
+- 否则失败
 
-##### OpenSSL ALPN support
-OpenSSL provides native ALPN support.
+##### OpenSSL提供本机ALPN支持。
 
-OpenSSL requires to configure `setOpenSslEngineOptions` and use [netty-tcnative](http://netty.io/wiki/forked-tomcat-native.html) jar on the classpath. Using tcnative may require OpenSSL to be installed on your OS depending on the tcnative implementation.
+OpenSSL需要配置`setOpenSslEngineOptions`，并在类路径上使用[netty-tcnative](http://netty.io/wiki/forked-tomcat-native.html)jar。 根据tcnative的实现，使用tcnative可能需要在您的操作系统上安装OpenSSL。
 
 ##### Jetty-ALPN support
-Jetty-ALPN is a small jar that overrides a few classes of Java 8 distribution to support ALPN.
+Jetty-ALPN是一个小jar，它覆盖了Java 8分发的一些类以支持ALPN。
 
-The JVM must be started with the *alpn-boot-${version}.jar* in its `bootclasspath`:
+JVM必须在其`bootclasspath`中以*alpn-boot-${version}.jar*启动：
 
-```
+```bash
 -Xbootclasspath/p:/path/to/alpn-boot${version}.jar
 ```
 
-where ${version} depends on the JVM version, e.g. *8.1.7.v20160121* for *OpenJDK 1.8.0u74* . The complete list is available on the [Jetty-ALPN page](https://www.eclipse.org/jetty/documentation/current/alpn-chapter.html).
+其中${version}取决于JVM版本，例如 *OpenJDK 1.8.0u74* 的 *8.1.7.v20160121*。 完整列表可在[Jetty-ALPN页面](https://www.eclipse.org/jetty/documentation/current/alpn-chapter.html)上找到。
 
-The main drawback is that the version depends on the JVM.
+主要缺点是版本取决于JVM。
 
-To solve this problem the *[Jetty ALPN agent](https://github.com/jetty-project/jetty-alpn-agent)* can be use instead. The agent is a JVM agent that will chose the correct ALPN version for the JVM running it:
+为了解决这个问题，可以使用*[Jetty ALPN agent](https://github.com/jetty-project/jetty-alpn-agent)*。 该代理是一个JVM代理，它将为运行它的JVM选择正确的ALPN版本：
 
-```
+```bash
 -javaagent:/path/to/alpn/agent
 ```
 
-### Using a proxy for client connections
-The `NetClient` supports either a HTTP/1.x *CONNECT*, *SOCKS4a* or *SOCKS5* proxy.
+### 使用代理进行客户端连接
+`NetClient`支持HTTP/1.x *CONNECT*, *SOCKS4a* 或 *SOCKS5*代理。
 
-The proxy can be configured in the `NetClientOptions` by setting a `ProxyOptions` object containing proxy type, hostname, port and optionally username and password.
+通过设置包含代理类型，主机名，端口以及用户名和密码（可选）的`ProxyOptions`对象，可以在`NetClientOptions`中配置代理。
 
-Here’s an example:
+这是一个例子：
 
-```
+```groovy
 def options = [
   proxyOptions:[
     type:"SOCKS5",
@@ -2523,26 +2528,26 @@ def options = [
 def client = vertx.createNetClient(options)
 ```
 
-The DNS resolution is always done on the proxy server, to achieve the functionality of a SOCKS4 client, it is necessary to resolve the DNS address locally.
+DNS解析始终在代理服务器上完成，为了实现SOCKS4客户端的功能，必须在本地解析DNS地址。
 
-## Writing HTTP servers and clients
-Vert.x allows you to easily write non blocking HTTP clients and servers.
+## 编写HTTP服务器和客户端
+Vert.x允许您轻松编写不阻塞的HTTP客户端和服务器。
 
-Vert.x supports the HTTP/1.0, HTTP/1.1 and HTTP/2 protocols.
+Vert.x支持HTTP/1.0, HTTP/1.1 和 HTTP/2协议。
 
-The base API for HTTP is the same for HTTP/1.x and HTTP/2, specific API features are available for dealing with the HTTP/2 protocol.
+HTTP的基本API与HTTP/1.x和HTTP/2相同，特定的API功能可用于处理HTTP/2协议。
 
-### Creating an HTTP Server
-The simplest way to create an HTTP server, using all default options is as follows:
+### 创建一个HTTP服务器
+使用所有默认选项创建HTTP服务器的最简单方法如下：
 
-```
+```groovy
 def server = vertx.createHttpServer()
 ```
 
-### Configuring an HTTP server
-If you don’t want the default, a server can be configured by passing in a `HttpServerOptions` instance when creating it:
+### 配置HTTP服务器
+如果您不希望使用默认值，则可以在创建服务器时通过传入`HttpServerOptions`实例来配置服务器：
 
-```
+```groovy
 def options = [
   maxWebsocketFrameSize:1000000
 ]
@@ -2550,15 +2555,15 @@ def options = [
 def server = vertx.createHttpServer(options)
 ```
 
-### Configuring an HTTP/2 server
-Vert.x supports HTTP/2 over TLS `h2` and over TCP `h2c`.
+### 配置HTTP/2服务器
+Vert.x通过TLS `h2`和TCP `h2c`支持HTTP/2。
 
-- `h2` identifies the HTTP/2 protocol when used over TLS negotiated by [Application-Layer Protocol Negotiation](https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation) (ALPN)
-- `h2c` identifies the HTTP/2 protocol when using in clear text over TCP, such connections are established either with an HTTP/1.1 upgraded request or directly
+- `h2` 在[应用层协议协商](https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation) (ALPN)协商的TLS上使用时，标识HTTP/2协议
+- 当在TCP上以明文形式使用时，`h2c`标识HTTP/2协议，此类连接可以通过HTTP/1.1升级请求建立，也可以直接建立
 
-To handle `h2` requests, TLS must be enabled along with `setUseAlpn`:
+要处理`h2`请求，必须将TLS和`setUseAlpn`一起启用：
 
-```
+```groovy
 def options = [
   useAlpn:true,
   ssl:true,
@@ -2570,31 +2575,33 @@ def options = [
 def server = vertx.createHttpServer(options)
 ```
 
-ALPN is a TLS extension that negotiates the protocol before the client and the server start to exchange data.
+ALPN是TLS扩展，可在客户端和服务器开始交换数据之前协商协议。
 
-Clients that don’t support ALPN will still be able to do a *classic* SSL handshake.
+不支持ALPN的客户端仍可以进行*经典* SSL握手。
 
-ALPN will usually agree on the `h2` protocol, although `http/1.1` can be used if the server or the client decides so.
+ALPN通常会同意`h2`协议，尽管如果服务器或客户端决定使用http/1.1，则可以使用。
 
-To handle `h2c` requests, TLS must be disabled, the server will upgrade to HTTP/2 any request HTTP/1.1 that wants to upgrade to HTTP/2. It will also accept a direct `h2c` connection beginning with the `PRI * HTTP/2.0\r\nSM\r\n` preface.
+为了处理`h2c`请求，必须禁用TLS，服务器将任何要升级到HTTP/2的请求HTTP/1.1升级到HTTP/2。 它也将接受直接从`PRI * HTTP/2.0\r\nSM\r\n`前言开始的`h2c`连接。
 
-| WARNING | most browsers won’t support `h2c`, so for serving web sites you should use `h2` and not `h2c`. |
-| ------- | ------------------------------------------------------------ |
-|         |                                                              |
+------
+> **警告:** 大多数浏览器均不支持`h2c`，因此，为网站服务时，应使用`h2`而不是`h2c`。
+>
+------
 
-When a server accepts an HTTP/2 connection, it sends to the client its `initial settings`. The settings define how the client can use the connection, the default initial settings for a server are:
+服务器接受HTTP/2连接时，会将其`initial settings(初始设置)`发送给客户端。 这些设置定义客户端如何使用连接，服务器的默认初始设置为：
 
-- `getMaxConcurrentStreams`: `100` as recommended by the HTTP/2 RFC
-- the default HTTP/2 settings values for the others
+- `getMaxConcurrentStreams`：HTTP/2 RFC建议的`100`
+- 其他的默认HTTP/2设置值
 
-| NOTE | Worker Verticles are not compatible with HTTP/2 |
-| ---- | ----------------------------------------------- |
-|      |                                                 |
+------
+> **注意:** Worker Verticles与HTTP/2不兼容
+>
+------
 
-### Logging network server activity
-For debugging purposes, network activity can be logged.
+### 记录网络服务器活动
+出于调试目的，可以记录网络活动。
 
-```
+```groovy
 def options = [
   logActivity:true
 ]
@@ -2602,32 +2609,32 @@ def options = [
 def server = vertx.createHttpServer(options)
 ```
 
-See the chapter on [logging network activity](https://vertx.io/docs/vertx-core/groovy/#logging_network_activity) for a detailed explanation.
+有关详细说明，请参见[记录网络活动](https://vertx.io/docs/vertx-core/java/#logging_network_activity)一章。
 
-### Start the Server Listening
-To tell the server to listen for incoming requests you use one of the `listen` alternatives.
+### 开始服务器监听
+要告诉服务器侦听传入的请求，您可以使用一种`listen`方法。
 
-To tell the server to listen at the host and port as specified in the options:
+要告诉服务器侦听选项中指定的主机和端口：
 
-```
+```groovy
 def server = vertx.createHttpServer()
 server.listen()
 ```
 
-Or to specify the host and port in the call to listen, ignoring what is configured in the options:
+或在调用中指定要监听的主机和端口，而忽略选项中配置的内容：
 
-```
+```groovy
 def server = vertx.createHttpServer()
 server.listen(8080, "myhost.com")
 ```
 
-The default host is `0.0.0.0` which means 'listen on all available addresses' and the default port is `80`.
+默认主机为`0.0.0.0`，表示“监听所有可用地址”，默认端口为`80`。
 
-The actual bind is asynchronous so the server might not actually be listening until some time **after** the call to listen has returned.
+实际的绑定是异步的，因此服务器可能调用返回之后一段时间才真正在监听。
 
-If you want to be notified when the server is actually listening you can provide a handler to the `listen` call. For example:
+如果希望在服务器实际监听时收到通知，则可以为`listen`调用提供处理程序。 例如：
 
-```
+```groovy
 def server = vertx.createHttpServer()
 server.listen(8080, "myhost.com", { res ->
   if (res.succeeded()) {
@@ -2638,78 +2645,78 @@ server.listen(8080, "myhost.com", { res ->
 })
 ```
 
-### Getting notified of incoming requests
-To be notified when a request arrives you need to set a `requestHandler`:
+### 收到传入请求的通知
+要在请求到达时得到通知，您需要设置`requestHandler`：
 
-```
+```groovy
 def server = vertx.createHttpServer()
 server.requestHandler({ request ->
   // Handle the request in here
 })
 ```
 
-### Handling requests
-When a request arrives, the request handler is called passing in an instance of `HttpServerRequest`. This object represents the server side HTTP request.
+### 处理请求
+当请求到达时，调用请求处理程序传递`HttpServerRequest`的实例。 该对象代表服务器端HTTP请求。
 
-The handler is called when the headers of the request have been fully read.
+当请求的头被完全读取时，将调用处理程序。
 
-If the request contains a body, that body will arrive at the server some time after the request handler has been called.
+如果请求包含正文，则该正文将在调用请求处理程序后的某个时间到达服务器。
 
-The server request object allows you to retrieve the `uri`, `path`, `params` and `headers`, amongst other things.
+服务器请求对象允许您检索`uri`, `path`, `params` 和 `headers`等。
 
-Each server request object is associated with one server response object. You use `response` to get a reference to the `HttpServerResponse` object.
+每个服务器请求对象都与一个服务器响应对象相关联。 您可以使用`response`来获取对`HttpServerResponse`对象的引用。
 
-Here’s a simple example of a server handling a request and replying with "hello world" to it.
+这是服务器处理请求并以"hello world"回复的简单示例。
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   request.response().end("Hello world")
 }).listen(8080)
 ```
 
-#### Request version
-The version of HTTP specified in the request can be retrieved with `version`
+#### Request 版本
+可以使用`version`检索请求中指定的HTTP版本。
 
-#### Request method
-Use `method` to retrieve the HTTP method of the request. (i.e. whether it’s GET, POST, PUT, DELETE, HEAD, OPTIONS, etc).
+#### Request 方法
+使用`method`检索请求的HTTP方法。 （即GET，POST，PUT，DELETE，HEAD，OPTIONS等）。
 
 #### Request URI
-Use `uri` to retrieve the URI of the request.
+使用`uri`检索请求的URI。
 
-Note that this is the actual URI as passed in the HTTP request, and it’s almost always a relative URI.
+注意，这是在HTTP请求中传递的实际URI，它几乎总是一个相对URI。
 
-The URI is as defined in [Section 5.1.2 of the HTTP specification - Request-URI](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html)
+URI如[HTTP规范的5.1.2节-请求URI](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html)中所定义。
 
-#### Request path
-Use `path` to return the path part of the URI
+#### equest 路径
+使用`path`返回URI的路径部分
 
-For example, if the request URI was:
+例如，如果请求URI为：
 
-a/b/c/page.html?param1=abc&param2=xyz
+`a/b/c/page.html?param1=abc&param2=xyz`
 
-Then the path would be
+那么路径将是
 
-/a/b/c/page.html
+`/a/b/c/page.html`
 
-#### Request query
-Use `query` to return the query part of the URI
+#### Request 查询
+使用`query`返回URI的查询部分
 
-For example, if the request URI was:
+例如，如果请求URI为：
 
-a/b/c/page.html?param1=abc&param2=xyz
+`a/b/c/page.html?param1=abc&param2=xyz`
 
-Then the query would be
+然后查询将是
 
-param1=abc&param2=xyz
+`param1=abc&param2=xyz`
 
-#### Request headers
-Use `headers` to return the headers of the HTTP request.
+#### Request 头
+使用`headers`返回HTTP请求的标题。
 
-This returns an instance of `MultiMap` - which is like a normal Map or Hash but allows multiple values for the same key - this is because HTTP allows multiple header values with the same key.
+这将返回`MultiMap`的实例-类似于普通Map或Hash，但允许同一键具有多个值-这是因为HTTP允许具有相同键的多个标头值。
 
-It also has case-insensitive keys, that means you can do the following:
+它还具有不区分大小写的键，这意味着您可以执行以下操作：
 
-```
+```groovy
 def headers = request.headers()
 
 // Get the User-Agent:
@@ -2719,56 +2726,56 @@ println("User agent is ${headers.get("user-agent")}")
 println("User agent is ${headers.get("User-Agent")}")
 ```
 
-#### Request host
-Use `host` to return the host of the HTTP request.
+#### Request 主机
+使用`host`返回HTTP请求的主机。
 
-For HTTP/1.x requests the `host` header is returned, for HTTP/1 requests the `:authority` pseudo header is returned.
+对于HTTP/1.x请求，返回`host`头，对于HTTP/1请求，返回`:authority`伪头。
 
-#### Request parameters
-Use `params` to return the parameters of the HTTP request.
+#### Request 参数
+使用`params`返回HTTP请求的参数。
 
-Just like `headers` this returns an instance of `MultiMap` as there can be more than one parameter with the same name.
+就像`headers`一样，它会返回`MultiMap`的一个实例，因为可以有多个具有相同名称的参数。
 
-Request parameters are sent on the request URI, after the path. For example if the URI was:
+请求参数在请求URI的路径之后发送。例如，如果URI是:
 
-/page.html?param1=abc&param2=xyz
+`/page.html?param1=abc&param2=xyz`
 
-Then the parameters would contain the following:
+那么参数将包含以下内容:
 
-```
+```groovy
 param1: 'abc'
 param2: 'xyz
 ```
 
-Note that these request parameters are retrieved from the URL of the request. If you have form attributes that have been sent as part of the submission of an HTML form submitted in the body of a `multi-part/form-data` request then they will not appear in the params here.
+请注意，这些请求参数是从请求的URL中检索的。 如果您在`multi-part/form-data`请求的正文中提交的表单属性是作为HTML表单提交的一部分发送的，则它们不会出现在此处的参数中。
 
-#### Remote address
-The address of the sender of the request can be retrieved with `remoteAddress`.
+#### Remote 地址
+可以使用`remoteAddress`检索请求的发送者的地址。
 
-#### Absolute URI
-The URI passed in an HTTP request is usually relative. If you wish to retrieve the absolute URI corresponding to the request, you can get it with `absoluteURI`
+#### 绝对 URI
+HTTP请求中传递的URI通常是相对的。 如果您希望检索与请求相对应的绝对URI，则可以使用`absoluteURI`获取它。
 
 #### End handler
-The `endHandler` of the request is invoked when the entire request, including any body has been fully read.
+当整个请求（包括任何主体）都已被完全读取时，将调用请求的`endHandler`。
 
-#### Reading Data from the Request Body
-Often an HTTP request contains a body that we want to read. As previously mentioned the request handler is called when just the headers of the request have arrived so the request object does not have a body at that point.
+#### 从请求主体读取数据
+HTTP请求通常包含我们要读取的正文。 如前所述，仅当请求的标头到达时，请求处理程序才被调用，因此请求对象此时没有主体。
 
-This is because the body may be very large (e.g. a file upload) and we don’t generally want to buffer the entire body in memory before handing it to you, as that could cause the server to exhaust available memory.
+这是因为主体可能很大（例如，文件上传），而且我们通常不希望在将整个主体交给您之前将其缓存在内存中，因为那样可能会导致服务器耗尽可用内存。
 
-To receive the body, you can use the `handler` on the request, this will get called every time a chunk of the request body arrives. Here’s an example:
+要接收主体，您可以在请求上使用`handler`，每次请求主体的一部分到达时都会调用此函数。 这是一个例子：
 
-```
+```groovy
 request.handler({ buffer ->
   println("I have received a chunk of the body of length ${buffer.length()}")
 })
 ```
 
-The object passed into the handler is a `Buffer`, and the handler can be called multiple times as data arrives from the network, depending on the size of the body.
+传递到处理程序中的对象是一个`Buffer`，当数据从网络到达时，可以多次调用该处理程序，具体取决于主体的大小。
 
-In some cases (e.g. if the body is small) you will want to aggregate the entire body in memory, so you could do the aggregation yourself as follows:
+在某些情况下（例如，如果主体很小），您将希望在内存中聚合整个主体，因此您可以自己进行聚合，如下所示：
 
-```
+```groovy
 // Create an empty buffer
 def totalBuffer = Buffer.buffer()
 
@@ -2782,31 +2789,31 @@ request.endHandler({ v ->
 })
 ```
 
-This is such a common case, that Vert.x provides a `bodyHandler` to do this for you. The body handler is called once when all the body has been received:
+这是很常见的情况，Vert.x提供了一个`bodyHandler`来为您执行此操作。 接收到所有主体后，将调用一次主体处理程序：
 
-```
+```groovy
 request.bodyHandler({ totalBuffer ->
   println("Full body received, length = ${totalBuffer.length()}")
 })
 ```
 
-#### Pumping requests
-The request object is a `ReadStream` so you can pump the request body to any `WriteStream` instance.
+#### #### 泵送请求
+请求对象是`ReadStream`，因此您可以将请求主体泵送到任何`WriteStream`实例。
 
-See the chapter on [streams and pumps](https://vertx.io/docs/vertx-core/groovy/#streams) for a detailed explanation.
+有关详细说明，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
-#### Handling HTML forms
-HTML forms can be submitted with either a content type of `application/x-www-form-urlencoded` or `multipart/form-data`.
+#### 处理HTML表单
+HTML表单可以以`application/x-www-form-urlencoded` 或 `multipart/form-data`的内容类型提交。
 
-For url encoded forms, the form attributes are encoded in the url, just like normal query parameters.
+对于url编码的表单，表单属性是在url中编码的，就像普通的查询参数一样。
 
-For multi-part forms they are encoded in the request body, and as such are not available until the entire body has been read from the wire.
+对于包含多个部分的表单，它们被编码在请求体中，因此在从连线读取整个表单体之前是不可用的。
 
-Multi-part forms can also contain file uploads.
+包含多个部分的表单还可以包含文件上传。
 
-If you want to retrieve the attributes of a multi-part form you should tell Vert.x that you expect to receive such a form **before** any of the body is read by calling `setExpectMultipart` with true, and then you should retrieve the actual attributes using `formAttributes` once the entire body has been read:
+如果你想检索一个多部分表单的属性，你应该告诉Vert。通过调用带有true的`setExpectMultipart`来读取任何主体之前，您希望接收到这样的表单，然后在读取整个主体之后，您应该使用`formAttributes`来检索实际属性:
 
-```
+```groovy
 server.requestHandler({ request ->
   request.setExpectMultipart(true)
   request.endHandler({ v ->
@@ -2816,16 +2823,16 @@ server.requestHandler({ request ->
 })
 ```
 
-#### Handling form file uploads
-Vert.x can also handle file uploads which are encoded in a multi-part request body.
+#### 处理表单文件上传
+Vert.x还可以处理以多部分请求正文编码的文件上传。
 
-To receive file uploads you tell Vert.x to expect a multi-part form and set an `uploadHandler` on the request.
+要接收文件上传，您告诉Vert.x期望采用多部分表单，并在请求上设置`uploadHandler`。
 
-This handler will be called once for every upload that arrives on the server.
+对于每次到达服务器的上传，都会调用一次此处理程序。
 
-The object passed into the handler is a `HttpServerFileUpload` instance.
+传递到处理程序中的对象是一个`HttpServerFileUpload`实例。
 
-```
+```groovy
 server.requestHandler({ request ->
   request.setExpectMultipart(true)
   request.uploadHandler({ upload ->
@@ -2834,9 +2841,9 @@ server.requestHandler({ request ->
 })
 ```
 
-File uploads can be large we don’t provide the entire upload in a single buffer as that might result in memory exhaustion, instead, the upload data is received in chunks:
+文件上传可能很大，我们不会在单个缓冲区中提供整个上传，因为这可能会导致内存耗尽，相反，上传数据是分块接收的：
 
-```
+```groovy
 request.uploadHandler({ upload ->
   upload.handler({ chunk ->
     println("Received a chunk of the upload of length ${chunk.length()}")
@@ -2844,34 +2851,35 @@ request.uploadHandler({ upload ->
 })
 ```
 
-The upload object is a `ReadStream` so you can pump the request body to any `WriteStream` instance. See the chapter on [streams and pumps](https://vertx.io/docs/vertx-core/groovy/#streams) for a detailed explanation.
+上传对象是一个`ReadStream`，因此您可以将请求正文泵送到任何一个`WriteStream`实例。 有关详细说明，请参见[流和泵](https://vertx.io/docs/vertx-core/java/#streams)一章。
 
-If you just want to upload the file to disk somewhere you can use `streamToFileSystem`:
+如果您只想将文件上传到磁盘上的某个地方，可以使用`streamToFileSystem`：
 
-```
+```groovy
 request.uploadHandler({ upload ->
   upload.streamToFileSystem("myuploads_directory/${upload.filename()}")
 })
 ```
 
-| WARNING | Make sure you check the filename in a production system to avoid malicious clients uploading files to arbitrary places on your filesystem. See [security notes](https://vertx.io/docs/vertx-core/groovy/#_security_notes) for more information. |
-| ------- | ------------------------------------------------------------ |
-|         |                                                              |
+------
+> **警告:** 确保在生产系统中检查文件名，以避免恶意客户端将文件上传到文件系统上的任意位置。 有关更多信息，请参见[安全说明](https://vertx.io/docs/vertx-core/java/#_security_notes)。
+>
+------
 
-#### Handling cookies
-You use `getCookie` to retrieve a cookie by name, or use `cookieMap` to retrieve all the cookies.
+#### 处理 cookies
+使用`getCookie`按名称检索cookie，或使用`cookieMap`检索所有cookie。
 
-To remove a cookie, use `removeCookie`.
+要删除一个cookie，使用`removeCookie`。
 
-To add a cookie use `addCookie`.
+要添加cookie，请使用`addCookie`。
 
-The set of cookies will be written back in the response automatically when the response headers are written so the browser can store them.
+当写入响应标头时，cookie集将自动写入响应中，以便浏览器可以存储它们。
 
-Cookies are described by instances of `Cookie`. This allows you to retrieve the name, value, domain, path and other normal cookie properties.
+Cookie由`Cookie`实例描述。这允许您检索名称、值、域、路径和其他常规cookie属性。
 
-Here’s an example of querying and adding cookies:
+下面是一个查询和添加cookie的例子:
 
-```
+```groovy
 def someCookie = request.getCookie("mycookie")
 def cookieValue = someCookie.getValue()
 
@@ -2881,177 +2889,179 @@ def cookieValue = someCookie.getValue()
 request.response().addCookie(Cookie.cookie("othercookie", "somevalue"))
 ```
 
-#### Handling compressed body
-Vert.x can handle compressed body payloads which are encoded by the client with the *deflate* or *gzip* algorithms.
+#### 处理压缩的主体
+Vert.x可以处理由客户端使用*deflate* 或 *gzip*算法编码的压缩主体有效载荷。
 
-To enable decompression set `setDecompressionSupported` on the options when creating the server.
+要启用解压缩，请在创建服务器时在选项上设置`setDecompressionSupported`。
 
-By default decompression is disabled.
+默认情况下解压是禁用的。
 
-#### Receiving custom HTTP/2 frames
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 接收自定义HTTP/2帧
+HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
-To receive custom frames, you can use the `customFrameHandler` on the request, this will get called every time a custom frame arrives. Here’s an example:
+要接收自定义帧，您可以对请求使用`customFrameHandler`，它将在每次自定义帧到达时被调用。这里有一个例子:
 
-```
+```groovy
 request.customFrameHandler({ frame ->
 
   println("Received a frame type=${frame.type()} payload${frame.payload().toString()}")
 })
 ```
 
-HTTP/2 frames are not subject to flow control - the frame handler will be called immediatly when a custom frame is received whether the request is paused or is not
+HTTP/2帧不受流控制—当接收到自定义帧时，无论请求是否暂停，都会立即调用帧处理程序
 
-#### Non standard HTTP methods
-The `OTHER` HTTP method is used for non standard methods, in this case `rawMethod` returns the HTTP method as sent by the client.
+#### 非标准的HTTP方法
+`OTHER` HTTP方法用于非标准方法，在本例中，`rawMethod`返回客户端发送的HTTP方法。
 
-### Sending back responses
-The server response object is an instance of `HttpServerResponse` and is obtained from the request with `response`.
+### 发送回响应
+服务器响应对象是`HttpServerResponse`的一个实例，它是从带有`response`的请求中获得的。
 
-You use the response object to write a response back to the HTTP client.
+您可以使用响应对象将响应写回到HTTP客户端。
 
-#### Setting status code and message
-The default HTTP status code for a response is `200`, representing `OK`.
+#### 设置状态码和消息
+响应的默认HTTP状态码是`200`，表示`OK`。
 
-Use `setStatusCode` to set a different code.
+使用`setStatusCode`来设置不同的代码。
 
-You can also specify a custom status message with `setStatusMessage`.
+您还可以使用`setStatusMessage`指定自定义状态消息。
 
-If you don’t specify a status message, the default one corresponding to the status code will be used.
+如果没有指定状态消息，则将使用与状态代码对应的默认消息。
 
-| NOTE | for HTTP/2 the status won’t be present in the response since the protocol won’t transmit the message to the client |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 对于HTTP/2，状态不会出现在响应中，因为协议不会将消息传输到客户端
+>
+------
 
-#### Writing HTTP responses
-To write data to an HTTP response, you use one of the `write` operations.
+#### 编写HTTP响应
+要将数据写入HTTP响应，需要使用`write`操作之一。
 
-These can be invoked multiple times before the response is ended. They can be invoked in a few ways:
+在响应结束之前，可以多次调用它们。 可以通过以下几种方式调用它们：
 
-With a single buffer:
+使用单个缓冲区：
 
-```
+```groovy
 def response = request.response()
 response.write(buffer)
 ```
 
-With a string. In this case the string will encoded using UTF-8 and the result written to the wire.
+用一个字符串。在这种情况下，字符串将使用UTF-8进行编码，并将结果写入线路。
 
-```
+```groovy
 def response = request.response()
 response.write("hello world!")
 ```
 
-With a string and an encoding. In this case the string will encoded using the specified encoding and the result written to the wire.
+一个字符串和一个编码。在这种情况下，将使用指定的编码对字符串进行编码，并将结果写入线路。
 
-```
+```groovy
 def response = request.response()
 response.write("hello world!", "UTF-16")
 ```
 
-Writing to a response is asynchronous and always returns immediately after the write has been queued.
+写入响应是异步的，并且总是在写入队列后立即返回。
 
-If you are just writing a single string or buffer to the HTTP response you can write it and end the response in a single call to the `end`
+如果你只是写一个字符串或缓冲区到HTTP响应你可以写它并结束响应在一个单一的调用`end`
 
-The first call to write results in the response header being written to the response. Consequently, if you are not using HTTP chunking then you must set the `Content-Length` header before writing to the response, since it will be too late otherwise. If you are using HTTP chunking you do not have to worry.
+首次写入调用会导致将响应标头写入响应。 因此，如果您不使用HTTP分块，则必须在写响应之前设置`Content-Length`标头，否则将为时已晚。 如果您使用的是HTTP分块，则不必担心。
 
-#### Ending HTTP responses
-Once you have finished with the HTTP response you should `end` it.
+#### 结束HTTP响应
+一旦你完成了HTTP响应，你应该`end`它。
 
-This can be done in several ways:
+这可以通过几种方式完成：
 
-With no arguments, the response is simply ended.
+没有参数，响应就简单地结束了。
 
-```
+```groovy
 def response = request.response()
 response.write("hello world!")
 response.end()
 ```
 
-It can also be called with a string or buffer in the same way `write` is called. In this case it’s just the same as calling write with a string or buffer followed by calling end with no arguments. For example:
+也可以使用字符串或缓冲区调用它，方法与调用`write`相同。在本例中，它与使用字符串或缓冲区调用write，然后调用没有参数的end是一样的。例如:
 
-```
+```groovy
 def response = request.response()
 response.end("hello world!")
 ```
 
-#### Closing the underlying connection
-You can close the underlying TCP connection with `close`.
+#### 关闭基础连接
+您可以使用`close`关闭底层TCP连接。
 
-Non keep-alive connections will be automatically closed by Vert.x when the response is ended.
+响应结束时，Vert.x将自动关闭非保持活动连接。
 
-Keep-alive connections are not automatically closed by Vert.x by default. If you want keep-alive connections to be closed after an idle time, then you configure `setIdleTimeout`.
+默认情况下，Vert.x不会自动关闭保持活动连接。 如果要在空闲时间后关闭保持活动的连接，则可以配置`setIdleTimeout`。
 
-HTTP/2 connections send a {@literal GOAWAY} frame before closing the response.
+HTTP/2连接在关闭响应之前发送一个{@literal GOAWAY}帧。
 
-#### Setting response headers
-HTTP response headers can be added to the response by adding them directly to the `headers`:
+#### 设置响应头
+HTTP响应报头可以通过直接添加它们到`headers`响应：
 
-```
+```groovy
 def response = request.response()
 def headers = response.headers()
 headers.set("content-type", "text/html")
 headers.set("other-header", "wibble")
 ```
 
-Or you can use `putHeader`
+或者你可以使用`putHeader`
 
-```
+```groovy
 def response = request.response()
 response.putHeader("content-type", "text/html").putHeader("other-header", "wibble")
 ```
 
-Headers must all be added before any parts of the response body are written.
+必须在写入响应主体的任何部分之前添加所有的响应头。
 
-#### Chunked HTTP responses and trailers
-Vert.x supports [HTTP Chunked Transfer Encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding).
+#### 分块的HTTP响应和trailers
+Vert.x支持[HTTP块传输编码](https://en.wikipedia.org/wiki/Chunked_transfer_encoding)。
 
-This allows the HTTP response body to be written in chunks, and is normally used when a large response body is being streamed to a client and the total size is not known in advance.
+这允许将HTTP响应主体分块编写，并且通常在将大型响应主体流式传输到客户端并且事先不知道总大小时使用。
 
-You put the HTTP response into chunked mode as follows:
+您将HTTP响应置于分块模式，如下所示：
 
-```
+```groovy
 def response = request.response()
 response.setChunked(true)
 ```
 
-Default is non-chunked. When in chunked mode, each call to one of the `write` methods will result in a new HTTP chunk being written out.
+默认为非分块。 在分块模式下，每次调用write方法之一将导致新的HTTP块被写出。
 
-When in chunked mode you can also write HTTP response trailers to the response. These are actually written in the final chunk of the response.
+在分块模式下，还可以编写HTTP响应trailers。这些实际上写在响应的最后一部分。
 
-| NOTE | chunked response has no effect for an HTTP/2 stream |
-| ---- | --------------------------------------------------- |
-|      |                                                     |
+------
+> **注意:** 分块响应对HTTP/2流无效
+>
+------
 
-To add trailers to the response, add them directly to the `trailers`.
+要将trailers添加到响应中，请将其直接添加到`trailers`中。
 
-```
+```groovy
 def response = request.response()
 response.setChunked(true)
 def trailers = response.trailers()
 trailers.set("X-wibble", "woobble").set("X-quux", "flooble")
 ```
 
-Or use `putTrailer`.
+或使用`putTrailer`。
 
-```
+```groovy
 def response = request.response()
 response.setChunked(true)
 response.putTrailer("X-wibble", "woobble").putTrailer("X-quux", "flooble")
 ```
 
-#### Serving files directly from disk or the classpath
-If you were writing a web server, one way to serve a file from disk would be to open it as an `AsyncFile` and pump it to the HTTP response.
+#### 直接从磁盘或类路径提供文件
+如果您正在编写Web服务器，则从磁盘提供文件的一种方法是将其作为`AsyncFile`打开并将其泵送至HTTP响应。
 
-Or you could load it it one go using `readFile` and write it straight to the response.
+或者，您可以使用`readFile`一次性加载它，然后直接将其写入响应中。
 
-Alternatively, Vert.x provides a method which allows you to serve a file from disk or the filesystem to an HTTP response in one operation. Where supported by the underlying operating system this may result in the OS directly transferring bytes from the file to the socket without being copied through user-space at all.
+另外，Vert.x提供了一种方法，使您可以通过一次操作将磁盘或文件系统中的文件提供给HTTP响应。 在底层操作系统支持的情况下，这可能会导致OS直接将字节从文件传输到套接字，而根本不通过用户空间进行复制。
 
-This is done by using `sendFile`, and is usually more efficient for large files, but may be slower for small files.
+这是通过使用`sendFile`完成的，通常对于大文件来说效率更高，但是对于小文件来说可能会更慢。
 
-Here’s a very simple web server that serves files from the file system using sendFile:
+这是一个非常简单的网络服务器，它使用sendFile为文件系统中的文件提供服务：
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   def file = ""
   if (request.path() == "/") {
@@ -3063,21 +3073,23 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-Sending a file is asynchronous and may not complete until some time after the call has returned. If you want to be notified when the file has been writen you can use `sendFile`
+发送文件是异步的，可能在调用返回后一段时间才会完成。如果你想在写文件时得到通知，你可以使用`sendFile`
 
-Please see the chapter about [serving files from the classpath](https://vertx.io/docs/vertx-core/groovy/#classpath) for restrictions about the classpath resolution or disabling it.
+请参阅有关[从类路径提供文件](https://vertx.io/docs/vertx-core/java/#classpath)的章节，以获取有关类路径解析或禁用它的限制。
 
-| NOTE | If you use `sendFile` while using HTTPS it will copy through user-space, since if the kernel is copying data directly from disk to socket it doesn’t give us an opportunity to apply any encryption. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 如果您在使用HTTPS时使用`sendFile`，它将通过用户空间进行复制，因为如果内核将数据直接从磁盘复制到套接字，则不会给我们提供任何加密的机会。
+>
+------
 
-| WARNING | If you’re going to write web servers directly using Vert.x be careful that users cannot exploit the path to access files outside the directory from which you want to serve them or the classpath It may be safer instead to use Vert.x Web. |
-| ------- | ------------------------------------------------------------ |
-|         |                                                              |
+------
+> **警告:** 如果您要直接使用Vert.x编写Web服务器，请注意用户不能利用该路径访问您要为其提供服务的目录或类路径之外的文件，而使用Vert.x Web可能更安全。
+>
+------
 
-When there is a need to serve just a segment of a file, say starting from a given byte, you can achieve this by doing:
+如果只需要服务文件的一部分，例如从给定的字节开始，则可以通过执行以下操作来实现：
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   def offset = 0
   try {
@@ -3099,9 +3111,9 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-You are not required to supply the length if you want to send a file starting from an offset until the end, in this case you can just do:
+你不需要提供长度，如果你想发送一个文件从一个偏移到结束，在这种情况下，你可以做:
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   def offset = 0
   try {
@@ -3115,12 +3127,12 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-#### Pumping responses
-The server response is a `WriteStream` instance so you can pump to it from any `ReadStream`, e.g. `AsyncFile`, `NetSocket`, `WebSocket` or `HttpServerRequest`.
+#### Pumping 响应
+服务器响应是一个`WriteStream`实例，因此您可以从任何`ReadStream`， 例如， `AsyncFile`，`NetSocket`，`WebSocket`或`HttpServerRequest`。
 
-Here’s an example which echoes the request body back in the response for any PUT methods. It uses a pump for the body, so it will work even if the HTTP request body is much larger than can fit in memory at any one time:
+这是一个示例，该示例针对任何PUT方法在响应中回显请求正文。 它为主体使用泵，因此即使HTTP请求主体比任何时候都可容纳在内存中的容量大得多，它也将起作用：
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   def response = request.response()
   if (request.method() == HttpMethod.PUT) {
@@ -3135,12 +3147,12 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-#### Writing HTTP/2 frames
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 编写HTTP/2帧
+HTTP/2是带有`HTTP请求/响应模型`的各种框架的框架协议。 该协议允许发送和接收其他类型的帧。
 
-To send such frames, you can use the `writeCustomFrame` on the response. Here’s an example:
+要发送这样的帧，可以在响应中使用`writeCustomFrame`。 这是一个例子：
 
-```
+```groovy
 def frameType = 40
 def frameStatus = 10
 def payload = Buffer.buffer("some data")
@@ -3149,30 +3161,30 @@ def payload = Buffer.buffer("some data")
 response.writeCustomFrame(frameType, frameStatus, payload)
 ```
 
-These frames are sent immediately and are not subject to flow control - when such frame is sent there it may be done before other {@literal DATA} frames.
+这些帧将立即发送，并且不受流控制-当发送此类帧时，可以在其他{@literal DATA}帧之前完成。
 
-#### Stream reset
-HTTP/1.x does not allow a clean reset of a request or a response stream, for example when a client uploads a resource already present on the server, the server needs to accept the entire response.
+#### 流重置
+HTTP/1.x不允许对请求或响应流进行干净的重置，例如，当客户端上传服务器上已经存在的资源时，服务器需要接受整个响应。
 
-HTTP/2 supports stream reset at any time during the request/response:
+HTTP/2支持在请求/响应期间的任何时间进行流重置：
 
-```
+```groovy
 // Reset the stream
 request.response().reset()
 ```
 
-By default the `NO_ERROR` (0) error code is sent, another code can sent instead:
+默认情况下发送`NO_ERROR` (0)错误代码，可以发送另一个代码:
 
-```
+```groovy
 // Cancel the stream
 request.response().reset(8)
 ```
 
-The HTTP/2 specification defines the list of [error codes](http://httpwg.org/specs/rfc7540.html#ErrorCodes) one can use.
+HTTP / 2规范定义了可以使用的[错误代码](http://httpwg.org/specs/rfc7540.html#ErrorCodes)列表。
 
-The request handler are notified of stream reset events with the `request handler` and `response handler`:
+使用`request handler` 和 `response handler`将流重置事件通知给请求处理程序：
 
-```
+```groovy
 request.response().exceptionHandler({ err ->
   if (err instanceof io.vertx.core.http.StreamResetException) {
     def reset = err
@@ -3181,12 +3193,12 @@ request.response().exceptionHandler({ err ->
 })
 ```
 
-#### Server push
-Server push is a new feature of HTTP/2 that enables sending multiple responses in parallel for a single client request.
+#### 服务器推送
+服务器推送是HTTP/2的一项新功能，它可以为单个客户端请求并行发送多个响应。
 
-When a server process a request, it can push a request/response to the client:
+服务器处理请求时，可以将请求/响应推送到客户端：
 
-```
+```groovy
 def response = request.response()
 
 // Push main.js to the client
@@ -3208,74 +3220,74 @@ response.push(HttpMethod.GET, "/main.js", { ar ->
 response.sendFile("<html><head><script src=\"/main.js\"></script></head><body></body></html>")
 ```
 
-When the server is ready to push the response, the push response handler is called and the handler can send the response.
+当服务器准备好推送响应时，将调用推送响应处理程序，并且该处理程序可以发送响应。
 
-The push response handler may receive a failure, for instance the client may cancel the push because it already has `main.js` in its cache and does not want it anymore.
+推送响应处理程序可能会收到失败消息，例如，客户端可能会取消推送，因为它的缓存中已经有`main.js`，并且不再需要它。
 
-The `push` method must be called before the initiating response ends, however the pushed response can be written after.
+必须在发起响应结束之前调用`push`方法，但是可以在之后写入被推送的响应。
 
-#### Handling exceptions
-You can set an `exceptionHandler` to receive any exceptions that happens before the connection is passed to the `requestHandler` or to the `websocketHandler`, e.g during the TLS handshake.
+#### 处理异常
+您可以设置`exceptionHandler`来接收将连接传递给`requestHandler`或`websocketHandler`之前发生的任何异常，例如在TLS握手期间。
 
-### HTTP Compression
-Vert.x comes with support for HTTP Compression out of the box.
+### HTTP 压缩
+Vert.x开箱即用地支持HTTP压缩。
 
-This means you are able to automatically compress the body of the responses before they are sent back to the client.
+这意味着您可以在将响应正文发送回客户端之前自动对其进行压缩。
 
-If the client does not support HTTP compression the responses are sent back without compressing the body.
+如果客户端不支持HTTP压缩，则将响应发送回而不压缩主体。
 
-This allows to handle Client that support HTTP Compression and those that not support it at the same time.
+这样可以处理支持HTTP压缩的客户端和不支持HTTP压缩的客户端。
 
-To enable compression use can configure it with `setCompressionSupported`.
+要启用压缩，可以使用`setCompressionSupported`配置它。
 
-By default compression is not enabled.
+默认情况下不启用压缩。
 
-When HTTP compression is enabled the server will check if the client includes an `Accept-Encoding` header which includes the supported compressions. Commonly used are deflate and gzip. Both are supported by Vert.x.
+启用HTTP压缩后，服务器将检查客户端是否包含包含支持的压缩的`Accept-Encoding`标头。 常用的是deflate和gzip。 两者均受Vert.x支持。
 
-If such a header is found the server will automatically compress the body of the response with one of the supported compressions and send it back to the client.
+如果找到这样的标头，则服务器将使用支持的压缩之一自动压缩响应的主体，并将其发送回客户端。
 
-Whenever the response needs to be sent without compression you can set the header `content-encoding` to `identity`:
+每当需要不加压缩就发送响应时，都可以将标头`content-encoding`设置为`identity`：
 
-```
+```groovy
 // Disable compression and send an image
 request.response().putHeader(io.vertx.core.http.HttpHeaders.CONTENT_ENCODING, io.vertx.core.http.HttpHeaders.IDENTITY).sendFile("/path/to/image.jpg")
 ```
 
-Be aware that compression may be able to reduce network traffic but is more CPU-intensive.
+请注意，压缩可能会减少网络流量，但会占用更多CPU资源。
 
-To address this latter issue Vert.x allows you to tune the 'compression level' parameter that is native of the gzip/deflate compression algorithms.
+为了解决后一个问题，Vert.x允许您调整gzip/deflate压缩算法固有的“compression level”参数。
 
-Compression level allows to configure gizp/deflate algorithms in terms of the compression ratio of the resulting data and the computational cost of the compress/decompress operation.
+压缩级别允许根据结果数据的压缩率和压缩/解压缩操作的计算成本来配置gzip/deflate算法。
 
-The compression level is an integer value ranged from '1' to '9', where '1' means lower compression ratio but fastest algorithm and '9' means maximum compression ratio available but a slower algorithm.
+压缩级别是一个从'1'到'9'的整数值，其中'1'表示较低的压缩率，但算法最快，而'9'表示可用的最大压缩率，但算法较慢。
 
-Using compression levels higher that 1-2 usually allows to save just some bytes in size - the gain is not linear, and depends on the specific data to be compressed - but it comports a non-trascurable cost in term of CPU cycles required to the server while generating the compressed response data ( Note that at moment Vert.x doesn’t support any form caching of compressed response data, even for static files, so the compression is done on-the-fly at every request body generation ) and in the same way it affects client(s) while decoding (inflating) received responses, operation that becomes more CPU-intensive the more the level increases.
+使用高于1-2的压缩级别通常只能节省一些字节的大小-增益不是线性的，并且取决于要压缩的特定数据-但是对于CPU所需的CPU周期而言，它占用了不可交易的成本。 服务器在生成压缩响应数据时（请注意，目前Vert.x不支持压缩响应数据的任何形式的缓存，即使对于静态文件也是如此，因此压缩是在每个请求正文生成时即时完成的） 与在解码（扩大）接收到的响应时影响客户端的方式相同，级别越高，操作就越占用CPU资源。
 
-By default - if compression is enabled via `setCompressionSupported` - Vert.x will use '6' as compression level, but the parameter can be configured to address any case with `setCompressionLevel`.
+默认情况下-如果通过`setCompressionSupported`启用了压缩-Vert.x将使用'6'作为压缩级别，但是该参数可以配置为使用`setCompressionLevel`处理任何情况。
 
-### Creating an HTTP client
-You create an `HttpClient` instance with default options as follows:
+### 创建一个HTTP客户端
+您可以使用以下默认选项创建一个`HttpClient`实例：
 
-```
+```groovy
 def client = vertx.createHttpClient()
 ```
 
-If you want to configure options for the client, you create it as follows:
+如果要为客户端配置选项，请按以下方式创建它：
 
-```
+```groovy
 def options = [
   keepAlive:false
 ]
 def client = vertx.createHttpClient(options)
 ```
 
-Vert.x supports HTTP/2 over TLS `h2` and over TCP `h2c`.
+Vert.x通过TLS `h2` 和TCP `h2c`支持HTTP/2。
 
-By default the http client performs HTTP/1.1 requests, to perform HTTP/2 requests the `setProtocolVersion` must be set to `HTTP_2`.
+默认情况下，http客户端执行HTTP/1.1请求，要执行HTTP/2请求，必须将`setProtocolVersion`设置为`HTTP_2`。
 
-For `h2` requests, TLS must be enabled with *Application-Layer Protocol Negotiation*:
+对于`h2`请求，必须通过 *应用层协议协商* 启用TLS：
 
-```
+```groovy
 def options = [
   protocolVersion:"HTTP_2",
   ssl:true,
@@ -3286,9 +3298,9 @@ def options = [
 def client = vertx.createHttpClient(options)
 ```
 
-For `h2c` requests, TLS must be disabled, the client will do an HTTP/1.1 requests and try an upgrade to HTTP/2:
+对于`h2c`请求，必须禁用TLS，客户端将执行HTTP/1.1请求并尝试升级到HTTP/2：
 
-```
+```groovy
 def options = [
   protocolVersion:"HTTP_2"
 ]
@@ -3296,30 +3308,30 @@ def options = [
 def client = vertx.createHttpClient(options)
 ```
 
-`h2c` connections can also be established directly, i.e connection started with a prior knowledge, when `setHttp2ClearTextUpgrade` options is set to false: after the connection is established, the client will send the HTTP/2 connection preface and expect to receive the same preface from the server.
+也可以直接建立`h2c`连接，即在`setHttp2ClearTextUpgrade`选项设置为false时开始连接:建立连接后，客户端将发送HTTP/2连接序言，并期望从服务器接收相同的序言。
 
-The http server may not support HTTP/2, the actual version can be checked with `version` when the response arrives.
+http服务器可能不支持HTTP/2，当响应到达时，可以使用`version`检查实际版本。
 
-When a clients connects to an HTTP/2 server, it sends to the server its `initial settings`. The settings define how the server can use the connection, the default initial settings for a client are the default values defined by the HTTP/2 RFC.
+当客户端连接到HTTP/2服务器时，它将“初始设置”发送到服务器。 这些设置定义服务器如何使用连接，客户端的默认初始设置是HTTP/2 RFC定义的默认值。
 
-### Logging network client activity
-For debugging purposes, network activity can be logged.
+### 记录网络客户端活动
+出于调试目的，可以记录网络活动。
 
-```
+```groovy
 def options = [
   logActivity:true
 ]
 def client = vertx.createHttpClient(options)
 ```
 
-See the chapter on [logging network activity](https://vertx.io/docs/vertx-core/groovy/#logging_network_activity) for a detailed explanation.
+有关详细说明，请参见[记录网络活动](https://vertx.io/docs/vertx-core/java/#logging_network_activity) 一章。
 
-### Making requests
-The http client is very flexible and there are various ways you can make requests with it.
+### 发出请求
+http客户端非常灵活，可以通过多种方式发出请求。
 
-Often you want to make many requests to the same host/port with an http client. To avoid you repeating the host/port every time you make a request you can configure the client with a default host/port:
+通常，您想通过http客户端向同一主机/端口发出许多请求。 为避免每次发出请求时都重复主机/端口，可以为客户端配置默认主机/端口：
 
-```
+```groovy
 // Set the default host
 def options = [
   defaultHost:"wibble.com"
@@ -3331,9 +3343,9 @@ client.getNow("/some-uri", { response ->
 })
 ```
 
-Alternatively if you find yourself making lots of requests to different host/ports with the same client you can simply specify the host/port when doing the request.
+另外，如果您发现使用同一客户端向不同的主机/端口发出大量请求，则只需在执行请求时指定主机/端口即可。
 
-```
+```groovy
 def client = vertx.createHttpClient()
 
 // Specify both port and host name
@@ -3347,16 +3359,16 @@ client.getNow("foo.othercompany.com", "/other-uri", { response ->
 })
 ```
 
-Both methods of specifying host/port are supported for all the different ways of making requests with the client.
+与客户端发出请求的所有不同方式都支持两种指定主机/端口的方法。
 
-#### Simple requests with no request body
-Often, you’ll want to make HTTP requests with no request body. This is usually the case with HTTP GET, OPTIONS and HEAD requests.
+#### 没有请求正文的简单请求
+通常，您会希望在没有请求正文的情况下发出HTTP请求。 HTTP GET，OPTIONS和HEAD请求通常是这种情况。
 
-The simplest way to do this with the Vert.x http client is using the methods suffixed with `Now`. For example `getNow`.
+使用Vert.x http客户端执行此操作的最简单方法是使用`Now`后缀的方法。 例如`getNow`。
 
-These methods create the http request and send it in a single method call and allow you to provide a handler that will be called with the http response when it comes back.
+这些方法创建http请求并将其通过单个方法调用发送，并允许您提供一个处理程序，该处理程序将在返回时与http响应一起调用。
 
-```
+```groovy
 def client = vertx.createHttpClient()
 
 // Send a GET request
@@ -3370,10 +3382,10 @@ client.headNow("/other-uri", { response ->
 })
 ```
 
-#### Writing general requests
-At other times you don’t know the request method you want to send until run-time. For that use case we provide general purpose request methods such as `request` which allow you to specify the HTTP method at run-time:
+#### 编写一般请求
+在其他时间，直到运行时您才知道要发送的请求方法。 对于这种用例，我们提供了通用的请求方法，例如`request`，它允许您在运行时指定HTTP方法：
 
-```
+```groovy
 def client = vertx.createHttpClient()
 
 client.request(HttpMethod.GET, "some-uri", { response ->
@@ -3385,16 +3397,16 @@ client.request(HttpMethod.POST, "foo-uri", { response ->
 }).end("some-data")
 ```
 
-#### Writing request bodies
-Sometimes you’ll want to write requests which have a body, or perhaps you want to write headers to a request before sending it.
+#### 编写请求主体
+有时，您可能希望写入具有正文的请求，或者在发送请求之前希望写入请求头。
 
-To do this you can call one of the specific request methods such as `post` or one of the general purpose request methods such as `request`.
+为此，您可以调用一种特定的请求方法（例如`post`）或一种通用请求方法（例如`request`）。
 
-These methods don’t send the request immediately, but instead return an instance of `HttpClientRequest` which can be used to write to the request body or write headers.
+这些方法不会立即发送请求，而是返回HttpClientRequest的实例，该实例可用于写入请求正文或写入标头。
 
-Here are some examples of writing a POST request with a body: m
+以下是使用正文编写POST请求的一些示例：
 
-```
+```groovy
 def client = vertx.createHttpClient()
 
 def request = client.post("some-uri", { response ->
@@ -3422,9 +3434,9 @@ client.post("some-uri", { response ->
 }).putHeader("content-type", "text/plain").end(body)
 ```
 
-Methods exist to write strings in UTF-8 encoding and in any specific encoding and to write buffers:
+存在使用UTF-8编码和任何特定编码写入字符串以及写入缓冲区的方法：
 
-```
+```groovy
 // Write string encoded in UTF-8
 request.write("some data")
 
@@ -3437,9 +3449,9 @@ buffer.appendInt(123).appendLong(245L)
 request.write(buffer)
 ```
 
-If you are just writing a single string or buffer to the HTTP request you can write it and end the request in a single call to the `end` function.
+如果您只是向HTTP请求写入单个字符串或缓冲区，则可以编写该字符串或缓冲区，并在一次对`end`函数的调用中结束该请求。
 
-```
+```groovy
 // Write string and end the request (send it) in a single call
 request.end("some simple data")
 
@@ -3448,57 +3460,57 @@ def buffer = Buffer.buffer().appendDouble(12.34d).appendLong(432L)
 request.end(buffer)
 ```
 
-When you’re writing to a request, the first call to `write` will result in the request headers being written out to the wire.
+当您写入请求时，第一次调用`write`会导致请求标头被写到线路中。
 
-The actual write is asynchronous and might not occur until some time after the call has returned.
+实际的写入是异步的，并且可能要等到调用返回后的一段时间才能发生。
 
-Non-chunked HTTP requests with a request body require a `Content-Length` header to be provided.
+带有请求体的非分块HTTP请求需要提供一个`Content-Length`报头。
 
-Consequently, if you are not using chunked HTTP then you must set the `Content-Length` header before writing to the request, as it will be too late otherwise.
+因此，如果您不使用chunked HTTP，那么您必须在写入请求之前设置`Content-Length`报头，否则就太晚了。
 
-If you are calling one of the `end` methods that take a string or buffer then Vert.x will automatically calculate and set the `Content-Length` header before writing the request body.
+如果您正在调用采用字符串或缓冲区的`end`方法之一，则Vert.x将在写入请求主体之前自动计算并设置`Content-Length`标头。
 
-If you are using HTTP chunking a a `Content-Length` header is not required, so you do not have to calculate the size up-front.
+如果您使用HTTP分块，则不需要`Content-Length`标头，因此不必预先计算大小。
 
-#### Writing request headers
-You can write headers to a request using the `headers` multi-map as follows:
+#### 编写请求标头
+您可以使用`headers` multi-map将标头写入请求，如下所示：
 
-```
+```groovy
 // Write some headers using the headers() multimap
 
 def headers = request.headers()
 headers.set("content-type", "application/json").set("other-header", "foo")
 ```
 
-The headers are an instance of `MultiMap` which provides operations for adding, setting and removing entries. Http headers allow more than one value for a specific key.
+标题是`MultiMap`的实例，它提供添加，设置和删除条目的操作。 Http标头为特定键允许多个值。
 
-You can also write headers using `putHeader`
+您也可以使用`putHeader`来写标题
 
-```
+```groovy
 // Write some headers using the putHeader method
 
 request.putHeader("content-type", "application/json").putHeader("other-header", "foo")
 ```
 
-If you wish to write headers to the request you must do so before any part of the request body is written.
+如果您希望将标头写入请求，则必须在写入请求正文的任何部分之前这样做。
 
-#### Non standard HTTP methods
-The `OTHER` HTTP method is used for non standard methods, when this method is used, `setRawMethod` must be used to set the raw method to send to the server.
+#### 非标准HTTP方法
+HTTP方法的`OTHER`用于非标准方法，使用此方法时，必须使用`setRawMethod`来设置要发送到服务器的原始方法。
 
-#### Ending HTTP requests
-Once you have finished with the HTTP request you must end it with one of the `end` operations.
+#### 结束HTTP请求
+完成HTTP请求后，必须以`end`操作之一结束它。
 
-Ending a request causes any headers to be written, if they have not already been written and the request to be marked as complete.
+结束请求将导致写入所有标头（如果尚未写入标头）并将请求标记为已完成。
 
-Requests can be ended in several ways. With no arguments the request is simply ended:
+请求可以通过几种方式结束。 没有参数，请求就简单地结束了：
 
-```
+```groovy
 request.end()
 ```
 
-Or a string or buffer can be provided in the call to `end`. This is like calling `write` with the string or buffer before calling `end` with no arguments
+或者可以在对`end`的调用中提供字符串或缓冲区。 这就像在调用不带参数的`end`之前用字符串或缓冲区调用`write`一样
 
-```
+```groovy
 // End the request with a string
 request.end("some-data")
 
@@ -3507,16 +3519,16 @@ def buffer = Buffer.buffer().appendFloat(12.3f).appendInt(321)
 request.end(buffer)
 ```
 
-#### Chunked HTTP requests
-Vert.x supports [HTTP Chunked Transfer Encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) for requests.
+#### 分块的HTTP请求
+Vert.x支持[HTTP块传输编码](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) 。
 
-This allows the HTTP request body to be written in chunks, and is normally used when a large request body is being streamed to the server, whose size is not known in advance.
+这允许将HTTP请求主体分块编写，并且通常在将大型请求主体流式传输到服务器（事先不知道其大小）时使用。
 
-You put the HTTP request into chunked mode using `setChunked`.
+您可以使用`setChunked`将HTTP请求置于分块模式。
 
-In chunked mode each call to write will cause a new chunk to be written to the wire. In chunked mode there is no need to set the `Content-Length` of the request up-front.
+在分块模式下，每次写调用都将导致将一个新的分块写入线路。 在分块模式下，无需预先设置请求的`Content-Length`。
 
-```
+```groovy
 request.setChunked(true)
 
 // Write some chunks
@@ -3527,15 +3539,15 @@ request.setChunked(true)
 request.end()
 ```
 
-#### Request timeouts
-You can set a timeout for a specific http request using `setTimeout`.
+#### 请求超时
+您可以使用`setTimeout`为特定的HTTP请求设置超时。
 
-If the request does not return any data within the timeout period an exception will be passed to the exception handler (if provided) and the request will be closed.
+如果请求在超时时间内未返回任何数据，则将异常传递给异常处理程序（如果提供），并且该请求将被关闭。
 
-#### Handling exceptions
-You can handle exceptions corresponding to a request by setting an exception handler on the `HttpClientRequest` instance:
+#### 处理异常
+您可以通过在`HttpClientRequest`实例上设置异常处理程序来处理与请求相对应的异常：
 
-```
+```groovy
 def request = client.post("some-uri", { response ->
   println("Received response with status code ${response.statusCode()}")
 })
@@ -3545,9 +3557,9 @@ request.exceptionHandler({ e ->
 })
 ```
 
-This does not handle non *2xx* response that need to be handled in the `HttpClientResponse` code:
+这不会处理需要在`HttpClientResponse`代码中处理的非*2xx*响应：
 
-```
+```groovy
 def request = client.post("some-uri", { response ->
   if (response.statusCode() == 200) {
     println("Everything fine")
@@ -3561,26 +3573,27 @@ def request = client.post("some-uri", { response ->
 request.end()
 ```
 
-| IMPORTANT | `XXXNow` methods cannot receive an exception handler. |
-| --------- | ----------------------------------------------------- |
-|           |                                                       |
+------
+> **重要:** `XXXNow`方法不能接收异常处理程序。
+>
+------
 
-#### Specifying a handler on the client request
-Instead of providing a response handler in the call to create the client request object, alternatively, you can not provide a handler when the request is created and set it later on the request object itself, using `handler`, for example:
+#### 在客户端请求上指定处理程序
+或者，除了在创建客户端请求对象的调用中提供响应处理程序之外，还不能在创建请求时提供处理程序，以后再使用`handler`在请求对象本身上进行设置，例如：
 
-```
+```groovy
 def request = client.post("some-uri")
 request.handler({ response ->
   println("Received response with status code ${response.statusCode()}")
 })
 ```
 
-#### Using the request as a stream
-The `HttpClientRequest` instance is also a `WriteStream` which means you can pump to it from any `ReadStream` instance.
+#### 将请求用作流
+`HttpClientRequest`实例也是一个`WriteStream`，这意味着您可以从任何`ReadStream`实例中将其泵入。
 
-For, example, you could pump a file on disk to a http request body as follows:
+例如，可以将磁盘上的文件泵送到http请求正文，如下所示：
 
-```
+```groovy
 request.setChunked(true)
 def pump = Pump.pump(file, request)
 file.endHandler({ v ->
@@ -3589,12 +3602,12 @@ file.endHandler({ v ->
 pump.start()
 ```
 
-#### Writing HTTP/2 frames
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 编写HTTP/2帧
+HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
-To send such frames, you can use the `write` on the request. Here’s an example:
+要发送这样的帧，您可以对请求使用`write`。这里有一个例子:
 
-```
+```groovy
 def frameType = 40
 def frameStatus = 10
 def payload = Buffer.buffer("some data")
@@ -3603,26 +3616,26 @@ def payload = Buffer.buffer("some data")
 request.writeCustomFrame(frameType, frameStatus, payload)
 ```
 
-#### Stream reset
-HTTP/1.x does not allow a clean reset of a request or a response stream, for example when a client uploads a resource already present on the server, the server needs to accept the entire response.
+#### 流重置
+HTTP/1.x不允许对请求或响应流进行干净的重置，例如，当客户机上传服务器上已经存在的资源时，服务器需要接受整个响应。
 
-HTTP/2 supports stream reset at any time during the request/response:
+HTTP/2支持在请求/响应期间的任何时间进行流重置：
 
-```
+```groovy
 request.reset()
 ```
 
-By default the NO_ERROR (0) error code is sent, another code can sent instead:
+默认情况下NO_ERROR(0)错误代码被发送，另一个代码可以被发送:
 
-```
+```groovy
 request.reset(8)
 ```
 
-The HTTP/2 specification defines the list of [error codes](http://httpwg.org/specs/rfc7540.html#ErrorCodes) one can use.
+HTTP/2规范定义了可以使用的[错误代码](http://httpwg.org/specs/rfc7540.html#ErrorCodes)列表。
 
-The request handler are notified of stream reset events with the `request handler` and `response handler`:
+使用`request handler`和`response handler`将流重置事件通知给请求处理程序：
 
-```
+```groovy
 request.exceptionHandler({ err ->
   if (err instanceof io.vertx.core.http.StreamResetException) {
     def reset = err
@@ -3636,7 +3649,7 @@ You receive an instance of `HttpClientResponse` into the handler that you specif
 
 You can query the status code and the status message of the response with `statusCode` and `statusMessage`.
 
-```
+```groovy
 client.getNow("some-uri", { response ->
   // the status code - e.g. 200 or 404
   println("Status code is ${response.statusCode()}")
@@ -3654,7 +3667,7 @@ Http responses can contain headers. Use `headers` to get the headers.
 
 The object returned is a `MultiMap` as HTTP headers can contain multiple values for single keys.
 
-```
+```groovy
 def contentType = response.headers().get("content-type")
 def contentLength = response.headers().get("content-lengh")
 ```
@@ -3670,7 +3683,7 @@ If the response has a body this might arrive in several pieces some time after t
 
 As parts of the response body arrive, the `handler` is called with a `Buffer` representing the piece of the body:
 
-```
+```groovy
 client.getNow("some-uri", { response ->
 
   response.handler({ buffer ->
@@ -3681,7 +3694,7 @@ client.getNow("some-uri", { response ->
 
 If you know the response body is not very large and want to aggregate it all in memory before handling it, you can either aggregate it yourself:
 
-```
+```groovy
 client.getNow("some-uri", { response ->
 
   // Create an empty buffer
@@ -3702,7 +3715,7 @@ client.getNow("some-uri", { response ->
 
 Or you can use the convenience `bodyHandler` which is called with the entire body when the response has been fully read:
 
-```
+```groovy
 client.getNow("some-uri", { response ->
 
   response.bodyHandler({ totalBuffer ->
