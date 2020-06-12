@@ -4157,7 +4157,7 @@ connection.remoteSettingsHandler(settings -> {
 
 <a name="203_____连接_ping"></a>
 #### 连接 ping
-HTTP/2连接ping对确定连接往返时间或检查连接有效性很有用：ping将{@literal PING}帧发送到远程端点：
+HTTP/2连接`ping`对确定连接往返时间或检查连接有效性很有用：`ping`将`{@literal PING}`帧发送到远程端点：
 
 ```java
 Buffer data = Buffer.buffer();
@@ -4169,7 +4169,7 @@ connection.ping(data, pong -> {
 });
 ```
 
-当收到{@literal PING}帧时，Vert.x会自动发送确认，可以将处理程序设置为针对每次收到的ping通知：
+当收到`{@literal PING}`帧时，Vert.x会自动发送确认，可以将处理程序设置为针对每次收到的ping通知：
 
 ```java
 connection.pingHandler(ping -> {

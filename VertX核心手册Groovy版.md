@@ -3644,10 +3644,10 @@ request.exceptionHandler({ err ->
 })
 ```
 
-### Handling HTTP responses
-You receive an instance of `HttpClientResponse` into the handler that you specify in of the request methods or by setting a handler directly on the `HttpClientRequest` object.
+### 处理HTTP响应
+您会在请求方法中指定的处理程序中收到`HttpClientResponse`的实例，或者直接在`HttpClientRequest`对象上设置处理程序。
 
-You can query the status code and the status message of the response with `statusCode` and `statusMessage`.
+您可以使用`statusCode`和`statusMessage`查询响应的状态码和状态消息。
 
 ```groovy
 client.getNow("some-uri", { response ->
@@ -3659,29 +3659,29 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-#### Using the response as a stream
-The `HttpClientResponse` instance is also a `ReadStream` which means you can pump it to any `WriteStream` instance.
+#### 将响应作为流使用
+`HttpClientResponse`实例也是一个`ReadStream`，这意味着你可以把它泵到任何`WriteStream`实例。
 
-#### Response headers and trailers
-Http responses can contain headers. Use `headers` to get the headers.
+#### 响应头和trailers(尾部)
+Http响应可以包含标头。使用`headers`获取标头。
 
-The object returned is a `MultiMap` as HTTP headers can contain multiple values for single keys.
+返回的对象是一个`MultiMap`，因为HTTP头文件可以包含单个键的多个值。
 
 ```groovy
 def contentType = response.headers().get("content-type")
 def contentLength = response.headers().get("content-lengh")
 ```
 
-Chunked HTTP responses can also contain trailers - these are sent in the last chunk of the response body.
+块状HTTP响应也可以包含trailers尾部-这些尾部在响应主体的最后一块发送。
 
-You use `trailers` to get the trailers. Trailers are also a `MultiMap`.
+您可以使用`trailers`来获取Trailers。 Trailers也是`MultiMap`。
 
-#### Reading the request body
-The response handler is called when the headers of the response have been read from the wire.
+#### 读取请求正文
+当从连线读取响应的标头时，将调用响应处理程序。
 
-If the response has a body this might arrive in several pieces some time after the headers have been read. We don’t wait for all the body to arrive before calling the response handler as the response could be very large and we might be waiting a long time, or run out of memory for large responses.
+如果响应有一个主体，那么它可能在读取标题之后的一段时间内以几部分的形式到达。我们不会在调用响应处理程序之前等待所有主体的到来，因为响应可能非常大，我们可能要等待很长时间，或者耗尽内存来处理较大的响应。
 
-As parts of the response body arrive, the `handler` is called with a `Buffer` representing the piece of the body:
+当响应体的一部分到达时，调用`handler`，并用`Buffer`表示响应体的一部分:
 
 ```groovy
 client.getNow("some-uri", { response ->
@@ -3692,7 +3692,7 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-If you know the response body is not very large and want to aggregate it all in memory before handling it, you can either aggregate it yourself:
+如果您知道响应体不是非常大，并希望在处理它之前在内存中聚合它，您可以自己聚合它:
 
 ```groovy
 client.getNow("some-uri", { response ->
@@ -3713,7 +3713,7 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-Or you can use the convenience `bodyHandler` which is called with the entire body when the response has been fully read:
+或者，您可以使用便捷的`bodyHandler`，当完全读取响应后，将在整个正文中调用它：
 
 ```groovy
 client.getNow("some-uri", { response ->
@@ -3725,31 +3725,31 @@ client.getNow("some-uri", { response ->
 })
 ```
 
-#### Response end handler
-The response `endHandler` is called when the entire response body has been read or immediately after the headers have been read and the response handler has been called if there is no body.
+#### 响应结束处理程序
+当读取了整个响应主体时，或者在读取标头之后立即调用响应`endHandler`，如果没有主体则调用响应处理程序。
 
-#### Reading cookies from the response
-You can retrieve the list of cookies from a response using `cookies`.
+#### 从响应中读取Cookie
+您可以使用`cookies`来从响应中检索Cookie列表。
 
-Alternatively you can just parse the `Set-Cookie` headers yourself in the response.
+另外，您也可以在响应中自己解析`Set-Cookie`标头。
 
-#### 30x redirection handling
-The client can be configured to follow HTTP redirections provided by the `Location` response header when the client receives:
+#### 30x重定向处理
+当客户端收到以下消息时，可以将客户端配置为遵循`Location`响应标头提供的HTTP重定向：
 
-- a `301`, `302`, `307` or `308` status code along with a HTTP GET or HEAD method
-- a `303` status code, in addition the directed request perform an HTTP GET methodn
+- 一个`301`、`302`、`307`或`308`状态码，以及HTTP GET或HEAD方法
+- 一个`303`状态码，另外定向请求执行一个HTTP GET方法
 
-Here’s an example:
+这里有一个例子:
 
-```
+```groovy
 client.get("some-uri", { response ->
   println("Received response with status code ${response.statusCode()}")
 }).setFollowRedirects(true).end()
 ```
 
-The maximum redirects is `16` by default and can be changed with `setMaxRedirects`.
+默认情况下，最大重定向数为`16`，可以通过`setMaxRedirects`进行更改。
 
-```
+```groovy
 def client = vertx.createHttpClient([
   maxRedirects:32
 ])
@@ -3759,11 +3759,11 @@ client.get("some-uri", { response ->
 }).setFollowRedirects(true).end()
 ```
 
-One size does not fit all and the default redirection policy may not be adapted to your needs.
+一种尺寸不能满足所有需求，并且默认重定向策略可能无法满足您的需求。
 
-The default redirection policy can changed with a custom implementation:
+可以使用定制实现来更改默认重定向策略：
 
-```
+```groovy
 client.redirectHandler({ response ->
 
   // Only follow 301 code
@@ -3781,38 +3781,38 @@ client.redirectHandler({ response ->
 })
 ```
 
-The policy handles the original `HttpClientResponse` received and returns either `null` or a `Future`.
+该策略处理收到的原始`HttpClientResponse`，并返回`null`或`Future`。
 
-- when `null` is returned, the original response is processed
-- when a future is returned, the request will be sent on its successful completion
-- when a future is returned, the exception handler set on the request is called on its failure
+- 当返回`null`时，原始响应被处理
+- 当返回future时，请求将在成功完成后发送
+- 当返回future时，在请求失败时调用在请求上设置的异常处理程序
 
-The returned request must be unsent so the original request handlers can be sent and the client can send it after.
+返回的请求必须未发送，以便可以发送原始请求处理程序，并且客户端可以在之后发送它。
 
-Most of the original request settings will be propagated to the new request:
+大多数原始请求设置将传播到新请求：
 
-- request headers, unless if you have set some headers (including `setHost`)
-- request body unless the returned request uses a `GET` method
-- response handler
-- request exception handler
-- request timeout
+- 请求标头，除非您设置了一些标头（包括`SetHost`）
+- 请求主体，除非返回的请求使用`GET`方法
+- 响应处理程序
+- 请求异常处理程序
+- 请求超时
 
-#### 100-Continue handling
-According to the [HTTP 1.1 specification](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) a client can set a header `Expect: 100-Continue` and send the request header before sending the rest of the request body.
+#### 100-继续处理
+根据[HTTP 1.1规范](https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) ，客户端可以设置标头`Expect: 100-Continue` ,并在发送请求标头之前发送请求正文的其余部分。
 
-The server can then respond with an interim response status `Status: 100 (Continue)` to signify to the client that it is ok to send the rest of the body.
+然后，服务器可以使用临时响应状态`Status: 100 (Continue)` 来响应，以向客户端表示可以发送主体的其余部分。
 
-The idea here is it allows the server to authorise and accept/reject the request before large amounts of data are sent. Sending large amounts of data if the request might not be accepted is a waste of bandwidth and ties up the server in reading data that it will just discard.
+这里的想法是，它允许服务器在发送大量数据之前对请求进行授权和接受/拒绝。如果请求可能不被接受，则发送大量数据是对带宽的浪费，并且会使服务器无法读取它将丢弃的数据。
 
-Vert.x allows you to set a `continueHandler` on the client request object
+Vert.x允许您在客户端请求对象上设置`continueHandler`
 
-This will be called if the server sends back a `Status: 100 (Continue)` response to signify that it is ok to send the rest of the request.
+如果服务器发回`Status: 100 (Continue)`响应以表示可以发送其余请求，则将调用此方法。
 
-This is used in conjunction with `[sendHead](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpClientRequest.html#sendHead--)`to send the head of the request.
+它与`[sendHead](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpClientRequest.html#sendHead--)`结合使用，以发送请求的头部。
 
-Here’s an example:
+这是一个例子：
 
-```
+```groovy
 def request = client.put("some-uri", { response ->
   println("Received response with status code ${response.statusCode()}")
 })
@@ -3827,13 +3827,13 @@ request.continueHandler({ v ->
 })
 ```
 
-On the server side a Vert.x http server can be configured to automatically send back 100 Continue interim responses when it receives an `Expect: 100-Continue` header.
+在服务器端，可以将Vert.x http服务器配置为在收到`Expect: 100-Continue`标头时自动发送回100 Continue临时响应。
 
-This is done by setting the option `setHandle100ContinueAutomatically`.
+这是通过设置选项`setHandle100ContinueAutomatically`完成的。
 
-If you’d prefer to decide whether to send back continue responses manually, then this property should be set to `false` (the default), then you can inspect the headers and call `writeContinue` to have the client continue sending the body:
+如果您希望决定是否手动发送回继续响应，则应将此属性设置为`false`（默认值），然后可以检查标头并调用`writeContinue`以使客户端继续发送正文：
 
-```
+```groovy
 httpServer.requestHandler({ request ->
   if (request.getHeader("Expect").equalsIgnoreCase("100-Continue")) {
 
@@ -3852,9 +3852,9 @@ httpServer.requestHandler({ request ->
 })
 ```
 
-You can also reject the request by sending back a failure status code directly: in this case the body should either be ignored or the connection should be closed (100-Continue is a performance hint and cannot be a logical protocol constraint):
+你也可以通过直接发送一个失败状态代码来拒绝请求:在这种情况下，要么忽略正文，要么关闭连接(100-Continue是一个性能提示，不能是逻辑协议约束):
 
-```
+```groovy
 httpServer.requestHandler({ request ->
   if (request.getHeader("Expect").equalsIgnoreCase("100-Continue")) {
 
@@ -3875,12 +3875,12 @@ httpServer.requestHandler({ request ->
 })
 ```
 
-#### Client push
-Server push is a new feature of HTTP/2 that enables sending multiple responses in parallel for a single client request.
+#### 客户端推送
+服务器推送是HTTP/2的一个新特性，它支持为单个客户机请求并发发送多个响应。
 
-A push handler can be set on a request to receive the request/response pushed by the server:
+可以在请求上设置推送处理程序，以接收服务器推送的请求/响应：
 
-```
+```groovy
 def request = client.get("/index.html", { response ->
   // Process index.html response
 })
@@ -3901,9 +3901,9 @@ request.pushHandler({ pushedRequest ->
 request.end()
 ```
 
-If the client does not want to receive a pushed request, it can reset the stream:
+如果客户端不想接收推送的请求，则可以重置流：
 
-```
+```groovy
 request.pushHandler({ pushedRequest ->
   if (pushedRequest.path() == "/main.js") {
     pushedRequest.reset()
@@ -3913,81 +3913,81 @@ request.pushHandler({ pushedRequest ->
 })
 ```
 
-When no handler is set, any stream pushed will be automatically cancelled by the client with a stream reset (`8` error code).
+如果未设置任何处理程序，则推送的任何流都将由客户端通过流重置（“ 8”错误代码）自动取消。
 
-#### Receiving custom HTTP/2 frames
-HTTP/2 is a framed protocol with various frames for the HTTP request/response model. The protocol allows other kind of frames to be sent and received.
+#### 接收自定义HTTP/2帧
+HTTP/2是一个框架协议，具有用于HTTP请求/响应模型的各种框架。该协议允许发送和接收其他类型的帧。
 
-To receive custom frames, you can use the customFrameHandler on the request, this will get called every time a custom frame arrives. Here’s an example:
+要接收自定义帧，您可以对请求使用customFrameHandler，它将在每次自定义帧到达时被调用。这里有一个例子:
 
-```
+```groovy
 response.customFrameHandler({ frame ->
 
   println("Received a frame type=${frame.type()} payload${frame.payload().toString()}")
 })
 ```
 
-### Enabling compression on the client
-The http client comes with support for HTTP Compression out of the box.
+### 在客户端上启用压缩
+http客户端开箱即用地支持HTTP压缩。
 
-This means the client can let the remote http server know that it supports compression, and will be able to handle compressed response bodies.
+这意味着客户端可以让远程http服务器知道它支持压缩，并且能够处理压缩的响应主体。
 
-An http server is free to either compress with one of the supported compression algorithms or to send the body back without compressing it at all. So this is only a hint for the Http server which it may ignore at will.
+http服务器可以随意使用一种受支持的压缩算法进行压缩，也可以将主体发送回而不进行任何压缩。 因此，这只是对它可能会随意忽略的Http服务器的提示。
 
-To tell the http server which compression is supported by the client it will include an `Accept-Encoding` header with the supported compression algorithm as value. Multiple compression algorithms are supported. In case of Vert.x this will result in the following header added:
-
+为了告诉http服务器客户端支持哪种压缩，它将包括一个`Accept-Encoding`标头，并将其支持的压缩算法作为值。 支持多种压缩算法。 如果是Vert.x，将导致添加以下标头：
+```javascript
 Accept-Encoding: gzip, deflate
-
-The server will choose then from one of these. You can detect if a server ompressed the body by checking for the `Content-Encoding` header in the response sent back from it.
-
-If the body of the response was compressed via gzip it will include for example the following header:
-
-Content-Encoding: gzip
-
-To enable compression set `setTryUseCompression` on the options used when creating the client.
-
-By default compression is disabled.
-
-### HTTP/1.x pooling and keep alive
-Http keep alive allows http connections to be used for more than one request. This can be a more efficient use of connections when you’re making multiple requests to the same server.
-
-For HTTP/1.x versions, the http client supports pooling of connections, allowing you to reuse connections between requests.
-
-For pooling to work, keep alive must be true using `setKeepAlive` on the options used when configuring the client. The default value is true.
-
-When keep alive is enabled. Vert.x will add a `Connection: Keep-Alive` header to each HTTP/1.0 request sent. When keep alive is disabled. Vert.x will add a `Connection: Close` header to each HTTP/1.1 request sent to signal that the connection will be closed after completion of the response.
-
-The maximum number of connections to pool **for each server** is configured using `setMaxPoolSize`
-
-When making a request with pooling enabled, Vert.x will create a new connection if there are less than the maximum number of connections already created for that server, otherwise it will add the request to a queue.
-
-Keep alive connections will be closed by the client automatically after a timeout. The timeout can be specified by the server using the `keep-alive` header:
-
 ```
+然后，服务器将从其中之一中进行选择。 您可以通过检查服务器发回的响应中的`Content-Encoding`标头来检测服务器是否压缩了正文。
+
+如果响应的主体是通过gzip压缩的，则它将包含例如以下标头：
+```javascript
+Content-Encoding: gzip
+```
+要启用压缩，请在创建客户端时使用的选项上设置`setTryUseCompression`。
+
+默认情况下禁用压缩。
+
+### HTTP/1.x 连接池 和 保持活动状态
+Http保持活动状态允许将HTTP连接用于多个请求。 当您向同一服务器发出多个请求时，可以更有效地使用连接。
+
+对于HTTP / 1.x版本，http客户端支持连接池，从而允许您在请求之间重用连接。
+
+为了使池工作，必须在配置客户端时在选项上使用`setKeepAlive`来保持活动。 默认值是true。
+
+启用保持活动状态时。 Vert.x将向每个发送的HTTP / 1.0请求添加一个`Connection: Keep-Alive`标头。 保持活动状态时被禁用。 Vert.x将在每个发送的HTTP / 1.1请求中添加一个`Connection: Close`标头，以表明响应完成后将关闭连接。
+
+使用`setMaxPoolSize`配置**每个服务器**池的最大连接数
+
+在启用池的情况下发出请求时，如果少于为该服务器创建的最大连接数，Vert.x将创建一个新连接，否则，会将请求添加到队列中。
+
+保持活动连接将在超时后由客户端自动关闭。 服务器可以使用`keep-alive`标头指定超时时间：
+
+```javascript
 keep-alive: timeout=30
 ```
 
-You can set the default timeout using `setKeepAliveTimeout` - any connections not used within this timeout will be closed. Please note the timeout value is in seconds not milliseconds.
+您可以使用`setKeepAliveTimeout`设置默认超时-在此超时时间内未使用的所有连接都将关闭。 请注意，超时值以秒为单位，而不是毫秒。
 
-### HTTP/1.1 pipe-lining
-The client also supports pipe-lining of requests on a connection.
+### HTTP/1.1 pipe-lining(流水线)
+客户端还支持对连接的请求进行pipe-lining。
 
-Pipe-lining means another request is sent on the same connection before the response from the preceding one has returned. Pipe-lining is not appropriate for all requests.
+Pipe-lining表示在先前的响应返回之前，在同一连接上发送了另一个请求。 Pipe-lining不适用于所有请求。
 
-To enable pipe-lining, it must be enabled using `setPipelining`. By default pipe-lining is disabled.
+要启用pipe-lining，必须使用`setPipelining`启用它。 默认情况下，pipe-lining是禁用的。
 
-When pipe-lining is enabled requests will be written to connections without waiting for previous responses to return.
+启用pipe-lining后，请求将被写入连接，而无需等待先前的响应返回。
 
-The number of pipe-lined requests over a single connection is limited by `setPipeliningLimit`. This option defines the maximum number of http requests sent to the server awaiting for a response. This limit ensures the fairness of the distribution of the client requests over the connections to the same server.
+单个连接上的pipe-lined请求数受`setPipeliningLimit`限制。 此选项定义发送到服务器等待响应的http请求的最大数量。 此限制可确保在与同一服务器的连接上分配客户端请求的公平性。
 
-### HTTP/2 multiplexing
-HTTP/2 advocates to use a single connection to a server, by default the http client uses a single connection for each server, all the streams to the same server are multiplexed over the same connection.
+### HTTP/2 多路复用
+HTTP/2提倡使用与服务器的单个连接，默认情况下，http客户端对每个服务器使用一个连接，到同一服务器的所有流都在同一连接上多路复用。
 
-When the clients needs to use more than a single connection and use pooling, the `setHttp2MaxPoolSize` shall be used.
+当客户端需要使用多个连接并使用缓冲池时，应使用`setHttp2MaxPoolSize`。
 
-When it is desirable to limit the number of multiplexed streams per connection and use a connection pool instead of a single connection, `setHttp2MultiplexingLimit` can be used.
+当需要限制每个连接的多路复用流的数量并使用连接池而不是单个连接时，可以使用`setHttp2MultiplexingLimit`。
 
-```
+```groovy
 def clientOptions = [
   http2MultiplexingLimit:10,
   http2MaxPoolSize:3
@@ -3997,29 +3997,29 @@ def clientOptions = [
 def client = vertx.createHttpClient(clientOptions)
 ```
 
-The multiplexing limit for a connection is a setting set on the client that limits the number of streams of a single connection. The effective value can be even lower if the server sets a lower limit with the `SETTINGS_MAX_CONCURRENT_STREAMS` setting.
+连接的多路复用限制是在客户端上设置的一项设置，用于限制单个连接的流数。 如果服务器使用`SETTINGS_MAX_CONCURRENT_STREAMS`设置下限，则有效值甚至会更低。
 
-HTTP/2 connections will not be closed by the client automatically. To close them you can call `close` or close the client instance.
+客户端不会自动关闭HTTP/2连接。 要关闭它们，您可以调用`close`或关闭客户端实例。
 
-Alternatively you can set idle timeout using `setIdleTimeout` - any connections not used within this timeout will be closed. Please note the idle timeout value is in seconds not milliseconds.
+另外，您也可以使用`setIdleTimeout`设置空闲超时-在此超时时间内未使用的任何连接都将关闭。 请注意，空闲超时值以秒为单位，而不是毫秒。
 
-### HTTP connections
-The `HttpConnection` offers the API for dealing with HTTP connection events, lifecycle and settings.
+### HTTP 连接
+`HttpConnection`提供了用于处理HTTP连接事件，生命周期和设置的API。
 
-HTTP/2 implements fully the `HttpConnection` API.
+HTTP/2完全实现了`HttpConnection` API。
 
-HTTP/1.x implements partially the `HttpConnection` API: only the close operation, the close handler and exception handler are implemented. This protocol does not provide semantics for the other operations.
+HTTP/1.x部分实现了`HttpConnection` API：仅实现了close操作，close处理程序和异常处理程序。 该协议不提供其他操作的语义。
 
-#### Server connections
-The `connection` method returns the request connection on the server:
+#### Server 连接
+`connection`方法返回服务器上的请求连接:
 
-```
+```groovy
 def connection = request.connection()
 ```
 
-A connection handler can be set on the server to be notified of any incoming connection:
+可以在服务器上设置连接处理程序，以通知任何传入的连接：
 
-```
+```groovy
 def server = vertx.createHttpServer(http2Options)
 
 server.connectionHandler({ connection ->
@@ -4027,39 +4027,39 @@ server.connectionHandler({ connection ->
 })
 ```
 
-#### Client connections
-The `connection` method returns the request connection on the client:
+#### Client 连接
+`connection`方法在客户端上返回请求连接：
 
-```
+```groovy
 def connection = request.connection()
 ```
 
-A connection handler can be set on the request to be notified when the connection happens:
+可以在请求上设置连接处理程序，以在发生连接时通知：
 
-```
+```groovy
 request.connectionHandler({ connection ->
   println("Connected to the server")
 })
 ```
 
-#### Connection settings
-The configuration of an HTTP/2 is configured by the `Http2Settings` data object.
+#### Connection 设置
+HTTP/2的配置由`Http2Settings`数据对象配置。
 
-Each endpoint must respect the settings sent by the other side of the connection.
+每个端点都必须遵守连接另一端发送的设置。
 
-When a connection is established, the client and the server exchange initial settings. Initial settings are configured by `setInitialSettings` on the client and `setInitialSettings` on the server.
+建立连接后，客户端和服务器将交换初始设置。 初始设置由客户端上的`setInitialSettings`和服务器上的`setInitialSettings`配置。
 
-The settings can be changed at any time after the connection is established:
+建立连接后，可以随时更改设置：
 
-```
+```groovy
 connection.updateSettings([
   maxConcurrentStreams:100
 ])
 ```
 
-As the remote side should acknowledge on reception of the settings update, it’s possible to give a callback to be notified of the acknowledgment:
+由于远程端应在收到设置更新后进行确认，因此有可能向回调发送确认通知：
 
-```
+```groovy
 connection.updateSettings([
   maxConcurrentStreams:100
 ], { ar ->
@@ -4069,22 +4069,23 @@ connection.updateSettings([
 })
 ```
 
-Conversely the `remoteSettingsHandler` is notified when the new remote settings are received:
+相反，当接收到新的远程设置时，将通知`remoteSettingsHandler`：
 
-```
+```groovy
 connection.remoteSettingsHandler({ settings ->
   println("Received new settings")
 })
 ```
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** 这仅适用于HTTP/2协议
+>
+------
 
-#### Connection ping
-HTTP/2 connection ping is useful for determining the connection round-trip time or check the connection validity: `ping` sends a {@literal PING} frame to the remote endpoint:
+#### 连接 ping
+HTTP/2连接`ping`对确定连接往返时间或检查连接有效性很有用：`ping`将`{@literal PING}`帧发送到远程端点：
 
-```
+```groovy
 def data = Buffer.buffer()
 (0..<8).each { i ->
   data.appendByte(i)
@@ -4094,46 +4095,47 @@ connection.ping(data, { pong ->
 })
 ```
 
-Vert.x will send automatically an acknowledgement when a {@literal PING} frame is received, an handler can be set to be notified for each ping received:
+当收到`{@literal PING}`帧时，Vert.x会自动发送确认，可以将处理程序设置为针对每次收到的ping通知：
 
-```
+```groovy
 connection.pingHandler({ ping ->
   println("Got pinged by remote side")
 })
 ```
 
-The handler is just notified, the acknowledgement is sent whatsoever. Such feature is aimed for implementing protocols on top of HTTP/2.
+只是通知处理程序，发送确认消息。 此类功能旨在实现基于HTTP/2的协议。
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** 这仅适用于HTTP/2协议
+>
+------
 
-#### Connection shutdown and go away
-Calling `shutdown` will send a {@literal GOAWAY} frame to the remote side of the connection, asking it to stop creating streams: a client will stop doing new requests and a server will stop pushing responses. After the {@literal GOAWAY} frame is sent, the connection waits some time (30 seconds by default) until all current streams closed and close the connection:
+#### 连接关闭并消失
+调用`shutdown`会将{@literal GOAWAY}帧发送到连接的远程端，要求它停止创建流：客户端将停止发出新请求，而服务器将停止推送响应。 发送{@literal GOAWAY}帧后，连接将等待一段时间（默认为30秒），直到所有当前流关闭并关闭连接为止：
 
-```
+```groovy
 connection.shutdown()
 ```
 
-The `shutdownHandler` notifies when all streams have been closed, the connection is not yet closed.
+`shutdownHandler`通知当所有流都已关闭时，连接尚未关闭。
 
-It’s possible to just send a {@literal GOAWAY} frame, the main difference with a shutdown is that it will just tell the remote side of the connection to stop creating new streams without scheduling a connection close:
+可以只发送{@literal GOAWAY}帧，而关闭则主要区别在于它只会告诉连接的远程端停止创建新的流，而无需安排关闭连接：
 
-```
+```groovy
 connection.goAway(0)
 ```
 
-Conversely, it is also possible to be notified when {@literal GOAWAY} are received:
+反过来，也可能在收到{@literal GOAWAY}时得到通知：
 
-```
+```groovy
 connection.goAwayHandler({ goAway ->
   println("Received a go away frame")
 })
 ```
 
-The `shutdownHandler` will be called when all current streams have been closed and the connection can be closed:
+当所有当前流都已关闭并且连接可以关闭时，将调用`shutdownHandler`：
 
-```
+```groovy
 connection.goAway(0)
 connection.shutdownHandler({ v ->
 
@@ -4142,55 +4144,55 @@ connection.shutdownHandler({ v ->
 })
 ```
 
-This applies also when a {@literal GOAWAY} is received.
+当收到{@literal GOAWAY}时，这也适用。
 
-| NOTE | this only applies to the HTTP/2 protocol |
-| ---- | ---------------------------------------- |
-|      |                                          |
+------
+> **注意:** this only applies to the HTTP/2 protocol
+>
+------
 
-#### Connection close
-Connection `close` closes the connection:
+#### 连接关闭
+连接 `close` 关闭连接:
 
-- it closes the socket for HTTP/1.x
-- a shutdown with no delay for HTTP/2, the {@literal GOAWAY} frame will still be sent before the connection is closed. *
+- 它关闭HTTP/1.x的套接字
+- 如果关闭HTTP/2没有任何延迟，则在关闭连接之前仍将发送{@literal GOAWAY}帧。 
 
-The `closeHandler` notifies when a connection is closed.
+`closeHandler`通知连接何时关闭。
 
-### HttpClient usage
-The HttpClient can be used in a Verticle or embedded.
+### HttpClient 用法
+HttpClient可以在Vertical或嵌入式中使用。
 
-When used in a Verticle, the Verticle **should use its own client instance**.
+在Verticle中使用时，Verticle**应该使用其自己的客户端实例**。
 
-More generally a client should not be shared between different Vert.x contexts as it can lead to unexpected behavior.
+通常，不应在不同的Vert.x上下文之间共享客户端，因为它可能导致意外行为。
 
-For example a keep-alive connection will call the client handlers on the context of the request that opened the connection, subsequent requests will use the same context.
+例如，保持连接将在打开连接的请求的上下文中调用客户端处理程序，后续请求将使用相同的上下文。
 
-When this happen Vert.x detects it and log a warn:
+发生这种情况时，Vert.x会检测到并记录警告：
 
 ```
 Reusing a connection with a different context: an HttpClient is probably shared between different Verticles
 ```
 
-The HttpClient can be embedded in a non Vert.x thread like a unit test or a plain java `main`: the client handlers will be called by different Vert.x threads and contexts, such contexts are created as needed. For production this usage is not recommended.
+HttpClient可以嵌入在非Vert.x线程中，例如单元测试或普通的Java`main`：客户端处理程序将由不同的Vert.x线程和上下文调用，此类上下文是根据需要创建的。 对于生产，不建议使用此用法。
 
 ### Server sharing
-When several HTTP servers listen on the same port, vert.x orchestrates the request handling using a round-robin strategy.
+Server 共享
+当多个HTTP服务器在同一端口上侦听时，vert.x使用循环策略来协调请求处理。
 
-Let’s take a verticle creating a HTTP server such as:
+让我们使用verticle创建一个HTTP服务器，如:`io.vertx.examples.http.sharing.HttpServerVerticle`
 
-io.vertx.examples.http.sharing.HttpServerVerticle
-
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
   request.response().end("Hello from server ${this}")
 }).listen(8080)
 ```
 
-This service is listening on the port 8080. So, when this verticle is instantiated multiple times as with: `vertx run io.vertx.examples.http.sharing.HttpServerVerticle -instances 2`, what’s happening ? If both verticles would bind to the same port, you would receive a socket exception. Fortunately, vert.x is handling this case for you. When you deploy another server on the same host and port as an existing server it doesn’t actually try and create a new server listening on the same host/port. It binds only once to the socket. When receiving a request it calls the server handlers following a round robin strategy.
+该服务正在8080端口上侦听。那么，当verticle被多次实例化时，例如：`vertx run io.vertx.examples.http.sharing.HttpServerVerticle -instances 2`，这是怎么回事？ 如果两个verticle都绑定到同一端口，则会收到套接字异常。幸运的是，vert.x正在为您处理这种情况。 当您在与现有服务器相同的主机和端口上部署另一台服务时，实际上并不会尝试创建在同一主机/端口上侦听的新服务器。 它仅绑定一次到套接字。 收到请求后，它将遵循循环策略来调用服务器处理程序。
 
-Let’s now imagine a client such as:
+现在，假设有一个客户端，例如：
 
-```
+```groovy
 vertx.setPeriodic(100, { l ->
   vertx.createHttpClient().getNow(8080, "localhost", "/", { resp ->
     resp.bodyHandler({ body ->
@@ -4200,7 +4202,7 @@ vertx.setPeriodic(100, { l ->
 })
 ```
 
-Vert.x delegates the requests to one of the server sequentially:
+Vert.x将请求顺序地委派给其中一台服务器：
 
 ```
 Hello from i.v.e.h.s.HttpServerVerticle@1
@@ -4210,16 +4212,16 @@ Hello from i.v.e.h.s.HttpServerVerticle@2
 ...
 ```
 
-Consequently the servers can scale over available cores while each Vert.x verticle instance remains strictly single threaded, and you don’t have to do any special tricks like writing load-balancers in order to scale your server on your multi-core machine.
+因此，服务器可以扩展可用内核，而每个Vert.x Verticle实例严格保持单线程运行，并且无需执行任何特殊技巧即可编写负载平衡器，从而在多核计算机上扩展服务器。
 
-### Using HTTPS with Vert.x
-Vert.x http servers and clients can be configured to use HTTPS in exactly the same way as net servers.
+### 将HTTPS与Vert.x一起使用
+可以将Vert.x http服务器和客户端配置为以与网络服务器完全相同的方式使用HTTPS。
 
-Please see [configuring net servers to use SSL](https://vertx.io/docs/vertx-core/groovy/#ssl) for more information.
+有关更多信息，请参见[配置网络服务器以使用SSL](https://vertx.io/docs/vertx-core/java/#ssl)。
 
-SSL can also be enabled/disabled per request with `RequestOptions` or when specifying a scheme with `requestAbs` method.
+还可以使用`RequestOptions`或通过使用`requestAbs`方法指定方案时启用/禁用SSL。
 
-```
+```groovy
 client.getNow([
   host:"localhost",
   port:8080,
@@ -4230,42 +4232,42 @@ client.getNow([
 })
 ```
 
-The `setSsl` setting acts as the default client setting.
+`setSsl`设置用作默认客户端设置。
 
-The `setSsl` overrides the default client setting
+`setSsl`覆盖默认的客户端设置
 
-- setting the value to `false` will disable SSL/TLS even if the client is configured to use SSL/TLS
-- setting the value to `true` will enable SSL/TLS even if the client is configured to not use SSL/TLS, the actual client SSL/TLS (such as trust, key/certificate, ciphers, ALPN, …) will be reused
+- 将值设置为`false`将禁用SSL/TLS，即使将客户端配置为使用SSL/TLS
+- 将值设置为`true`将启用SSL/TLS，即使将客户端配置为不使用SSL/TLS，实际的客户端SSL/TLS（例如信任，密钥/证书，密码，ALPN等）也将被重用
 
-Likewise `requestAbs` scheme also overrides the default client setting.
+同样，`requestAbs`方案也将覆盖默认的客户端设置。
 
-#### Server Name Indication (SNI)
-Vert.x http servers can be configured to use SNI in exactly the same way as {@linkplain io.vertx.core.net net servers}.
+#### 服务器名称指示 (SNI)
+可以将Vert.x http服务器配置为使用{@linkplain io.vertx.core.net 网络服务器}完全相同的方式来使用SNI。
 
-Vert.x http client will present the actual hostname as *server name* during the TLS handshake.
+Vert.x http客户端将在TLS握手期间将实际的主机名显示为*服务器名*。
 
 ### WebSockets
-[WebSockets](https://en.wikipedia.org/wiki/WebSocket) are a web technology that allows a full duplex socket-like connection between HTTP servers and HTTP clients (typically browsers).
+[WebSockets](https://en.wikipedia.org/wiki/WebSocket)是一种Web技术，它允许HTTP服务器和HTTP客户端（通常是浏览器）之间的全双工套接字式连接。
 
-Vert.x supports WebSockets on both the client and server-side.
+Vert.x在客户端和服务器端都支持WebSocket。
 
-#### WebSockets on the server
-There are two ways of handling WebSockets on the server side.
+#### 服务器上的WebSocket
+在服务器端有两种处理WebSocket的方法。
 
-##### WebSocket handler
-The first way involves providing a `websocketHandler` on the server instance.
+##### WebSocket处理程序
+第一种方法涉及在服务器实例上提供一个`websocketHandler`。
 
-When a WebSocket connection is made to the server, the handler will be called, passing in an instance of `ServerWebSocket`.
+当与服务器建立WebSocket连接时，将调用处理程序，并传入一个`ServerWebSocket`实例。
 
-```
+```groovy
 server.websocketHandler({ websocket ->
   println("Connected!")
 })
 ```
 
-You can choose to reject the WebSocket by calling `reject`.
+您可以通过调用`reject`选择拒绝WebSocket。
 
-```
+```groovy
 server.websocketHandler({ websocket ->
   if (websocket.path() == "/myapi") {
     websocket.reject()
@@ -4275,9 +4277,9 @@ server.websocketHandler({ websocket ->
 })
 ```
 
-You can perform an asynchronous handshake by calling `setHandshake` with a `Future`:
+您可以通过调用带有`Future`的`setHandshake`来执行异步握手：
 
-```
+```groovy
 server.websocketHandler({ websocket ->
   def promise = Promise.promise()
   websocket.setHandshake(promise)
@@ -4294,14 +4296,15 @@ server.websocketHandler({ websocket ->
 })
 ```
 
-| NOTE | the WebSocket will be automatically accepted after the handler is called unless the WebSocket’s handshake has been set |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 除非已设置WebSocket的握手，否则调用处理程序后，WebSocket将被自动接受
+>
+------
 
-##### Upgrading to WebSocket
-The second way of handling WebSockets is to handle the HTTP Upgrade request that was sent from the client, and call `upgrade` on the server request.
+##### 升级到WebSocket
+处理WebSockets的第二种方法是处理从客户端发送的HTTP升级请求，并在服务器请求上调用`upgrade`。
 
-```
+```groovy
 server.requestHandler({ request ->
   if (request.path() == "/myapi") {
 
@@ -4315,17 +4318,17 @@ server.requestHandler({ request ->
 })
 ```
 
-##### The server WebSocket
-The `ServerWebSocket` instance enables you to retrieve the `headers`, `path`, `query` and `URI` of the HTTP request of the WebSocket handshake.
+##### 服务器WebSocket
+`ServerWebSocket`实例使您能够检索WebSocket握手的HTTP请求的`headers`，`path`，`query`和`URI`。
 
-#### WebSockets on the client
-The Vert.x `HttpClient` supports WebSockets.
+#### 客户端上的WebSockets
+Vert.x的`HttpClient`支持WebSockets。
 
-You can connect a WebSocket to a server using one of the `webSocket` operations and providing a handler.
+您可以使用`webSocket`操作之一并提供处理程序将WebSocket连接到服务器。
 
-The handler will be called with an instance of `WebSocket` when the connection has been made:
+建立连接后，将使用`WebSocket`实例调用处理程序：
 
-```
+```groovy
 client.webSocket("/some-uri", { res ->
   if (res.succeeded()) {
     def ws = res.result()
@@ -4334,10 +4337,10 @@ client.webSocket("/some-uri", { res ->
 })
 ```
 
-#### Writing messages to WebSockets
-If you wish to write a single WebSocket message to the WebSocket you can do this with `writeBinaryMessage` or `writeTextMessage` :
+#### 将消息写入WebSockets
+如果您希望将单个WebSocket消息写入WebSocket，则可以使用`writeBinaryMessage`或`writeTextMessage`来实现：
 
-```
+```groovy
 // Write a simple binary message
 def buffer = Buffer.buffer().appendInt(123).appendFloat(1.23f)
 websocket.writeBinaryMessage(buffer)
@@ -4347,18 +4350,18 @@ def message = "hello"
 websocket.writeTextMessage(message)
 ```
 
-If the WebSocket message is larger than the maximum websocket frame size as configured with `setMaxWebsocketFrameSize` then Vert.x will split it into multiple WebSocket frames before sending it on the wire.
+如果WebSocket消息大于使用`setMaxWebsocketFrameSize`配置的最大Websocket帧大小，则Vert.x会将其拆分为多个WebSocket帧，然后通过网络发送。
 
-#### Writing frames to WebSockets
-A WebSocket message can be composed of multiple frames. In this case the first frame is either a *binary* or *text* frame followed by zero or more *continuation* frames.
+#### 将frames写入WebSocket
+WebSocket消息可以由多个frames组成。 在这种情况下，第一帧是 *binary* 或 *text* 帧，然后是零个或多个 *continuation* 帧。
 
-The last frame in the message is marked as *final*.
+消息中的最后一帧被标记为*final*。
 
-To send a message consisting of multiple frames you create frames using `WebSocketFrame.binaryFrame` , `WebSocketFrame.textFrame` or `WebSocketFrame.continuationFrame` and write them to the WebSocket using `writeFrame`.
+要发送包含多个frames的消息，您可以使用`WebSocketFrame.binaryFrame`，`WebSocketFrame.textFrame`或`WebSocketFrame.continuationFrame`创建frames，然后使用`writeFrame`将它们写入WebSocket。
 
-Here’s an example for binary frames:
+这是二进制帧的示例：
 
-```
+```groovy
 def frame1 = WebSocketFrame.binaryFrame(buffer1, false)
 websocket.writeFrame(frame1)
 
@@ -4370,11 +4373,11 @@ def frame3 = WebSocketFrame.continuationFrame(buffer2, true)
 websocket.writeFrame(frame3)
 ```
 
-In many cases you just want to send a websocket message that consists of a single final frame, so we provide a couple of shortcut methods to do that with `writeFinalBinaryFrame` and `writeFinalTextFrame`.
+在很多情况下，你只是想发送一个websocket消息，它由一个单一的final帧组成，所以我们提供了两个快捷方法来实现这一点，分别是`writeFinalBinaryFrame` 和 `writeFinalTextFrame`。
 
-Here’s an example:
+这里有一个例子:
 
-```
+```groovy
 // Send a websocket messages consisting of a single final text frame:
 
 websocket.writeFinalTextFrame("Geronimo!")
@@ -4386,35 +4389,35 @@ def buff = Buffer.buffer().appendInt(12).appendString("foo")
 websocket.writeFinalBinaryFrame(buff)
 ```
 
-#### Reading frames from WebSockets
-To read frames from a WebSocket you use the `frameHandler`.
+#### 从WebSockets读取frames
+要从WebSocket读取帧，请使用`frameHandler`。
 
-The frame handler will be called with instances of `WebSocketFrame` when a frame arrives, for example:
+当帧到达时，将使用`WebSocketFrame`实例调用帧处理程序，例如：
 
-```
+```groovy
 websocket.frameHandler({ frame ->
   println("Received a frame of size!")
 })
 ```
 
-#### Closing WebSockets
-Use `close` to close the WebSocket connection when you have finished with it.
+#### 关闭 WebSockets
+完成后，使用`close`关闭WebSocket连接。
 
-#### Streaming WebSockets
-The `WebSocket` instance is also a `ReadStream` and a `WriteStream` so it can be used with pumps.
+#### 流式WebSocket
+WebSocket实例也是`ReadStream`和`WriteStream`实例，因此可以与泵一起使用。
 
-When using a WebSocket as a write stream or a read stream it can only be used with WebSockets connections that are used with binary frames that are no split over multiple frames.
+当将WebSocket用作写入流或读取流时，它只能与WebSockets连接一起使用，该连接用于二进制帧，而二进制帧不会拆分为多个帧。
 
-### Using a proxy for HTTP/HTTPS connections
-The http client supports accessing http/https URLs via a HTTP proxy (e.g. Squid) or *SOCKS4a* or *SOCKS5* proxy. The CONNECT protocol uses HTTP/1.x but can connect to HTTP/1.x and HTTP/2 servers.
+### 使用代理进行HTTP/HTTPS连接
+http客户端支持通过HTTP代理（例如Squid）或 *SOCKS4a* 或 *SOCKS5* 代理访问http/https URL。 CONNECT协议使用HTTP/1.x，但可以连接到HTTP/1.x和HTTP/2服务器。
 
-Connecting to h2c (unencrypted HTTP/2 servers) is likely not supported by http proxies since they will support HTTP/1.1 only.
+http代理可能不支持连接到h2c（未加密的HTTP/2服务器），因为它们仅支持HTTP/1.1。
 
-The proxy can be configured in the `HttpClientOptions` by setting a `ProxyOptions` object containing proxy type, hostname, port and optionally username and password.
+可以通过设置包含代理类型，主机名，端口以及用户名和密码（可选）的`ProxyOptions`对象在`HttpClientOptions`中配置代理。
 
-Here’s an example of using an HTTP proxy:
+这是使用HTTP代理的示例：
 
-```
+```groovy
 def options = [
   proxyOptions:[
     type:"HTTP",
@@ -4427,13 +4430,13 @@ def options = [
 def client = vertx.createHttpClient(options)
 ```
 
-When the client connects to an http URL, it connects to the proxy server and provides the full URL in the HTTP request ("GET http://www.somehost.com/path/file.html HTTP/1.1").
+客户端连接到http URL时，它将连接到代理服务器并在HTTP请求中提供完整URL("GET http://www.somehost.com/path/file.html HTTP/1.1")。
 
-When the client connects to an https URL, it asks the proxy to create a tunnel to the remote host with the CONNECT method.
+客户端连接到https URL时，它要求代理使用CONNECT方法创建到远程主机的隧道。
 
-For a SOCKS5 proxy:
+对于SOCKS5代理：
 
-```
+```groovy
 def options = [
   proxyOptions:[
     type:"SOCKS5",
@@ -4446,12 +4449,12 @@ def options = [
 def client = vertx.createHttpClient(options)
 ```
 
-The DNS resolution is always done on the proxy server, to achieve the functionality of a SOCKS4 client, it is necessary to resolve the DNS address locally.
+DNS解析始终在代理服务器上完成，为了实现SOCKS4客户端的功能，必须在本地解析DNS地址。
 
-#### Handling of other protocols
-The HTTP proxy implementation supports getting ftp:// urls if the proxy supports that, which isn’t available in non-proxy getAbs requests.
+#### 其他协议的处理
+如果代理支持，HTTP代理实现支持获取`ftp:// urls`，这在非代理getAbs请求中不可用。
 
-```
+```groovy
 def options = [
   proxyOptions:[
     type:"HTTP"
@@ -4463,10 +4466,10 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", { response ->
 })
 ```
 
-Support for other protocols is not available since java.net.URL does not support them (gopher:// for example).
+对其他协议的支持是不可用的，因为`java.net.URL`不支持它们(例如gopher://)。
 
-### Automatic clean-up in verticles
-If you’re creating http servers and clients from inside verticles, those servers and clients will be automatically closed when the verticle is undeployed.
+### verticles自动清理
+如果您是从Verticle内部创建http服务器和客户端，则取消部署Verticle时，这些服务器和客户端将自动关闭。
 
 ## Using the SharedData API
 As its name suggests, the `SharedData` API allows you to safely share data between:
