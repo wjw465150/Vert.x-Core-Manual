@@ -4471,39 +4471,41 @@ client.getAbs("ftp://ftp.gnu.org/gnu/", { response ->
 ### verticles自动清理
 如果您是从Verticle内部创建http服务器和客户端，则取消部署Verticle时，这些服务器和客户端将自动关闭。
 
-## Using the SharedData API
-As its name suggests, the `SharedData` API allows you to safely share data between:
+## 使用SharedData API
+顾名思义，`SharedData` API可让您安全地在以下之间共享数据：
 
-- different parts of your application, or
-- different applications in the same Vert.x instance, or
-- different applications across a cluster of Vert.x instances.
+- 应用程序的不同部分，或者
+- 同一Vert.x实例中的不同应用程序，或
+- Vert.x实例群集中的不同应用程序。
 
-In practice, it provides:
+实际上，它提供：
 
-- synchronous maps (local-only)
-- asynchronous maps
-- asynchronous locks
-- asynchronous counters
+- 同步 map（仅限本地）
+- 异步 maps
+- 异步 locks
+- 异步 counters
 
-| IMPORTANT | The behavior of the distributed data structure depends on the cluster manager you use. Backup (replication) and behavior when a network partition is faced are defined by the cluster manager and its configuration. Please refer to the cluster manager documentation as well as to the underlying framework manual. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 分布式数据结构的行为取决于您使用的集群管理器。 群集管理器及其配置定义了面对网络分区时的备份（复制）和行为。 请参考集群管理器文档以及基础框架手册。
+>
+------
 
 ### Local maps
-`Local maps` allow you to share data safely between different event loops (e.g. different verticles) in the same Vert.x instance.
+本地 maps
+`Local maps` 可让您在同一Vert.x实例中的不同事件循环（例如，不同的verticles）之间安全地共享数据。
 
-They only allow certain data types to be used as keys and values:
+它们仅允许将某些数据类型用作键和值：
 
-- immutable types (e.g. strings, booleans, … etc), or
-- types implementing the `Shareable` interface (buffers, JSON arrays, JSON objects, or your own shareable objects).
+- 不可变的类型（例如字符串，布尔值，…等），或
+- 实现`Shareable`接口的类型（buffers，JSON数组，JSON对象或您自己的可共享对象）。
 
-In the latter case the key/value will be copied before putting it into the map.
+在后一种情况下，将先将键/值复制到map中。
 
-This way we can ensure there is no *shared access to mutable state* between different threads in your Vert.x application. And you won’t have to worry about protecting that state by synchronising access to it.
+这样，我们可以确保Vert.x应用程序中的不同线程之间没有对可变状态的共享访问。 您不必担心通过同步访问状态来保护该状态。
 
-Here’s an example of using a shared local map:
+这是使用共享local map的示例：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 def map1 = sharedData.getLocalMap("mymap1")
@@ -4525,14 +4527,14 @@ map2 = sharedData.getLocalMap("mymap2")
 def buff = map2.get("eek")
 ```
 
-### Asynchronous shared maps
-`Asynchronous shared maps` allow data to be put in the map and retrieved locally or from any other node.
+### 异步 shared maps
+`Asynchronous shared maps`允许将数据放入map中，并在本地或从任何其他节点检索。
 
-This makes them really useful for things like storing session state in a farm of servers hosting a Vert.x Web application.
+这使得它们对于将会话状态存储在托管Vert.x Web应用程序的服务器场中非常有用。
 
-Getting the map is asynchronous and the result is returned to you in the handler that you specify. Here’s an example:
+获取map是异步的，结果将在您指定的处理程序中返回给您。 这是一个例子：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getAsyncMap("mymap", { res ->
@@ -4544,15 +4546,16 @@ sharedData.getAsyncMap("mymap", { res ->
 })
 ```
 
-When Vert.x is clustered, data that you put into the map is accessible locally as well as on any of the other cluster members.
+对Vert.x进行群集时，您可以在本地以及任何其他群集成员上访问放入map的数据。
 
-| IMPORTANT | In clustered mode, asynchronous shared maps rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared map operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，asynchronous shared maps依赖于集群管理器提供的分布式数据结构。 请注意，asynchronous shared maps操作，在集群中的延迟可能比在本地模式下高得多。
+>
+------
 
-If your application doesn’t need data to be shared with every other node, you can retrieve a local-only map:
+如果您的应用程序不需要与其他所有节点共享数据，则可以检索仅限本地的local-only map：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getLocalAsyncMap("mymap", { res ->
@@ -4565,12 +4568,12 @@ sharedData.getLocalAsyncMap("mymap", { res ->
 })
 ```
 
-#### Putting data in a map
-You put data in a map with `put`.
+#### 将数据放入map
+你用`put`把数据放到map上。
 
-The actual put is asynchronous and the handler is notified once it is complete:
+实际的放置是异步的，并且在完成后会通知处理程序：
 
-```
+```groovy
 map.put("foo", "bar", { resPut ->
   if (resPut.succeeded()) {
     // Successfully put the value
@@ -4580,12 +4583,12 @@ map.put("foo", "bar", { resPut ->
 })
 ```
 
-#### Getting data from a map
-You get data from a map with `get`.
+#### 从map获取数据
+您可以通过`get`从map中获取数据。
 
-The actual get is asynchronous and the handler is notified with the result some time later:
+实际的get是异步的，并在一段时间后将结果通知处理程序：
 
-```
+```groovy
 map.get("foo", { resGet ->
   if (resGet.succeeded()) {
     // Successfully got the value
@@ -4596,23 +4599,23 @@ map.get("foo", { resGet ->
 })
 ```
 
-##### Other map operations
-You can also remove entries from an asynchronous map, clear them and get the size.
+##### 其它 map 操作
+您还可以从异步map中删除条目，清除它们并获取大小。
 
-See the `API docs` for a detailed list of map operations.
+有关map操作的详细列表，请参见API文档。
 
-### Asynchronous locks
-`Asynchronous locks` allow you to obtain exclusive locks locally or across the cluster. This is useful when you want to do something or access a resource on only one node of a cluster at any one time.
+### Asynchronous 锁
+`Asynchronous locks(异步锁)`允许您在本地或整个集群中获取排他锁。 当您想随时执行某项操作或仅在群集的一个节点上访问资源时，此功能很有用。
 
-Asynchronous locks have an asynchronous API unlike most lock APIs which block the calling thread until the lock is obtained.
+异步锁具有异步API，这与大多数锁API不同，后者会阻塞调用线程，直到获得锁为止。
 
-To obtain a lock use `getLock`. This won’t block, but when the lock is available, the handler will be called with an instance of `Lock`, signalling that you now own the lock.
+要获取锁，请使用`getLock`。 这不会阻止，但是当锁可用时，将使用`Lock`实例调用处理程序，表示您现在拥有该锁。
 
-While you own the lock, no other caller, locally or on the cluster, will be able to obtain the lock.
+当您拥有该锁时，本地或群集上的其他任何调用者都将无法获得该锁。
 
-When you’ve finished with the lock, you call `release` to release it, so another caller can obtain it:
+锁定完成后，您可以调用`release`来释放它，以便另一个调用者可以获取它：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getLock("mylock", { res ->
@@ -4632,9 +4635,9 @@ sharedData.getLock("mylock", { res ->
 })
 ```
 
-You can also get a lock with a timeout. If it fails to obtain the lock within the timeout the handler will be called with a failure:
+您还可以获得带有超时的锁。如果在超时时间内未能获得锁，处理程序将调用一个失败:
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getLockWithTimeout("mylock", 10000, { res ->
@@ -4648,15 +4651,16 @@ sharedData.getLockWithTimeout("mylock", 10000, { res ->
 })
 ```
 
-See the `API docs` for a detailed list of lock operations.
+有关锁操作的详细列表，请参阅`API文档`。
 
-| IMPORTANT | In clustered mode, asynchronous locks rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared lock operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，异步锁依赖于集群管理器提供的分布式数据结构。 请注意，群集中的相对于异步共享锁操作的延迟可能比本地模式下的延迟高得多。
+>
+------
 
-If your application doesn’t need the lock to be shared with every other node, you can retrieve a local-only lock:
+如果您的应用程序不需要与其他所有节点共享该锁，则可以检索仅本地锁：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getLocalLock("mylock", { res ->
@@ -4676,14 +4680,14 @@ sharedData.getLocalLock("mylock", { res ->
 })
 ```
 
-### Asynchronous counters
-It’s often useful to maintain an atomic counter locally or across the different nodes of your application.
+### 异步计数器
+在本地或跨应用程序的不同节点维护原子计数器通常很有用。
 
-You can do this with `Counter`.
+你可以通过`Counter`来完成。
 
-You obtain an instance with `getCounter`:
+您可以使用`getCounter`获取实例：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getCounter("mycounter", { res ->
@@ -4695,17 +4699,18 @@ sharedData.getCounter("mycounter", { res ->
 })
 ```
 
-Once you have an instance you can retrieve the current count, atomically increment it, decrement and add a value to it using the various methods.
+拥有实例后，您可以检索当前计数，以原子方式递增，递减并使用各种方法为其添加值。
 
-See the `API docs` for a detailed list of counter operations.
+有关计数器操作的详细列表，请参见`API文档`。
 
-| IMPORTANT | In clustered mode, asynchronous counters rely on distributed data structures provided by the cluster manager. Beware that the latency relative to asynchronous shared counter operations can be much higher in clustered than in local mode. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在集群模式下，异步计数器依赖于集群管理器提供的分布式数据结构。 请注意，相对于异步共享计数器操作，在集群中的延迟可能比在本地模式下高得多。
+>
+------
 
-If your application doesn’t need the counter to be shared with every other node, you can retrieve a local-only counter:
+如果您的应用程序不需要与其他节点共享计数器，则可以检索仅本地计数器：
 
-```
+```groovy
 def sharedData = vertx.sharedData()
 
 sharedData.getLocalCounter("mycounter", { res ->
@@ -4718,16 +4723,16 @@ sharedData.getLocalCounter("mycounter", { res ->
 })
 ```
 
-## Using the file system with Vert.x
-The Vert.x `FileSystem` object provides many operations for manipulating the file system.
+## 在Vert.x中使用文件系统
+Vert.x `FileSystem` 对象提供了许多操作文件系统的操作。
 
-There is one file system object per Vert.x instance, and you obtain it with `fileSystem`.
+每个Vert.x实例只有一个文件系统对象，您可以通过`fileSystem`获取它。
 
-A blocking and a non blocking version of each operation is provided. The non blocking versions take a handler which is called when the operation completes or an error occurs.
+提供了每个操作的阻塞版本和非阻塞版本。 非阻塞版本采用一个处理程序，当操作完成或发生错误时将调用该处理程序。
 
-Here’s an example of an asynchronous copy of a file:
+下面是一个文件的异步拷贝一个例子：
 
-```
+```groovy
 def fs = vertx.fileSystem()
 
 // Copy file from foo.txt to bar.txt
@@ -4740,22 +4745,22 @@ fs.copy("foo.txt", "bar.txt", { res ->
 })
 ```
 
-The blocking versions are named `xxxBlocking` and return the results or throw exceptions directly. In many cases, depending on the operating system and file system, some of the potentially blocking operations can return quickly, which is why we provide them, but it’s highly recommended that you test how long they take to return in your particular application before using them from an event loop, so as not to break the Golden Rule.
+阻塞版本名为`xxxBlocking`，并直接返回结果或引发异常。 在许多情况下，根据操作系统和文件系统的不同，某些可能会阻塞的操作会很快返回，这就是我们提供它们的原因，但是强烈建议您在使用它们之前测试它们返回特定应用程序需要花费多长时间。 从事件循环开始，以免破坏黄金法则。
 
-Here’s the copy using the blocking API:
+这是使用阻塞API的复制：
 
-```
+```groovy
 def fs = vertx.fileSystem()
 
 // Copy file from foo.txt to bar.txt synchronously
 fs.copyBlocking("foo.txt", "bar.txt")
 ```
 
-Many operations exist to copy, move, truncate, chmod and many other file operations. We won’t list them all here, please consult the `API docs` for the full list.
+存在许多操作来复制，移动，截断，chmod和许多其他文件操作。 我们不会在此处列出所有列表，请查看`API docs`以获取完整列表。
 
-Let’s see a couple of examples using asynchronous methods:
+我们来看几个使用异步方法的示例：
 
-```
+```groovy
 // Read a file
 vertx.fileSystem().readFile("target/classes/readme.txt", { result ->
   if (result.succeeded()) {
@@ -4795,12 +4800,12 @@ vertx.fileSystem().exists("target/classes/junk.txt", { result ->
 })
 ```
 
-### Asynchronous files
-Vert.x provides an asynchronous file abstraction that allows you to manipulate a file on the file system.
+### Asynchronous 文件
+Vert.x提供了异步文件抽象，使您可以操纵文件系统上的文件。
 
-You open an `AsyncFile` as follows:
+您可以如下打开`AsyncFile`：
 
-```
+```groovy
 def options = [:]
 fileSystem.open("myfile.txt", options, { res ->
   if (res.succeeded()) {
@@ -4811,22 +4816,24 @@ fileSystem.open("myfile.txt", options, { res ->
 })
 ```
 
-`AsyncFile` implements `ReadStream` and `WriteStream` so you can *pump* files to and from other stream objects such as net sockets, http requests and responses, and WebSockets.
+`AsyncFile`实现了`ReadStream`和`WriteStream`，因此您可以将文件与其他流对象（例如，网络套接字，http请求和响应以及WebSocket）进行*pump(泵)*。
 
-They also allow you to read and write directly to them.
+它们还允许您直接对其进行读写。
 
-#### Random access writes
-To use an `AsyncFile` for random access writing you use the `write` method.
+#### 随机读取
+要将`AsyncFile`用于随机访问，请使用`read`方法。
 
-The parameters to the method are:
+该方法的参数为：
 
-- `buffer`: the buffer to write.
-- `position`: an integer position in the file where to write the buffer. If the position is greater or equal to the size of the file, the file will be enlarged to accommodate the offset.
-- `handler`: the result handler
+- `buffer`: 数据将被读入的缓冲区。
+- `offset`: 放入读取数据的缓冲区的整数偏移量。
+- `position`: 文件中从中读取数据的位置。
+- `length`: 要读取的数据字节数
+- `handler`: 结果处理程序
 
-Here is an example of random access writes:
+这是随机读取的示例：
 
-```
+```groovy
 vertx.fileSystem().open("target/classes/hello.txt", [:], { result ->
   if (result.succeeded()) {
     def file = result.result()
@@ -4847,55 +4854,22 @@ vertx.fileSystem().open("target/classes/hello.txt", [:], { result ->
 })
 ```
 
-#### Random access reads
-To use an `AsyncFile` for random access reads you use the `read` method.
+#### 打开选项
+当打开`AsyncFile`时，您传递`OpenOptions`实例。 这些选项描述了文件访问的行为。 例如，您可以使用`setRead`，`setWrite`和`setPerms`方法配置文件权限。
 
-The parameters to the method are:
+如果打开的文件已经存在，则您也可以配置行为：`setCreateNew`和`setTruncateExisting`。
 
-- `buffer`: the buffer into which the data will be read.
-- `offset`: an integer offset into the buffer where the read data will be placed.
-- `position`: the position in the file where to read data from.
-- `length`: the number of bytes of data to read
-- `handler`: the result handler
+您也可以使用`setDeleteOnClose`标记关闭或关闭JVM时要删除的文件。
 
-Here’s an example of random access reads:
+#### 数据刷新到下面的储存
+在`OpenOptions`中，您可以使用`setDsync`启用/禁用每次写入时内容的自动同步。 在这种情况下，您可以通过调用`flush`方法来手动清除OS缓存中的所有写入。
 
-```
-vertx.fileSystem().open("target/classes/les_miserables.txt", [:], { result ->
-  if (result.succeeded()) {
-    def file = result.result()
-    def buff = Buffer.buffer(1000)
-    (0..<10).each { i ->
-      file.read(buff, i * 100, i * 100, 100, { ar ->
-        if (ar.succeeded()) {
-          println("Read ok!")
-        } else {
-          System.err.println("Failed to write: ${ar.cause()}")
-        }
-      })
-    }
-  } else {
-    System.err.println("Cannot open file ${result.cause()}")
-  }
-})
-```
+也可以使用处理程序来调用此方法，该处理程序将在刷新完成后调用。
 
-#### Opening Options
-When opening an `AsyncFile`, you pass an `OpenOptions` instance. These options describe the behavior of the file access. For instance, you can configure the file permissions with the `setRead`, `setWrite` and `setPerms` methods.
+#### 使用AsyncFile作为ReadStream和WriteStream
+`AsyncFile`实现`ReadStream`和`WriteStream`。 然后，您可以将它们与*pump*一起使用，以与其他读取和写入流之间来回传输数据。 例如，这会将内容复制到另一个`AsyncFile`中：
 
-You can also configure the behavior if the open file already exists with `setCreateNew` and `setTruncateExisting`.
-
-You can also mark the file to be deleted on close or when the JVM is shutdown with `setDeleteOnClose`.
-
-#### Flushing data to underlying storage.
-In the `OpenOptions`, you can enable/disable the automatic synchronisation of the content on every write using `setDsync`. In that case, you can manually flush any writes from the OS cache by calling the `flush` method.
-
-This method can also be called with an handler which will be called when the flush is complete.
-
-#### Using AsyncFile as ReadStream and WriteStream
-`AsyncFile` implements `ReadStream` and `WriteStream`. You can then use them with a *pump* to pump data to and from other read and write streams. For example, this would copy the content to another `AsyncFile`:
-
-```
+```groovy
 def output = vertx.fileSystem().openBlocking("target/classes/plagiary.txt", [:])
 
 vertx.fileSystem().open("target/classes/les_miserables.txt", [:], { result ->
@@ -4911,66 +4885,67 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", [:], { result ->
 })
 ```
 
-You can also use the *pump* to write file content into HTTP responses, or more generally in any `WriteStream`.
+您也可以使用*pump*将文件内容写入HTTP响应，或更普遍的是在任何`WriteStream`中。
 
-#### Accessing files from the classpath
-When vert.x cannot find the file on the filesystem it tries to resolve the file from the class path. Note that classpath resource paths never start with a `/`.
+#### 从类路径访问文件
+当vert.x在文件系统上找不到文件时，它将尝试从类路径中解析文件。 注意，类路径资源路径从不以`/`开头。
 
-Due to the fact that Java does not offer async access to classpath resources, the file is copied to the filesystem in a worker thread when the classpath resource is accessed the very first time and served from there asynchronously. When the same resource is accessed a second time, the file from the filesystem is served directly from the filesystem. The original content is served even if the classpath resource changes (e.g. in a development system).
+由于Java不提供对类路径资源的异步访问的事实，因此，当首次访问类路径资源并从那里异步提供服务时，该文件将被复制到工作线程中的文件系统中。 第二次访问同一资源时，来自文件系统的文件将直接从文件系统提供服务。 即使类路径资源发生变化（例如，在开发系统中），原始内容仍会提供。
 
-This caching behaviour can be set on the `setFileCachingEnabled` option. The default value of this option is `true` unless the system property `vertx.disableFileCaching` is defined.
+可以在`setFileCachingEnabled`选项上设置这种缓存行为。 除非定义了系统属性`vertx.disableFileCaching`，否则该选项的默认值为`true`。
 
-The path where the files are cached is `.vertx` by default and can be customized by setting the system property `vertx.cacheDirBase`.
+缓存文件的路径默认为`.vertx`，可以通过设置系统属性`vertx.cacheDirBase`进行自定义。
 
-The whole classpath resolving feature can be disabled system-wide by setting the system property `vertx.disableFileCPResolving` to `true`.
+通过将系统属性`vertx.disableFileCPCPResolving`设置为`true`，可以在整个系统范围内禁用整个类路径解析功能。
 
-| NOTE | these system properties are evaluated once when the the `io.vertx.core.file.FileSystemOptions` class is loaded, so these properties should be set before loading this class or as a JVM system property when launching it. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 加载`io.vertx.core.file.FileSystemOptions`类时，将对这些系统属性进行求值一次，因此，应在加载此类之前设置这些属性，或在启动它时将其设置为JVM系统属性。
+>
+------
 
-If you want to disable classpath resolving for a particular application but keep it enabled by default system-wide, you can do so via the `setClassPathResolvingEnabled` option.
+如果要禁用特定应用程序的类路径解析，但默认情况下在系统范围内将其保持启用状态，则可以通过`setClassPathResolvingEnabled`选项来启用。
 
-#### Closing an AsyncFile
-To close an `AsyncFile` call the `close` method. Closing is asynchronous and if you want to be notified when the close has been completed you can specify a handler function as an argument.
+#### 关闭一个AsyncFile
+要关闭`AsyncFile`，请调用`close`方法。 关闭是异步的，如果您希望在关闭完成时收到通知，则可以将处理函数指定为参数。
 
-## Datagram sockets (UDP)
-Using User Datagram Protocol (UDP) with Vert.x is a piece of cake.
+## 数据报套接字(UDP)
+将用户数据报协议（UDP）与Vert.x结合使用很容易。
 
-UDP is a connection-less transport which basically means you have no persistent connection to a remote peer.
+UDP是无连接传输，这基本上意味着您没有与远程对等方的持久连接。
 
-Instead you can send and receive packages and the remote address is contained in each of them.
+相反，您可以发送和接收程序包，并且每个程序包中都包含远程地址。
 
-Beside this UDP is not as safe as TCP to use, which means there are no guarantees that a send Datagram packet will receive it’s endpoint at all.
+除此之外，UDP使用起来不如TCP安全，这意味着根本不能保证发送的数据报包会收到它的端点。
 
-The only guarantee is that it will either receive complete or not at all.
+唯一可以保证的是，它要么接收完整，要么完全接收不到。
 
-Also you usually can’t send data which is bigger then the MTU size of your network interface, this is because each packet will be send as one packet.
+另外，您通常不能发送比网络接口的MTU大小更大的数据，这是因为每个包将作为一个包发送。
 
-But be aware even if the packet size is smaller then the MTU it may still fail.
+但是请注意，即使包的大小小于MTU，它仍然可能失败。
 
-At which size it will fail depends on the Operating System etc. So rule of thumb is to try to send small packets.
+失败的规模取决于操作系统等。所以经验法则是尽量发送小数据包。
 
-Because of the nature of UDP it is best fit for Applications where you are allowed to drop packets (like for example a monitoring application).
+由于UDP的特性，它最适合允许您丢弃数据包的应用程序(例如监视应用程序)。
 
-The benefits are that it has a lot less overhead compared to TCP, which can be handled by the NetServer and NetClient (see above).
+其优点是与TCP相比，它的开销要小得多，而TCP可以由NetServer和NetClient来处理(参见上面)。
 
-### Creating a DatagramSocket
-To use UDP you first need t create a `DatagramSocket`. It does not matter here if you only want to send data or send and receive.
+### 创建一个DatagramSocket
+要使用UDP，你首先需要创建一个`DatagramSocket`。在这里，您是否只想发送数据或发送和接收数据并不重要。
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 ```
 
-The returned `DatagramSocket` will not be bound to a specific port. This is not a problem if you only want to send data (like a client), but more on this in the next section.
+返回的`DatagramSocket`将不会绑定到特定的端口。如果您只想发送数据(如客户端)，这不是问题，但在下一节中会详细介绍。
 
-### Sending Datagram packets
-As mentioned before, User Datagram Protocol (UDP) sends data in packets to remote peers but is not connected to them in a persistent fashion.
+### 发送 Datagram packets
+如前所述，用户数据报协议(User Datagram Protocol, UDP)以数据包的形式向远程对等方发送数据，但不以持久的方式连接到它们。
 
-This means each packet can be sent to a different remote peer.
+这意味着每个包可以发送到不同的远程对等点。
 
-Sending packets is as easy as shown here:
+发送数据包很简单，如下图所示:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 def buffer = Buffer.buffer("content")
 // Send a Buffer
@@ -4983,21 +4958,21 @@ socket.send("A string used as content", 1234, "10.0.0.1", { asyncResult ->
 })
 ```
 
-### Receiving Datagram packets
-If you want to receive packets you need to bind the `DatagramSocket` by calling `listen(…)}` on it.
+### 接收 Datagram packets
+如果你想接收数据包，你需要绑定`DatagramSocket`通过调用`listen(…)`。
 
-This way you will be able to receive `DatagramPacket`s that were sent to the address and port on which the `DatagramSocket` listens.
+通过这种方式，您将能够接收发送到`DatagramSocket`侦听的地址和端口的`DatagramPacket`。
 
-Beside this you also want to set a `Handler` which will be called for each received `DatagramPacket`.
+除此之外，您还需要设置一个`Handler`，它将为每个接收到的`DatagramPacket`调用。
 
-The `DatagramPacket` has the following methods:
+`DatagramPacket`有以下方法:
 
-- `sender`: The InetSocketAddress which represent the sender of the packet
-- `data`: The Buffer which holds the data which was received.
+- `sender`: 代表包的发送者的InetSocketAddress
+- `data`: 保存接收到的数据的缓冲区。
 
-So to listen on a specific address and port you would do something like shown here:
+因此，要监听特定的地址和端口，您需要做如下操作:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 socket.listen(1234, "0.0.0.0", { asyncResult ->
   if (asyncResult.succeeded()) {
@@ -5010,21 +4985,21 @@ socket.listen(1234, "0.0.0.0", { asyncResult ->
 })
 ```
 
-Be aware that even if the {code AsyncResult} is successed it only means it might be written on the network stack, but gives no guarantee that it ever reached or will reach the remote peer at all.
+注意，即使{code AsyncResult}成功了，也只意味着它可能被写在网络堆栈上，而不能保证它曾经或将要到达远程对等点。
 
-If you need such a guarantee then you want to use TCP with some handshaking logic build on top.
+如果您需要这样的保证，那么您需要使用TCP，并在其上构建一些握手逻辑。
 
-### Multicast
-#### Sending Multicast packets
-Multicast allows multiple sockets to receive the same packets. This works by having the sockets join the same multicast group to which you can then send packets.
+### 多播
+#### 发送多播数据包
+多播允许多个套接字接收相同的数据包。这是通过让套接字加入相同的多播组来实现的，然后您可以向该组发送数据包。
 
-We will look at how you can join a Multicast Group and receive packets in the next section.
+我们将在下一节讨论如何加入多播组并接收数据包。
 
-Sending multicast packets is not different than sending normal Datagram packets. The difference is that you pass in a multicast group address to the send method.
+发送多播包与发送正常的数据报包没有什么不同。不同之处在于，您将多播组地址传递给send方法。
 
-This is show here:
+这里显示的是:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 def buffer = Buffer.buffer("content")
 // Send a Buffer to a multicast address
@@ -5033,23 +5008,23 @@ socket.send(buffer, 1234, "230.0.0.1", { asyncResult ->
 })
 ```
 
-All sockets that have joined the multicast group 230.0.0.1 will receive the packet.
+所有加入组播组`230.0.0.1`的套接字都将收到数据包。
 
-##### Receiving Multicast packets
-If you want to receive packets for specific Multicast group you need to bind the `DatagramSocket` by calling `listen(…)` on it to join the Multicast group.
+##### 接收多播数据包
+如果您想接收特定多播组的数据包，您需要通过调用`listen(…)`绑定`DatagramSocket`以加入多播组。
 
-This way you will receive DatagramPackets that were sent to the address and port on which the `DatagramSocket` listens and also to those sent to the Multicast group.
+这样，您将收到发送到`DatagramSocket`侦听的地址和端口的`DatagramPackets`，以及发送到`Multicast`组的数据报。
 
-Beside this you also want to set a Handler which will be called for each received DatagramPacket.
+除此之外，您还需要为每个接收到的DatagramPacket设置一个处理程序。
 
-The `DatagramPacket` has the following methods:
+`DatagramPacket`有以下方法:
 
-- `sender()`: The InetSocketAddress which represent the sender of the packet
-- `data()`: The Buffer which holds the data which was received.
+- `sender()`: 代表包的发送者的InetSocketAddress
+- `data()`: 保存接收到的数据的缓冲区。
 
-So to listen on a specific address and port and also receive packets for the Multicast group 230.0.0.1 you would do something like shown here:
+因此，要监听特定的地址和端口，并接收多播组`230.0.0.1`的数据包，您需要做如下操作:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 socket.listen(1234, "0.0.0.0", { asyncResult ->
   if (asyncResult.succeeded()) {
@@ -5067,14 +5042,14 @@ socket.listen(1234, "0.0.0.0", { asyncResult ->
 })
 ```
 
-##### Unlisten / leave a Multicast group
-There are sometimes situations where you want to receive packets for a Multicast group for a limited time.
+##### 取消监听/离开多播组
+有时，您希望在有限的时间内接收多播组的数据包。
 
-In this situations you can first start to listen for them and then later unlisten.
+在这种情况下，您可以先开始收听它们，然后再取消收听。
 
-This is shown here:
+如下所示:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 socket.listen(1234, "0.0.0.0", { asyncResult ->
   if (asyncResult.succeeded()) {
@@ -5102,16 +5077,16 @@ socket.listen(1234, "0.0.0.0", { asyncResult ->
 })
 ```
 
-##### Blocking multicast
-Beside unlisten a Multicast address it’s also possible to just block multicast for a specific sender address.
+##### 阻塞多播
+除了取消监听多播地址之外，还可以阻止特定发送方地址的多播。
 
-Be aware this only work on some Operating Systems and kernel versions. So please check the Operating System documentation if it’s supported.
+注意，这只适用于某些操作系统和内核版本。因此，请检查操作系统文档是否受支持。
 
-This an expert feature.
+这是一个专家特性。
 
-To block multicast from a specific address you can call `blockMulticastGroup(…)` on the DatagramSocket like shown here:
+要阻止来自特定地址的多播，你可以在DatagramSocket上调用`blockMulticastGroup(…)`，如下图所示:
 
-```
+```groovy
 def socket = vertx.createDatagramSocket([:])
 
 // Some code
@@ -5122,35 +5097,35 @@ socket.blockMulticastGroup("230.0.0.1", "10.0.0.2", { asyncResult ->
 })
 ```
 
-#### DatagramSocket properties
-When creating a `DatagramSocket` there are multiple properties you can set to change it’s behaviour with the `DatagramSocketOptions` object. Those are listed here:
+#### DatagramSocket 属性
+在创建`DatagramSocket`对象时，可以设置多个属性来更改`DatagramSocketOptions`对象的行为。这些都列在这里:
 
-- `setSendBufferSize` Sets the send buffer size in bytes.
-- `setReceiveBufferSize` Sets the TCP receive buffer size in bytes.
-- `setReuseAddress` If true then addresses in TIME_WAIT state can be reused after they have been closed.
+- `setSendBufferSize` 设置发送缓冲区的大小(以字节为单位)。
+- `setReceiveBufferSize` 设置TCP接收缓冲区的大小(以字节为单位)。
+- `setReuseAddress` 如果为true，则TIME_WAIT状态下的地址可以在关闭后重新使用。
 - `setTrafficClass`
-- `setBroadcast` Sets or clears the SO_BROADCAST socket option. When this option is set, Datagram (UDP) packets may be sent to a local interface’s broadcast address.
-- `setMulticastNetworkInterface` Sets or clears the IP_MULTICAST_LOOP socket option. When this option is set, multicast packets will also be received on the local interface.
-- `setMulticastTimeToLive` Sets the IP_MULTICAST_TTL socket option. TTL stands for "Time to Live," but in this context it specifies the number of IP hops that a packet is allowed to go through, specifically for multicast traffic. Each router or gateway that forwards a packet decrements the TTL. If the TTL is decremented to 0 by a router, it will not be forwarded.
+- `setBroadcast` 设置或清除SO_BROADCAST套接字选项。设置此选项后，可以将数据报(UDP)数据包发送到本地接口的广播地址。
+- `setMulticastNetworkInterface` 设置或清除IP_MULTICAST_LOOP套接字选项。设置此选项后，还将在本地接口上接收多播包。
+- `setMulticastTimeToLive` 设置IP_MULTICAST_TTL套接字选项。TTL表示“生存时间”，但是在这个上下文中，它指定了允许数据包通过的IP跳数，特别是对于多播流量。每一个转发包的路由器或网关都会降低TTL。如果TTL被路由器减少到0，它将不会被转发。
 
-#### DatagramSocket Local Address
-You can find out the local address of the socket (i.e. the address of this side of the UDP Socket) by calling `localAddress`. This will only return an `InetSocketAddress` if you bound the `DatagramSocket` with `listen(…)` before, otherwise it will return null.
+#### DatagramSocket本地地址
+你可以找到本地地址的套接字(即UDP套接字的这一边的地址)调用`localAddress`。这将只返回一个`InetSocketAddress`，如果你之前绑定了`DatagramSocket`和`listen(…)`，否则它将返回null。
 
-#### Closing a DatagramSocket
-You can close a socket by invoking the `close` method. This will close the socket and release all resources
+#### 关闭DatagramSocket
+您可以通过调用`close`方法来关闭套接字。这将关闭套接字并释放所有资源
 
-## DNS client
-Often you will find yourself in situations where you need to obtain DNS informations in an asynchronous fashion. Unfortunally this is not possible with the API that is shipped with the Java Virtual Machine itself. Because of this Vert.x offers it’s own API for DNS resolution which is fully asynchronous.
+## DNS 客户端
+通常，您会遇到需要以异步方式获取DNS信息的情况。 不幸的是，Java虚拟机本身附带的API无法做到这一点。 因此，Vert.x提供了自己的用于DNS解析的API，该API是完全异步的。
 
-To obtain a DnsClient instance you will create a new via the Vertx instance.
+要获取DnsClient实例，您将通过Vertx创建一个新实例。
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "10.0.0.1")
 ```
 
-You can also create the client with options and configure the query timeout.
+您还可以使用选项创建客户端并配置查询超时。
 
-```
+```groovy
 def client = vertx.createDnsClient([
   port:53,
   host:"10.0.0.1",
@@ -5158,9 +5133,9 @@ def client = vertx.createDnsClient([
 ])
 ```
 
-Creating the client with no arguments or omitting the server address will use the address of the server used internally for non blocking address resolution.
+创建没有参数的客户端或省略服务器地址将使用内部用于非阻塞地址解析的服务器地址。
 
-```
+```groovy
 def client1 = vertx.createDnsClient()
 
 // Just the same but with a different query timeout
@@ -5169,12 +5144,12 @@ def client2 = vertx.createDnsClient([
 ])
 ```
 
-### lookup
-Try to lookup the A (ipv4) or AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找
+尝试查找给定名称的A (ipv4)或AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A / AAAA record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A / AAAA记录。你通常会这样使用它:
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.lookup("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5185,12 +5160,12 @@ client.lookup("vertx.io", { ar ->
 })
 ```
 
-### lookup4
-Try to lookup the A (ipv4) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找4
+尝试查找给定名称的A (ipv4)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A记录。你通常会这样使用它:
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.lookup4("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5201,12 +5176,12 @@ client.lookup4("vertx.io", { ar ->
 })
 ```
 
-### lookup6
-Try to lookup the AAAA (ipv6) record for a given name. The first which is returned will be used, so it behaves the same way as you may be used from when using "nslookup" on your operation system.
+### 查找6
+尝试查找给定名称的AAAA (ipv6)记录。返回的第一个将被使用，因此它的行为与在操作系统上使用“nslookup”时的行为相同。
 
-To lookup the A record for "vertx.io" you would typically use it like:
+查找“vertx.io”的A记录。你通常会这样使用它:
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.lookup6("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5217,12 +5192,12 @@ client.lookup6("vertx.io", { ar ->
 })
 ```
 
-### resolveA
-Try to resolve all A (ipv4) records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析A
+尝试解析给定名称的所有A（ipv4）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the A records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有A记录，通常需要执行以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveA("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5236,12 +5211,12 @@ client.resolveA("vertx.io", { ar ->
 })
 ```
 
-### resolveAAAA
-Try to resolve all AAAA (ipv6) records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析AAAA
+尝试解析给定名称的所有AAAA（ipv6）记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the AAAAA records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有AAAAA记录，通常需要执行以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveAAAA("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5255,12 +5230,12 @@ client.resolveAAAA("vertx.io", { ar ->
 })
 ```
 
-### resolveCNAME
-Try to resolve all CNAME records for a given name. This is quite similar to using "dig" on unix like operation systems.
+### 解析CNAME
+尝试解析给定名称的所有CNAME记录。 这与在类似unix的操作系统上使用“dig”非常相似。
 
-To lookup all the CNAME records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有CNAME记录，通常需要执行以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveCNAME("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5274,12 +5249,12 @@ client.resolveCNAME("vertx.io", { ar ->
 })
 ```
 
-### resolveMX
-Try to resolve all MX records for a given name. The MX records are used to define which Mail-Server accepts emails for a given domain.
+### 解析MX
+尝试解析给定名称的所有MX记录。 MX记录用于定义哪个邮件服务器接受给定域的电子邮件。
 
-To lookup all the MX records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有MX记录，通常需要执行以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveMX("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5293,21 +5268,21 @@ client.resolveMX("vertx.io", { ar ->
 })
 ```
 
-Be aware that the List will contain the `MxRecord` sorted by the priority of them, which means MX records with smaller priority coming first in the List.
+请注意，列表将包含按优先级排序的`MxRecord`，这意味着优先级较小的MX记录在列表中排在首位。
 
-The `MxRecord` allows you to access the priority and the name of the MX record by offer methods for it like:
+`MxRecord`允许您通过提供方法来访问MX记录的优先级和名称，例如：
 
-```
+```groovy
 record.priority()
 record.name()
 ```
 
-### resolveTXT
-Try to resolve all TXT records for a given name. TXT records are often used to define extra informations for a domain.
+### 解析TXT
+尝试解析给定名称的所有TXT记录。 TXT记录通常用于定义域的其他信息。
 
-To resolve all the TXT records for "vertx.io" you could use something along these lines:
+要解析“vertx.io”的所有TXT记录，可以使用以下几行：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveTXT("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5321,12 +5296,12 @@ client.resolveTXT("vertx.io", { ar ->
 })
 ```
 
-### resolveNS
-Try to resolve all NS records for a given name. The NS records specify which DNS Server hosts the DNS informations for a given domain.
+### 解析NS
+尝试解析给定名称的所有NS记录。 NS记录指定哪个DNS服务器托管给定域的DNS信息。
 
-To resolve all the NS records for "vertx.io" you could use something along these lines:
+要为“vertx.io”解析所有NS记录，可以使用以下方式：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveNS("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5340,12 +5315,12 @@ client.resolveNS("vertx.io", { ar ->
 })
 ```
 
-### resolveSRV
-Try to resolve all SRV records for a given name. The SRV records are used to define extra informations like port and hostname of services. Some protocols need this extra informations.
+### 解析SRV
+尝试解析给定名称的所有SRV记录。 SRV记录用于定义其他信息，例如服务的端口和主机名。 一些协议需要这些额外的信息。
 
-To lookup all the SRV records for "vertx.io" you would typically do:
+要查找“vertx.io”的所有SRV记录，通常需要执行以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolveSRV("vertx.io", { ar ->
   if (ar.succeeded()) {
@@ -5359,11 +5334,11 @@ client.resolveSRV("vertx.io", { ar ->
 })
 ```
 
-Be aware that the List will contain the SrvRecords sorted by the priority of them, which means SrvRecords with smaller priority coming first in the List.
+请注意，列表将包含按优先级排序的SrvRecords，这意味着优先级较小的SrvRecords在列表中排在首位。
 
-The `SrvRecord` allows you to access all informations contained in the SRV record itself:
+`SrvRecord`允许您访问SRV记录本身包含的所有信息：
 
-```
+```groovy
 record.priority()
 record.name()
 record.weight()
@@ -5373,14 +5348,14 @@ record.service()
 record.target()
 ```
 
-Please refer to the API docs for the exact details.
+请参阅API文档以获取确切的详细信息。
 
-### resolvePTR
-Try to resolve the PTR record for a given name. The PTR record maps an ipaddress to a name.
+### 解析PTR
+尝试解析给定名称的PTR记录。 PTR记录将ip地址映射到名称。
 
-To resolve the PTR record for the ipaddress 10.0.0.1 you would use the PTR notion of "1.0.0.10.in-addr.arpa"
+要解析ipaddress 10.0.0.1的PTR记录，可以使用PTR概念"1.0.0.10.in-addr.arpa"
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.resolvePTR("1.0.0.10.in-addr.arpa", { ar ->
   if (ar.succeeded()) {
@@ -5392,12 +5367,12 @@ client.resolvePTR("1.0.0.10.in-addr.arpa", { ar ->
 })
 ```
 
-### reverseLookup
-Try to do a reverse lookup for an ipaddress. This is basically the same as resolve a PTR record, but allows you to just pass in the ipaddress and not a valid PTR query string.
+### 解析Lookup
+尝试对IP地址进行反向查找。 这基本上与解析PTR记录相同，但是允许您仅传入IP地址而不是有效的PTR查询字符串。
 
-To do a reverse lookup for the ipaddress 10.0.0.1 do something similar like this:
+要对ipaddress 10.0.0.1进行反向查找，请执行类似以下操作：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "9.9.9.9")
 client.reverseLookup("10.0.0.1", { ar ->
   if (ar.succeeded()) {
@@ -5409,31 +5384,31 @@ client.reverseLookup("10.0.0.1", { ar ->
 })
 ```
 
-### Error handling
-As you saw in previous sections the DnsClient allows you to pass in a Handler which will be notified with an AsyncResult once the query was complete. In case of an error it will be notified with a DnsException which will hole a `DnsResponseCode` that indicate why the resolution failed. This DnsResponseCode can be used to inspect the cause in more detail.
+### 错误处理
+如前几节所述，DnsClient允许您传入一个处理程序，一旦查询完成，该处理程序将通过AsyncResult通知。 如果发生错误，将通过DnsException通知该错误，该错误将在`DnsResponseCode`中指出解析失败的原因。 此DnsResponseCode可用于更详细地检查原因。
 
-Possible DnsResponseCodes are:
+可能的DnsResponseCodes为：
 
-- `NOERROR` No record was found for a given query
-- `FORMERROR` Format error
-- `SERVFAIL` Server failure
-- `NXDOMAIN` Name error
-- `NOTIMPL` Not implemented by DNS Server
-- `REFUSED` DNS Server refused the query
-- `YXDOMAIN` Domain name should not exist
-- `YXRRSET` Resource record should not exist
-- `NXRRSET` RRSET does not exist
-- `NOTZONE` Name not in zone
-- `BADVERS` Bad extension mechanism for version
-- `BADSIG` Bad signature
-- `BADKEY` Bad key
-- `BADTIME` Bad timestamp
+- `NOERROR` 找不到给定查询的记录
+- `FORMERROR` 格式错误
+- `SERVFAIL` 服务器故障
+- `NXDOMAIN` 名称错误
+- `NOTIMPL` DNS服务器没有实现
+- `REFUSED` DNS服务器拒绝查询
+- `YXDOMAIN` 域名不应该存在
+- `YXRRSET` 资源记录不应该存在
+- `NXRRSET` RRSET不存在
+- `NOTZONE` 名称不在区域中
+- `BADVERS` 版本的错误扩展机制
+- `BADSIG` 签名错误
+- `BADKEY` 坏的键
+- `BADTIME` 时间戳错误
 
-All of those errors are "generated" by the DNS Server itself.
+所有这些错误都是由DNS服务器本身“生成”的。
 
-You can obtain the `DnsResponseCode` from the `DnsException` like:
+您可以从DnsException获得DnsResponseCode，例如：
 
-```
+```groovy
 def client = vertx.createDnsClient(53, "8.8.8.8");
 client.lookup("missing.vertx.io", { ar ->
 if (ar.succeeded()) {
@@ -5452,26 +5427,26 @@ if (ar.succeeded()) {
 })
 ```
 
-## Streams
-There are several objects in Vert.x that allow items to be read from and written.
+## 流
+Vert.x中有几个对象，它们可以读取和写入项目。
 
-In previous versions the `io.vertx.core.streams` package was manipulating `Buffer` objects exclusively. From now, streams are not coupled to buffers anymore and they work with any kind of objects.
+在以前的版本中，`io.vertx.core.streams`包是专门处理`Buffer`对象的。 从现在开始，流不再与缓冲区耦合，并且可以与任何类型的对象一起使用。
 
-In Vert.x, write calls return immediately, and writes are queued internally.
+在Vert.x中，写调用立即返回，写操作在内部排队。
 
-It’s not hard to see that if you write to an object faster than it can actually write the data to its underlying resource, then the write queue can grow unbounded - eventually resulting in memory exhaustion.
+不难看出，如果写入对象的速度快于将对象实际写入其底层资源的速度，那么写入队列可能会无限增长，最终导致内存耗尽。
 
-To solve this problem a simple flow control (*back-pressure*) capability is provided by some objects in the Vert.x API.
+为了解决此问题，Vert.x API中的某些对象提供了一种简单的流量控制（*back-pressure背压*）功能。
 
-Any flow control aware object that can be *written-to* implements `WriteStream`, while any flow control object that can be *read-from* is said to implement `ReadStream`.
+任何可*written-to*的流控制对象实现`WriteStream`，而任何可*read-from*的流控制对象实现`ReadStream`。
 
-Let’s take an example where we want to read from a `ReadStream` then write the data to a `WriteStream`.
+让我们举一个例子，我们想要从`ReadStream`读取数据，然后将数据写入`WriteStream`。
 
-A very simple example would be reading from a `NetSocket` then writing back to the same `NetSocket` - since `NetSocket` implements both `ReadStream` and `WriteStream`. Note that this works between any `ReadStream` and `WriteStream` compliant object, including HTTP requests, HTTP responses, async files I/O, WebSockets, etc.
+一个非常简单的例子是，从一个`NetSocket`读取数据，然后写回同一个`NetSocket`——因为`NetSocket`同时实现了`ReadStream`和`WriteStream`。注意，这在任何`ReadStream`和`WriteStream`兼容对象之间都可以工作，包括HTTP请求、HTTP响应、异步文件I/O、WebSockets等。
 
-A naive way to do this would be to directly take the data that has been read and immediately write it to the `NetSocket`:
+一种简单的方法是直接获取已读取的数据，并立即将其写入`NetSocket`:
 
-```
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5484,11 +5459,11 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-There is a problem with the example above: if data is read from the socket faster than it can be written back to the socket, it will build up in the write queue of the `NetSocket`, eventually running out of RAM. This might happen, for example if the client at the other end of the socket wasn’t reading fast enough, effectively putting back-pressure on the connection.
+上面的例子有一个问题:如果从套接字读取数据的速度比将数据写回套接字的速度快，那么它将在`NetSocket`的写队列中累积，最终耗尽RAM。这可能会发生，例如，如果套接字另一端的客户端读取速度不够快，有效地对连接施加了被压。
 
-Since `NetSocket` implements `WriteStream`, we can check if the `WriteStream` is full before writing to it:
+由于`NetSocket`实现了`WriteStream`，我们可以在写入之前检查`WriteStream`是否已满:
 
-```
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5503,9 +5478,9 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-This example won’t run out of RAM but we’ll end up losing data if the write queue gets full. What we really want to do is pause the `NetSocket` when the write queue is full:
+这个示例不会耗尽RAM，但是如果写队列满了，我们将丢失数据。我们真正想做的是暂停`NetSocket`当写队列满了:
 
-```
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5520,9 +5495,9 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-We’re almost there, but not quite. The `NetSocket` now gets paused when the file is full, but we also need to unpause it when the write queue has processed its backlog:
+我们快到了，但还没到。 现在，当文件已满时，`NetSocket`会暂停，但是当写队列处理了其积压后，我们还需要取消暂停它：
 
-```
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5540,11 +5515,11 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-And there we have it. The `drainHandler` event handler will get called when the write queue is ready to accept more data, this resumes the `NetSocket` that allows more data to be read.
+我们终于得到它了。 当写队列准备好接受更多数据时，将调用`drainHandler`事件处理程序，这将恢复允许读取更多数据的`NetSocket`。
 
-Wanting to do this is quite common while writing Vert.x applications, so we added the `pipeTo` method that does all of this hard work for you. You just feed it the `WriteStream` and use it:
+在编写Vert.x应用程序时，这样做很常见，因此我们添加了`pipeTo`方法，可以为您完成所有这些艰苦的工作。 您只需向其提供`WriteStream`并使用它：
 
-```
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5554,11 +5529,11 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-This does exactly the same thing as the more verbose example, plus it handles stream failures and termination: the destination `WriteStream` is ended when the pipe completes with success or a failure.
+这与更详细的示例完全相同，此外它还处理流失败和终止：当管道成功完成或失败时，目标`WriteStream`将结束。
 
-You can be notified when the operation completes:
+操作完成时会通知您：
 
-```
+```groovy
 server.connectHandler({ sock ->
 
   // Pipe the socket providing an handler to be notified of the result
@@ -5572,9 +5547,9 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-When you deal with an asynchronous destination, you can create a `Pipe` instance that pauses the source and resumes it when the source is piped to the destination:
+当处理异步目标时，您可以创建一个`Pipe`实例，该实例暂停源并在将源通过管道传输到目标时恢复它：
 
-```
+```groovy
 server.connectHandler({ sock ->
 
   // Create a pipe to use asynchronously
@@ -5594,9 +5569,9 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-When you need to abort the transfer, you need to close it:
+当需要中止传输时，需要关闭它：
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ request ->
 
   // Create a pipe that to use asynchronously
@@ -5620,53 +5595,52 @@ vertx.createHttpServer().requestHandler({ request ->
 }).listen(8080)
 ```
 
-When the pipe is closed, the streams handlers are unset and the `ReadStream` resumed.
+当管道关闭时，将取消流处理程序的设置并恢复`ReadStream`。
 
-As seen above, by default the destination is always ended when the stream completes, you can control this behavior on the pipe object:
+如上所示，默认情况下，目的地总是在流完成时结束，您可以在管道对象上控制此行为：
 
-- `endOnFailure` controls the behavior when a failure happens
-- `endOnSuccess` controls the behavior when the read stream ends
-- `endOnComplete` controls the behavior in all cases
+- `endOnFailure` 控制故障发生时的行为
+- `endOnSuccess` 控制读取流结束时的行为
+- `endOnComplete` 控制所有情况下的行为
 
-Here is a short example:
+这是一个简短的示例：
 
-```
+```groovy
 src.pipe().endOnSuccess(false).to(dst, { rs ->
   // Append some text and close the file
   dst.end(Buffer.buffer("done"))
 })
 ```
 
-Let’s now look at the methods on `ReadStream` and `WriteStream` in more detail:
+现在，让我们更详细地了解`ReadStream`和`WriteStream`上的方法：
 
 ### ReadStream
-`ReadStream` is implemented by `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
+`ReadStream` 被这些类实现 `HttpClientResponse`, `DatagramSocket`, `HttpClientRequest`, `HttpServerFileUpload`, `HttpServerRequest`, `MessageConsumer`, `NetSocket`, `WebSocket`, `TimeoutStream`, `AsyncFile`.
 
-Functions:
+功能介绍:
 
-- `handler`: set a handler which will receive items from the ReadStream.
-- `pause`: pause the handler. When paused no items will be received in the handler.
-- `resume`: resume the handler. The handler will be called if any item arrives.
-- `exceptionHandler`: Will be called if an exception occurs on the ReadStream.
-- `endHandler`: Will be called when end of stream is reached. This might be when EOF is reached if the ReadStream represents a file, or when end of request is reached if it’s an HTTP request, or when the connection is closed if it’s a TCP socket.
+- `handler`: 设置一个处理程序，该处理程序将从ReadStream接收项目。
+- `pause`: 暂停处理程序。 暂停时，处理程序中不会收到任何内容。
+- `resume`: 恢复处理程序。 如果有任何内容到达，处理程序将被调用。
+- `exceptionHandler`: 如果ReadStream发生异常，将被调用。
+- `endHandler`: 到达流结束时将被调用。 如果ReadStream表示一个文件，则达到EOF；如果是HTTP请求，则达到请求结束；或者，如果它是TCP套接字，则关闭连接。
 
 ### WriteStream
-```
-WriteStream` is implemented by `HttpClientRequest`, `HttpServerResponse` `WebSocket`, `NetSocket`, `AsyncFile`, and `MessageProducer
-```
 
-Functions:
+`WriteStream` 被这些类实现 `HttpClientRequest`, `HttpServerResponse`, `WebSocket`, `NetSocket`, `AsyncFile`, `MessageProducer`
 
-- `write`: write an object to the WriteStream. This method will never block. Writes are queued internally and asynchronously written to the underlying resource.
-- `setWriteQueueMaxSize`: set the number of object at which the write queue is considered *full*, and the method `writeQueueFull` returns `true`. Note that, when the write queue is considered full, if write is called the data will still be accepted and queued. The actual number depends on the stream implementation, for `Buffer` the size represents the actual number of bytes written and not the number of buffers.
-- `writeQueueFull`: returns `true` if the write queue is considered full.
-- `exceptionHandler`: Will be called if an exception occurs on the `WriteStream`.
-- `drainHandler`: The handler will be called if the `WriteStream` is considered no longer full.
+功能介绍:
 
-### Pump
-The pump exposes a subset of the pipe API and only transfers the items between streams, it does not handle the completion or failure of the transfer operation.
+- `write`: 将对象写入WriteStream。 此方法将永远不会阻塞。 写入在内部排队，并异步写入基础资源。
+- `setWriteQueueMaxSize`: 设置将写队列视为*full已满*的对象的数量，方法`writeQueueFull`返回`true`。 请注意，当写入队列被认为已满时，如果调用写入，则数据仍将被接受并排队。 实际数量取决于流的实现，对于`Buffer`，size表示实际写入的字节数，而不是缓冲区的number。
+- `writeQueueFull`: 如果认为写入队列已满，则返回`true`。
+- `exceptionHandler`: 如果`riteStream`发生异常，将被调用。
+- `drainHandler`: 如果认为`WriteStream`不再满，则将调用处理程序。
 
-```
+### Pump(水泵)
+泵公开了管道API的子集，仅在流之间传输项目，它不处理传输操作的完成或失败。
+
+```groovy
 def server = vertx.createNetServer([
   port:1234,
   host:"localhost"
@@ -5676,24 +5650,25 @@ server.connectHandler({ sock ->
 }).listen()
 ```
 
-| IMPORTANT | Before Vert.x 3.7 the `Pump` was the advocated API for transferring a read stream to a write stream. Since 3.7 the pipe API supersedes the pump API. |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 在Vert.x 3.7之前，`Pump`是提倡将读取流传输到写入流的API。 从3.7开始，pipe API取代了pump API。
+>
+------
 
-Instances of Pump have the following methods:
+Pump实例具有以下方法：
 
-- `start`: Start the pump.
-- `stop`: Stops the pump. When the pump starts it is in stopped mode.
-- `setWriteQueueMaxSize`: This has the same meaning as `setWriteQueueMaxSize` on the `WriteStream`.
+- `start`:开始 pump.
+- `stop`: 停止pump。当泵启动时，它处于停止模式。
+- `setWriteQueueMaxSize`: 与`WriteStream`上的`setWriteQueueMaxSize`具有相同的含义。
 
-A pump can be started and stopped multiple times.
+pump可以多次启动和停止。
 
-When a pump is first created it is *not* started. You need to call the `start()` method to start it.
+首次创建pump时，它*不会*启动。 您需要调用`start()`方法来启动它。
 
-## Record Parser
-The record parser allows you to easily parse protocols which are delimited by a sequence of bytes, or fixed size records. It transforms a sequence of input buffer to a sequence of buffer structured as configured (either fixed size or separated records).
+## 记录解析器
+记录解析器使您可以轻松地解析由字节序列或固定大小记录分隔的协议。 它将输入缓冲区的序列转换为按配置结构构造的缓冲区序列（固定大小或分隔的记录）。
 
-For example, if you have a simple ASCII text protocol delimited by '\n' and the input is the following:
+例如，如果您有一个以`\n`分隔的简单ASCII文本协议，并且输入如下：
 
 ```
 buffer1:HELLO\nHOW ARE Y
@@ -5702,7 +5677,7 @@ buffer3: DOING OK
 buffer4:\n
 ```
 
-The record parser would produce
+记录解析器将产生
 
 ```
 buffer1:HELLO
@@ -5710,9 +5685,9 @@ buffer2:HOW ARE YOU?
 buffer3:I AM DOING OK
 ```
 
-Let’s see the associated code:
+让我们看一下相关代码：
 
-```
+```groovy
 def parser = RecordParser.newDelimited("\n", { h ->
   println(h.toString())
 })
@@ -5723,28 +5698,28 @@ parser.handle(Buffer.buffer("DOING OK"))
 parser.handle(Buffer.buffer("\n"))
 ```
 
-You can also produce fixed sized chunks as follows:
+您还可以生成固定大小的块，如下所示：
 
-```
+```groovy
 RecordParser.newFixed(4, { h ->
   println(h.toString())
 })
 ```
 
-For more details, check out the `RecordParser` class.
+有关更多详细信息，请查看`RecordParser`类。
 
-## Json Parser
-You can easily parse JSON structures but that requires to provide the JSON content at once, but it may not be convenient when you need to parse very large structures.
+## Json解析器
+您可以轻松地解析JSON结构，但这需要立即提供JSON内容，但在需要解析非常大的结构时可能不太方便。
 
-The non-blocking JSON parser is an event driven parser able to deal with very large structures. It transforms a sequence of input buffer to a sequence of JSON parse events.
+非阻塞JSON解析器是一个事件驱动的解析器，能够处理非常大的结构。 它将输入缓冲区的序列转换为JSON解析事件的序列。
 
 ```
 Code not translatable
 ```
 
-The parser is non-blocking and emitted events are driven by the input buffers.
+解析器是非阻塞的，发出的事件由输入缓冲区驱动。
 
-```
+```groovy
 def parser = JsonParser.newParser()
 
 // start array event
@@ -5769,27 +5744,27 @@ parser.handle(Buffer.buffer("]"))
 parser.end()
 ```
 
-Event driven parsing provides more control but comes at the price of dealing with fine grained events, which can be inconvenient sometimes. The JSON parser allows you to handle JSON structures as values when it is desired:
+事件驱动的解析提供了更多的控制权，但代价是要处理细粒度的事件，这有时会带来不便。 JSON解析器允许您在需要时将JSON结构作为值处理：
 
 ```
 Code not translatable
 ```
 
-The value mode can be set and unset during the parsing allowing you to switch between fine grained events or JSON object value events.
+可以在解析期间设置和取消设置值模式，从而允许您在细粒度事件或JSON对象值事件之间切换。
 
 ```
 Code not translatable
 ```
 
-You can do the same with arrays as well
+你也可以对数组做同样的事情
 
 ```
 Code not translatable
 ```
 
-You can also decode POJOs
+您还可以解码POJO
 
-```
+```groovy
 parser.handler({ event ->
   // Handle each object
   // Get the field in which this object was parsed
@@ -5799,9 +5774,9 @@ parser.handler({ event ->
 })
 ```
 
-Whenever the parser fails to process a buffer, an exception will be thrown unless you set an exception handler:
+每当解析器无法处理缓冲区时，除非您设置了异常处理程序，否则都会引发异常：
 
-```
+```groovy
 def parser = JsonParser.newParser()
 
 parser.exceptionHandler({ err ->
@@ -5809,29 +5784,29 @@ parser.exceptionHandler({ err ->
 })
 ```
 
-The parser also parses json streams:
+解析器还解析json流：
 
-- concatenated json streams: `{"temperature":30}{"temperature":50}`
-- line delimited json streams: `{"an":"object"}\r\n3\r\n"a string"\r\nnull`
+- 串联的json流: `{"temperature":30}{"temperature":50}`
+- 行分隔的json流: `{"an":"object"}\r\n3\r\n"a string"\r\nnull`
 
-For more details, check out the `JsonParser` class.
+有关更多详细信息，请查看`JsonParser`类。
 
-## Thread safety
-Most Vert.x objects are safe to access from different threads. *However* performance is optimised when they are accessed from the same context they were created from.
+## 线程安全
+大多数Vert.x对象可以从不同线程安全访问。 *但是*当从创建它们的相同上下文访问它们时，性能会得到优化。
 
-For example if you have deployed a verticle which creates a `NetServer` which provides `NetSocket` instances in it’s handler, then it’s best to always access that socket instance from the event loop of the verticle.
+例如，如果您部署了一个创建了`NetServer`的Verticle，并在其处理程序中提供了`NetSocket`实例，那么最好始终从该Verticle的事件循环访问该套接字实例。
 
-If you stick to the standard Vert.x verticle deployment model and avoid sharing objects between verticles then this should be the case without you having to think about it.
+如果您坚持使用标准的Vert.x的verticle 部署模型，并避免在verticles之间共享对象，则无需考虑即可。
 
-## Metrics SPI
-By default Vert.x does not record any metrics. Instead it provides an SPI for others to implement which can be added to the classpath. The metrics SPI is an advanced feature which allows implementers to capture events from Vert.x in order to gather metrics. For more information on this, please consult the `API Documentation`.
+## 指标SPI
+默认情况下，Vert.x不记录任何指标。 相反，它为其他人提供了一个SPI，可以将其添加到类路径中。 指标SPI是一项高级功能，允许实施者从Vert.x捕获事件以收集指标。 有关此的更多信息，请查阅API文档。
 
-You can also specify a metrics factory programmatically if embedding Vert.x using `setFactory`.
+如果使用`setFactory`嵌入Vert.x，您还可以通过编程方式指定指标工厂。
 
 ## OSGi
-Vert.x Core is packaged as an OSGi bundle, so can be used in any OSGi R4.2+ environment such as Apache Felix or Eclipse Equinox. The bundle exports `io.vertx.core*`.
+Vert.x Core打包为OSGi捆绑包，因此可以在任何OSGi R4.2 +环境中使用，例如Apache Felix或Eclipse Equinox。 捆绑包导出`io.vertx.core*`。
 
-However, the bundle has some dependencies on Jackson and Netty. To get the vert.x core bundle resolved deploy:
+但是，捆绑软件对Jackson和Netty有一定的依赖性。 要解决vert.x核心捆绑的部署：
 
 - Jackson Annotation [2.6.0,3)
 - Jackson Core [2.6.2,3)
@@ -5843,7 +5818,7 @@ However, the bundle has some dependencies on Jackson and Netty. To get the vert.
 - Netty Codec/Handler [4.0.31,5)
 - Netty Codec/Transport [4.0.31,5)
 
-Here is a working deployment on Apache Felix 5.2.0:
+这是Apache Felix 5.2.0上的有效部署：
 
 ```
 14|Active     |    1|Jackson-annotations (2.6.0)
@@ -5860,19 +5835,20 @@ Here is a working deployment on Apache Felix 5.2.0:
 26|Active     |    1|Vert.x Core (3.1.0)
 ```
 
-On Equinox, you may want to disable the `ContextFinder` with the following framework property: `eclipse.bundle.setTCCL=false`
+在Equinox上，您可能要禁用具有以下框架属性的`ContextFinder`：`eclipse.bundle.setTCCL=false`
 
-## The 'vertx' command line
-The `vertx` command is used to interact with Vert.x from the command line. It’s main use is to run Vert.x verticles. To do this you need to download and install a Vert.x distribution, and add the `bin` directory of the installation to your `PATH` environment variable. Also make sure you have a Java 8 JDK on your `PATH`.
+## vertx'命令行
+vertx命令用于从命令行与Vert.x交互。 主要用途是运行Vert.x的verticles。 为此，您需要下载并安装Vert.x发行版，并将安装的bin目录添加到环境变量`PATH`中。 还要确保您在`PATH`上有一个Java 8 JDK。
 
-| NOTE | The JDK is required to support on the fly compilation of Java code. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 需要JDK来支持Java代码的即时编译。
+>
+------
 
-### Run verticles
-You can run raw Vert.x verticles directly from the command line using `vertx run`. Here is a couple of examples of the `run` *command*:
+### 运行 verticles
+您可以使用`vertx run`直接从命令行运行原始Vert.x的verticles。 这是`run`  *command*的几个例子：
 
-```
+```bash
 vertx run my-verticle.js                                 (1)
 vertx run my-verticle.groovy                             (2)
 vertx run my-verticle.rb                                 (3)
@@ -5883,280 +5859,280 @@ vertx run io.vertx.example.MVerticle -cp my-verticle.jar (5)
 vertx run MyVerticle.java                                (6)
 ```
 
-1. Deploys a JavaScript verticle
-2. Deploys a Groovy verticle
-3. Deploys a Ruby verticle
-4. Deploys an already compiled Java verticle. Classpath root is the current directory
-5. Deploys a verticle packaged in a Jar, the jar need to be in the classpath
-6. Compiles the Java source and deploys it
+1. 部署一个 JavaScript verticle
+2. 部署一个 Groovy verticle
+3. 部署一个 Ruby verticle
+4. 部署一个已经编译好的Java Verticle。 类路径根目录是当前目录
+5. 部署打包在Jar中的verticle，该jar必须位于类路径中
+6. 编译并部署Java源代码的verticle
 
-As you can see in the case of Java, the name can either be the fully qualified class name of the verticle, or you can specify the Java Source file directly and Vert.x compiles it for you.
+如在Java中所见，名称可以是verticle的完全限定的类名，也可以直接指定Java Source文件，然后Vert.x会为您编译它。
 
-You can also prefix the verticle with the name of the language implementation to use. For example if the verticle is a compiled Groovy class, you prefix it with `groovy:` so that Vert.x knows it’s a Groovy class not a Java class.
+您还可以在verticle上添加要使用的语言实现的名称。 例如，如果verticle是已编译的Groovy类，则可以在其前面加上`groovy:`，以便Vert.x知道它是Groovy类而不是Java类。
 
-```
+```bash
 vertx run groovy:io.vertx.example.MyGroovyVerticle
 ```
 
-The `vertx run` command can take a few optional parameters, they are:
+`vertx run`命令可以使用一些可选参数，它们是：
 
-- `-options ` - Provides the Vert.x options. `options` is the name of a JSON file that represents the Vert.x options, or a JSON string. This is optional.
-- `-conf ` - Provides some configuration to the verticle. `config` is the name of a JSON file that represents the configuration for the verticle, or a JSON string. This is optional.
-- `-cp ` - The path on which to search for the verticle and any other resources used by the verticle. This defaults to `.` (current directory). If your verticle references other scripts, classes or other resources (e.g. jar files) then make sure these are on this path. The path can contain multiple path entries separated by `:` (colon) or `;` (semi-colon) depending on the operating system. Each path entry can be an absolute or relative path to a directory containing scripts, or absolute or relative filenames for jar or zip files. An example path might be `-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`. Always use the path to reference any resources that your verticle requires. Do **not** put them on the system classpath as this can cause isolation issues between deployed verticles.
-- `-instances ` - The number of instances of the verticle to instantiate. Each verticle instance is strictly single threaded so to scale your application across available cores you might want to deploy more than one instance. If omitted a single instance will be deployed.
-- `-worker` - This option determines whether the verticle is a worker verticle or not.
-- `-cluster` - This option determines whether the Vert.x instance will attempt to form a cluster with other Vert.x instances on the network. Clustering Vert.x instances allows Vert.x to form a distributed event bus with other nodes. Default is `false` (not clustered).
-- `-cluster-port` - If the `cluster` option has also been specified then this determines which port will be bound for cluster communication with other Vert.x instances. Default is `0` - which means '*choose a free random port*'. You don’t usually need to specify this parameter unless you really need to bind to a specific port.
-- `-cluster-host` - If the `cluster` option has also been specified then this determines which host address will be bound for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here.
-- `-cluster-public-port` - If the `cluster` option has also been specified then this determines which port will be advertised for cluster communication with other Vert.x instances. Default is `-1`, which means same as `cluster-port`.
-- `-cluster-public-host` - If the `cluster` option has also been specified then this determines which host address will be advertised for cluster communication with other Vert.x instances. If not specified, Vert.x uses the value of `cluster-host`.
-- `-ha` - if specified the verticle will be deployed as high availability (HA) deployment. See related section for more details
-- `-quorum` - used in conjunction with `-ha`. It specifies the minimum number of nodes in the cluster for any *HA deploymentIDs* to be active. Defaults to 0.
-- `-hagroup` - used in conjunction with `-ha`. It specifies the HA group this node will join. There can be multiple HA groups in a cluster. Nodes will only failover to other nodes in the same group. The default value is ` __DEFAULT__`
+- `-options ` - 提供Vert.x选项。 `options`是表示Vert.x选项的JSON文件的名称，或者是JSON字符串。 这是可选的。
+- `-conf ` - 为verticle提供一些配置。 `conf`是表示verticle配置或JSON字符串的JSON文件的名称。 这是可选的。
+- `-cp ` - 搜索verticle和verticle使用的任何其他资源的路径。 默认为`.`（当前目录）。 如果您的Verticle引用了其他脚本，类或其他资源（例如jar文件），请确保它们在此路径上。 该路径可以包含多个路径条目，具体取决于操作系统，这些条目由`:`（冒号）或`;`（分号）分隔。 每个路径条目都可以是包含脚本的目录的绝对或相对路径，也可以是jar或zip文件的绝对或相对文件名。 示例路径可能是`-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`。 始终使用路径引用您的Verticle所需的任何资源。 请勿将它们放在系统类路径上，因为这可能导致部署的verticles之间的隔离问题。
+- `-instances ` - 要实例化的verticle的实例数。 每个verticle实例严格都是单线程的，因此要在可用核心上扩展应用程序，您可能需要部署多个实例。 如果省略，将部署一个实例。
+- `-worker` - 此选项确定该verticle是否为工作者verticle 。
+- `-cluster` - 此选项确定Vert.x实例是否将尝试与网络上的其他Vert.x实例形成集群。 集群Vert.x实例允许Vert.x与其他节点形成分布式事件总线。 默认值为`false`（不群群）。
+- `-cluster-port` - 如果还指定了`cluster`选项，那么它将确定绑定哪个端口与其他Vert.x实例进行集群通信。 默认值为'0'-表示*选择一个随机端口*。 除非确实需要绑定到特定端口，否则通常无需指定此参数。
+- `-cluster-host` - 如果还指定了`cluster`选项，那么它将确定绑定哪个主机地址与其他Vert.x实例进行集群通信。 默认情况下，它将尝试从可用接口中选择一个。 如果您有多个接口，并且想要使用特定的接口，请在此处指定。
+- `-cluster-public-port` - 如果还指定了`cluster`选项，那么这将决定通告哪个端口与其他Vert.x实例进行集群通信。 默认值为`-1`，表示与集群端口相同。
+- `-cluster-public-host` - 如果还指定了`cluster`选项，则这将确定要通告哪个主机地址以与其他Vert.x实例进行集群通信。 如果未指定，则Vert.x使用`cluster-host`的值。
+- `-ha` - 如果指定，则将以高可用性（HA）部署的方式部署该Verticle。 有关更多详细信息，请参见相关部分
+- `-quorum` - 与`-ha`结合使用。 它指定要使任何*HA deploymentIDs*处于活动状态的群集中的最小节点数。 预设为0。
+- `-hagroup` - 与`-ha`结合使用。 它指定此节点将加入的HA组。 一个群集中可以有多个HA组。 节点将仅故障转移到同一组中的其他节点。 默认值为`__DEFAULT__`
 
-You can also set system properties using: `-Dkey=value`.
+您还可以使用`-Dkey=value`设置系统属性。
 
-Here are some more examples:
+这里还有更多示例：
 
-Run a JavaScript verticle server.js with default settings
+使用默认设置运行JavaScript verticle server.js
 
-```
+```bash
 vertx run server.js
 ```
 
-Run 10 instances of a pre-compiled Java verticle specifying classpath
+运行指定类路径的已经编译好的Java verticle的10个实例
 
-```
+```bash
 vertx run com.acme.MyVerticle -cp "classes:lib/myjar.jar" -instances 10
 ```
 
-Run 10 instances of a Java verticle by source *file*
+通过源*file*运行Java verticle的10个实例
 
-```
+```bash
 vertx run MyVerticle.java -instances 10
 ```
 
-Run 20 instances of a ruby worker verticle
+运行20个ruby工作verticle的实例
 
-```
+```bash
 vertx run order_worker.rb -instances 20 -worker
 ```
 
-Run two JavaScript verticles on the same machine and let them cluster together with each other and any other servers on the network
+在同一台机器上运行两个JavaScript的verticles，让它们彼此集群在一起，以及网络上的任何其他服务器
 
-```
+```bash
 vertx run handler.js -cluster
 vertx run sender.js -cluster
 ```
 
-Run a Ruby verticle passing it some config
+运行一个Ruby verticle传递一些配置
 
 ```
 vertx run my_verticle.rb -conf my_verticle.conf
 ```
 
-Where `my_verticle.conf` might contain something like:
+其中`my_verticle.conf`可能包含以下内容：
 
-```
+```json
 {
 "name": "foo",
 "num_widgets": 46
 }
 ```
 
-The config will be available inside the verticle via the core API.
+可以通过核心API在verticle内部使用该配置。
 
-When using the high-availability feature of vert.x you may want to create a *bare* instance of vert.x. This instance does not deploy any verticles when launched, but will receive a verticle if another node of the cluster dies. To create a *bare* instance, launch:
+使用vert.x的高可用性功能时，您可能需要创建vert.x的“bare”实例。 该实例在启动时不会部署任何Verticle，但是如果集群的另一个节点死亡，则会收到一个Verticle。 要创建一个*bare*实例，请启动：
 
-```
+```bash
 vertx bare
 ```
 
-Depending on your cluster configuration, you may have to append the `cluster-host` and `cluster-port` parameters.
+根据您的集群配置，您可能必须附加`cluster-host`和`cluster-port`参数。
 
-### Executing a Vert.x application packaged as a fat jar
-A *fat jar* is an executable jar embedding its dependencies. This means you don’t have to have Vert.x pre-installed on the machine on which you execute the jar. Like any executable Java jar it can be executed with.
+### 执行打包为fat jar的Vert.x应用程序
+*fat jar*是嵌入了全部依赖项的可执行jar。 这意味着您无需在执行jar的计算机上预安装Vert.x。 像任何可执行的Java jar一样，可以使用它来执行。
 
-```
+```bash
 java -jar my-application-fat.jar
 ```
 
-There is nothing really Vert.x specific about this, you could do this with any Java application
+真正的Vert.x并没有什么特别的，您可以使用任何Java应用程序来完成
 
-You can either create your own main class and specify that in the manifest, but it’s recommended that you write your code as verticles and use the Vert.x `Launcher` class (`io.vertx.core.Launcher`) as your main class. This is the same main class used when running Vert.x at the command line and therefore allows you to specify command line arguments, such as `-instances` in order to scale your application more easily.
+您可以创建自己的主类并在manifest中指定它，但是建议您将代码编写为verticles，并使用Vert.x `Launcher`类（`io.vertx.core.Launcher`）作为主类。这与在命令行上运行Vert.x时使用的主类相同，因此允许您指定命令行参数，例如`-instances`，以便更轻松地扩展应用程序。
 
-To deploy your verticle in a *fatjar* like this you must have a *manifest* with:
+要将verticle放置在这样的*fat jar*中，您必须具有*manifest*，并具有：
 
-- `Main-Class` set to `io.vertx.core.Launcher`
-- `Main-Verticle` specifying the main verticle (fully qualified class name or script file name)
+- `Main-Class` 设置成 `io.vertx.core.Launcher`
+- `Main-Verticle` 指定主Verticle（完全限定的类名或脚本文件名）
 
-You can also provide the usual command line arguments that you would pass to `vertx run`:
+您还可以提供传递给`vertx run`的常用命令行参数：
 
-```
+```bash
 java -jar my-verticle-fat.jar -cluster -conf myconf.json
 java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cluster_xml
 ```
 
-| NOTE | Please consult the Maven/Gradle simplest and Maven/Gradle verticle examples in the examples repository for examples of building applications as fatjars. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 请参考示例存储库中的Maven/Gradle最简单的Maven/Gradle verticle示例，以获取将应用程序构建为fatjars的示例。
+>
+------
 
-A fat jar executes the `run` command, by default.
+默认情况下，fat jar执行`run`命令。
 
-### Displaying version of Vert.x
-To display the vert.x version, just launch:
+### 显示Vert.x的版本
+要显示vert.x版本，只需启动：
 
-```
+```bash
 vertx version
 ```
 
-### Other commands
-The `vertx` command line and the `Launcher` also provide other *commands* in addition to `run` and `version`:
+### 其他命令
+除了`run` 和 `version`之外，`vertx`命令行和`Launcher`还提供其他*command*：
 
-You can create a `bare` instance using:
+您可以使用以下方法创建一个`bare`实例：
 
-```
+```bash
 vertx bare
 # or
 java -jar my-verticle-fat.jar bare
 ```
 
-You can also start an application in background using:
+您还可以使用以下方法在后台启动应用程序：
 
-```
+```bash
 java -jar my-verticle-fat.jar start --vertx-id=my-app-name
 ```
 
-If `my-app-name` is not set, a random id will be generated, and printed on the command prompt. You can pass `run` options to the `start` command:
+如果未设置`my-app-name`，则会生成一个随机ID，并将其打印在命令提示符下。 您可以将`—-vertx-id`选项传递给`start`命令：
 
-```
+```bash
 java -jar my-verticle-fat.jar start —-vertx-id=my-app-name -cluster
 ```
 
-Once launched in background, you can stop it with the `stop` command:
+一旦在后台启动，您可以使用`stop`命令停止它：
 
-```
+```bash
 java -jar my-verticle-fat.jar stop my-app-name
 ```
 
-You can also list the vert.x application launched in background using:
+您还可以使用以下命令列出在后台启动的vert.x应用程序：
 
-```
+```bash
 java -jar my-verticle-fat.jar list
 ```
 
-The `start`, `stop` and `list` command are also available from the `vertx` tool. The start` command supports a couple of options:
+也可以从`vertx`工具中获得`start`，`stop`和`list`命令。 `start`命令支持两个选项：
 
-- `vertx-id` : the application id, uses a random UUID if not set
-- `java-opts` : the Java Virtual Machine options, uses the `JAVA_OPTS` environment variable if not set.
-- `redirect-output` : redirect the spawned process output and error streams to the parent process streams.
+- `vertx-id` : 应用程序ID，如果未设置，则使用随机UUID
+- `java-opts` : Java虚拟机选项，如果未设置，则使用JAVA_OPTS环境变量。
+- `redirect-output` : 将产生的流程输出和错误流重定向到父流程流。
 
-If option values contain spaces, don’t forget to wrap the value between `""` (double-quotes).
+如果选项值包含空格，请不要忘了将值包装在`""`（双引号）之间。
 
-As the `start` command spawns a new process, the java options passed to the JVM are not propagated, so you **must** use `java-opts` to configure the JVM (`-X`, `-D`…). If you use the `CLASSPATH` environment variable, be sure it contains all the required jars (vertx-core, your jars and all the dependencies).
+当`start`命令产生一个新进程时，传递给JVM的Java选项不会传播，因此您必须使用`java-opts`来配置JVM (`-X`, `-D`…)。 如果您使用`CLASSPATH`环境变量，请确保它包含所有必需的jar（vertx-core，您的jar和所有依赖项）。
 
-The set of commands is extensible, refer to the [Extending the vert.x Launcher](https://vertx.io/docs/vertx-core/groovy/#_extending_the_vert_x_launcher) section.
+该命令集是可扩展的，请参阅[扩展vert.x启动器](https://vertx.io/docs/vertx-core/java/#_extending_the_vert_x_launcher)部分。
 
-### Live Redeploy
-When developing it may be convenient to automatically redeploy your application upon file changes. The `vertx` command line tool and more generally the `Launcher` class offers this feature. Here are some examples:
+### 实时重新部署
+开发时，在文件更改后自动重新部署应用程序可能会很方便。 `vertx`命令行工具，更一般地讲，`Launcher`类提供此功能。 这里有些例子：
 
-```
-vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy" --launcher-class=io.vertx.core.Launcher
-vertx run MyVerticle.groovy --redeploy="**&#47;*.groovy,**&#47;*.rb"  --launcher-class=io.vertx.core.Launcher
-java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**&#47;*.class"  --launcher-class=io.vertx.core
-.Launcher -cp ...
-```
-
-The redeployment process is implemented as follows. First your application is launched as a background application (with the `start` command). On matching file changes, the process is stopped and the application is restarted. This avoids leaks, as the process is restarted.
-
-To enable the live redeploy, pass the `--redeploy` option to the `run` command. The `--redeploy` indicates the set of file to *watch*. This set can use Ant-style patterns (with `**`, `*` and `?`). You can specify several sets by separating them using a comma (`,`). Patterns are relative to the current working directory.
-
-Parameters passed to the `run` command are passed to the application. Java Virtual Machine options can be configured using `--java-opts`. For instance, to pass the the `conf` parameter or a system property, you need to use: `--java-opts="-conf=my-conf.json -Dkey=value"`
-
-The `--launcher-class` option determine with with *main* class the application is launcher. It’s generally `Launcher`, but you have use you own *main*.
-
-The redeploy feature can be used in your IDE:
-
-- Eclipse - create a *Run* configuration, using the `io.vertx.core.Launcher` class a *main class*. In the *Program arguments* area (in the *Arguments* tab), write `run your-verticle-fully-qualified-name --redeploy=**/*.java --launcher-class=io.vertx.core.Launcher`. You can also add other parameters. The redeployment works smoothly as Eclipse incrementally compiles your files on save.
-- IntelliJ - create a *Run* configuration (*Application*), set the *Main class* to `io.vertx.core.Launcher`. In the Program arguments write: `run your-verticle-fully-qualified-name --redeploy=**/*.class --launcher-class=io.vertx.core.Launcher`. To trigger the redeployment, you need to *make* the project or the module explicitly (*Build* menu → *Make project*).
-
-To debug your application, create your run configuration as a remote application and configure the debugger using `--java-opts`. However, don’t forget to re-plug the debugger after every redeployment as a new process is created every time.
-
-You can also hook your build process in the redeploy cycle:
-
-```
-java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package"
-java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar'
+```bash
+vertx run MyVerticle.groovy --redeploy="**/*.groovy" --launcher-class=io.vertx.core.Launcher
+vertx run MyVerticle.groovy --redeploy="**/*.groovy,**/*.rb"  --launcher-class=io.vertx.core.Launcher
+java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**/*.class"  --launcher-class=io.vertx.core.Launcher -cp ...
 ```
 
-The "on-redeploy" option specifies a command invoked after the shutdown of the application and before the restart. So you can hook your build tool if it updates some runtime artifacts. For instance, you can launch `gulp` or `grunt` to update your resources. Don’t forget that passing parameters to your application requires the `--java-opts` param:
+重新部署过程的实现如下。 首先，您的应用程序将作为后台应用程序启动（使用`start`命令）。 匹配文件更改后，该过程将停止并重新启动应用程序。 这样可以避免泄漏，因为重新启动了进程。
 
+要启用实时重新部署，请将`--redeploy`选项传递给`run`命令。 `--redeploy`表示要监视的文件集。 这个集合可以使用Ant样式的模式（带有`**`，`*`和`?`）。 您可以使用逗号（`,`）将它们分开来指定多个集合。 模式是相对于当前工作目录的。
+
+传递给`run`命令的参数传递给应用程序。 可以使用`--java-opts`来配置Java虚拟机选项。 例如，要传递`conf`参数或系统属性，您需要使用：`--java-opts="-conf=my-conf.json -Dkey=value"`
+
+`--launcher-class`选项通过*main*类确定应用程序是启动器。 通常是`Launcher`，但是您可以使用自己的*main*。
+
+可以在您的IDE中使用重新部署功能：
+
+- Eclipse - 使用`io.vertx.core.Launcher`类作为**main类**创建一个`Run`配置。 在“Program arguments”区域（在“Arguments”选项卡中），写成`run your-verticle-fully-qualified-name --redeploy=**/*.java --launcher-class=io.vertx.core.Launcher`。 您还可以添加其他参数。 当Eclipse在保存时逐步编译文件时，重新部署可以顺利进行。
+- IntelliJ - 创建一个*Run*配置（*Application*），将*Main class*设置为`io.vertx.core.Launcher`。 在程序参数中写：`run your-verticle-fully-qualified-name --redeploy=**/*.class --launcher-class=io.vertx.core.Launcher`。 要触发重新部署，您需要*使*项目或模块显式（*Build*菜单→*Make project*）。
+
+要调试您的应用程序，请将您的运行配置创建为远程应用程序，并使用`--java-opts`配置调试器。 但是，不要忘记在每次重新部署后都重新插入调试器，因为每次都会创建一个新进程。
+
+您还可以在重新部署周期中挂钩构建过程：
+
+```bash
+java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn package"
+java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar'
 ```
-java -jar target/my-fat-jar.jar --redeploy="**&#47;*.java" --on-redeploy="mvn package" --java-opts="-Dkey=val"
-java -jar build/libs/my-fat-jar.jar --redeploy="src&#47;**&#47;*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
+
+“on-redeploy”选项指定在应用程序关闭之后和重新启动之前调用的命令。 因此，如果构建工具更新了某些运行时构件，则可以将其挂钩。 例如，您可以启动`gulp`或`grunt`来更新您的资源。 不要忘记，将参数传递给应用程序需要`--java-opts`参数：
+
+```bash
+java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn package" --java-opts="-Dkey=val"
+java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
 ```
 
-The redeploy feature also supports the following settings:
+重新部署功能还支持以下设置：
 
-- `redeploy-scan-period` : the file system check period (in milliseconds), 250ms by default
-- `redeploy-grace-period` : the amount of time (in milliseconds) to wait between 2 re-deployments, 1000ms by default
-- `redeploy-termination-period` : the amount of time to wait after having stopped the application (before launching user command). This is useful on Windows, where the process is not killed immediately. The time is given in milliseconds. 0 ms by default.
+- `redeploy-scan-period` : 文件系统检查周期（以毫秒为单位），默认为250ms
+- `redeploy-grace-period` : 2次重新部署之间等待的时间（以毫秒为单位），默认为1000ms
+- `redeploy-termination-period` : 停止应用程序后（启动用户命令之前）要等待的时间。 这在Windows上非常有用，因为Windows不会立即终止该进程。 时间以毫秒为单位。 默认为0毫秒。
 
-## Cluster Managers
-In Vert.x a cluster manager is used for various functions including:
+## 集群管理器
+在Vert.x中，群集管理器用于各种功能，包括：
 
-- Discovery and group membership of Vert.x nodes in a cluster
-- Maintaining cluster wide topic subscriber lists (so we know which nodes are interested in which event bus addresses)
-- Distributed Map support
-- Distributed Locks
-- Distributed Counters
+- 集群中Vert.x节点的发现和组成员关系
+- 维护集群范围的主题订户列表（因此我们知道哪些节点对哪些事件总线地址感兴趣）
+- 分布式Map支持
+- 分布式锁
+- 分布式计数器
 
-Cluster managers *do not* handle the event bus inter-node transport, this is done directly by Vert.x with TCP connections.
+群集管理器*不*处理事件总线节点间的传输，这是由Vert.x使用TCP连接直接完成的。
 
-The default cluster manager used in the Vert.x distributions is one that uses [Hazelcast](http://hazelcast.com/) but this can be easily replaced by a different implementation as Vert.x cluster managers are pluggable.
+Vert.x发行版中使用的默认集群管理器是使用[Hazelcast](http://hazelcast.com/)的集群管理器，但是由于可以插入Vert.x集群管理器，因此可以很容易地用其他实现替换。
 
-A cluster manager must implement the interface `ClusterManager`. Vert.x locates cluster managers at run-time by using the Java [Service Loader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) functionality to locate instances of `ClusterManager` on the classpath.
+集群管理器必须实现接口`ClusterManager`。 Vert.x通过使用Java [Service Loader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) 功能来在运行时查找类路径上的`ClusterManager`集群管理器。
 
-If you are using Vert.x at the command line and you want to use clustering you should make sure the `lib` directory of the Vert.x installation contains your cluster manager jar.
+如果您在命令行上使用Vert.x，并且想要使用集群，则应确保Vert.x安装的`lib`目录包含您的集群管理器jar。
 
-If you are using Vert.x from a Maven or Gradle project just add the cluster manager jar as a dependency of your project.
+如果您从Maven或Gradle项目中使用Vert.x，则只需添加群集管理器jar作为项目的依赖项即可。
 
-You can also specify cluster managers programmatically if embedding Vert.x using `setClusterManager`.
+如果使用`setClusterManager`嵌入Vert.x，也可以通过编程方式指定集群管理器。
 
-## Logging
-Vert.x logs using it’s in-built logging API. The default implementation uses the JDK (JUL) logging so no extra logging dependencies are needed.
+## 日志记录
+Vert.x使用其内置的日志记录API进行日志记录。 默认实现使用JDK（JUL）日志记录，因此不需要额外的日志记录依赖项。
 
-### Configuring JUL logging
-A JUL logging configuration file can be specified in the normal JUL way by providing a system property called: `java.util.logging.config.file` with the value being your configuration file. For more information on this and the structure of a JUL config file please consult the JUL logging documentation.
+### 配置 JUL 日志
+可以通过提供一个名为`java.util.logging.config.file`的系统属性（其值为配置文件）来以普通的JUL方式指定JUL日志记录配置文件。 有关此内容和JUL配置文件的结构的更多信息，请查阅JUL日志记录文档。
 
-Vert.x also provides a slightly more convenient way to specify a configuration file without having to set a system property. Just provide a JUL config file with the name `vertx-default-jul-logging.properties` on your classpath (e.g. inside your fatjar) and Vert.x will use that to configure JUL.
+Vert.x还提供了一种更便捷的方式来指定配置文件，而无需设置系统属性。 只需在类路径上提供一个名为`vertx-default-jul-logging.properties`的JUL配置文件（例如，在fatjar中），Vert.x将使用该文件来配置JUL。
 
-### Using another logging framework
-If you don’t want Vert.x to use JUL for it’s own logging you can configure it to use another logging framework, e.g. Log4J or SLF4J.
+### 使用其它的日志框架
+如果您不希望Vert.x使用JUL进行自己的日志记录，则可以将其配置为使用其他日志记录框架，例如 Log4J或SLF4J。
 
-To do this you should set a system property called `vertx.logger-delegate-factory-class-name` with the name of a Java class which implements the interface `LogDelegateFactory`. We provide pre-built implementations for Log4J (version 1), Log4J 2 and SLF4J with the class names `io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` and `io.vertx.core.logging.SLF4JLogDelegateFactory` respectively. If you want to use these implementations you should also make sure the relevant Log4J or SLF4J jars are on your classpath.
+为此，您应该设置一个名为`vertx.logger-delegate-factory-class-name`的系统属性，该属性带有实现`LogDelegateFactory`接口的Java类的名称。 我们提供了Log4J(版本1)、Log4J 2和SLF4J的预构建实现，类名为`io.vertx.core.logging.Log4jLogDelegateFactory`, `io.vertx.core.logging.Log4j2LogDelegateFactory` 和 `io.vertx.core.logging.SLF4JLogDelegateFactory`。如果要使用这些实现，则还应确保相关的Log4J或SLF4J jar在您的类路径中。
 
-Notice that, the provided delegate for Log4J 1 does not support parameterized message. The delegate for Log4J 2 uses the `{}` syntax like the SLF4J delegate. JUL delegate uses the `{x}` syntax.
+注意，Log4J 1提供的委托不支持参数化消息。Log4J 2的委托像SLF4J委托一样使用`{}`语法。JUL委托使用`{x}`语法。
 
-### Netty logging
-When configuring logging, you should care about configuring Netty logging as well.
+### Netty 日志
+配置日志记录时，还应注意配置Netty日志记录。
 
-Netty does not rely on external logging configuration (e.g system properties) and instead implements a logging configuration based on the logging libraries visible from the Netty classes:
+Netty不依赖外部日志记录配置（例如系统属性），而是基于Netty类可见的日志记录库实现日志记录配置：
 
-- use `SLF4J` library if it is visible
-- otherwise use `Log4j` if it is visible
-- otherwise fallback `java.util.logging`
+- 如果可见则使用`SLF4J`库
+- 否则使用`Log4j`（如果可见）
+- 否则使用`java.util.logging`
 
-The logger implementation can be forced to a specific implementation by setting Netty’s internal logger implementation directly on `io.netty.util.internal.logging.InternalLoggerFactory`:
+通过直接在`io.netty.util.internal.logger.internalloggerfactory`上设置Netty的内部日志实现，可以强制日志实现为特定的实现:
 
-```
+```groovy
 // Force logging to Log4j
 InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
 ```
 
-### Troubleshooting
-#### SLF4J warning at startup
-If, when you start your application, you see the following message:
+### 故障排除
+#### 启动时的SLF4J警告
+如果，当你开始你的应用程序，你看到以下消息:
 
 ```
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
@@ -6164,141 +6140,140 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
 ```
 
-It means that you have SLF4J-API in your classpath but no actual binding. Messages logged with SLF4J will be dropped. You should add a binding to your classpath. Check https://www.slf4j.org/manual.html#swapping to pick a binding and configure it.
+这意味着您的类路径中有SLF4J-API，但没有实际的绑定。 用SLF4J记录的消息将被丢弃。 您应该将绑定添加到类路径。 检查`https://www.slf4j.org/manual.html#swapping`以选择绑定并进行配置。
 
-Be aware that Netty looks for the SLF4-API jar and uses it by default.
+请注意，Netty会查找SLF4-API jar，并默认使用它。
 
-#### Connection reset by peer
-If your logs show a bunch of:
+#### 对等连接被重置
+如果您的日志显示以下内容：
 
 ```
 io.vertx.core.net.impl.ConnectionBase
 SEVERE: java.io.IOException: Connection reset by peer
 ```
 
-It means that the client is resetting the HTTP connection instead of closing it. This message also indicates that you may have not consumed the complete payload (the connection was cut before you were able to).
+这意味着客户端正在重置HTTP连接，而不是关闭它。 此消息还表明您可能没有消耗完完整的有效负载（连接已被切断，然后才能够使用）。
 
-Unresolved directive in index.adoc - include::override/hostname-resolution.adoc[]
+## 高可用性和故障转移
+Vert.x允许您在具有高可用性（HA）支持的情况下运行自己的verticles。 在这种情况下，当运行某个verticle的vert.x实例突然死亡时，该verticle将被迁移到另一个verticle实例。 vert.x实例必须位于同一集群中。
 
-## High Availability and Fail-Over
-Vert.x allows you to run your verticles with high availability (HA) support. In that case, when a vert.x instance running a verticle dies abruptly, the verticle is migrated to another vertx instance. The vert.x instances must be in the same cluster.
+### 自动故障转移
+在启用*HA*的情况下运行vert.x时，如果运行某个verticle的vert.x实例发生故障或死亡，该verticle将自动重新部署到集群的另一个vert.x实例上。 我们称此为“verticle故障转移”。
 
-### Automatic failover
-When vert.x runs with *HA* enabled, if a vert.x instance where a verticle runs fails or dies, the verticle is redeployed automatically on another vert.x instance of the cluster. We call this *verticle fail-over*.
+要在启用*H *的情况下运行vert.x，只需在命令行中添加`-ha`标志即可：
 
-To run vert.x with the *HA* enabled, just add the `-ha` flag to the command line:
-
-```
+```bash
 vertx run my-verticle.js -ha
 ```
 
-Now for HA to work, you need more than one Vert.x instances in the cluster, so let’s say you have another Vert.x instance that you have already started, for example:
+现在，要使HA正常工作，集群中需要多个Vert.x实例，因此，假设您已经启动了另一个Vert.x实例，例如：
 
-```
+```bash
 vertx run my-other-verticle.js -ha
 ```
 
-If the Vert.x instance that is running `my-verticle.js` now dies (you can test this by killing the process with `kill -9`), the Vert.x instance that is running `my-other-verticle.js` will automatic deploy `my-verticle .js` so now that Vert.x instance is running both verticles.
+如果运行`my-verticle.js`的Vert.x实例现在死亡（您可以通过使用`kill -9`杀死该进程来测试），则运行`my-other-verticle.js`的Vert.x实例将自动部署`my-verticle.js`，因此，现在Vert.x实例正在同时运行两verticles。
 
-| NOTE | the migration is only possible if the second vert.x instance has access to the verticle file (here `my-verticle.js`). |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 仅当第二个vert.x实例有权访问verticle文件（此处为`my-verticle.js`）时，才可以进行迁移。
+>
+------
 
-| IMPORTANT | Please note that cleanly closing a Vert.x instance will not cause failover to occur, e.g. `CTRL-C` or `kill -SIGINT` |
-| --------- | ------------------------------------------------------------ |
-|           |                                                              |
+------
+> **重要:** 请注意，完全关闭Vert.x实例不会导致发生故障转移，例如`CTRL-C` 或 `kill -SIGINT`
+>
+------
 
-You can also start *bare* Vert.x instances - i.e. instances that are not initially running any verticles, they will also failover for nodes in the cluster. To start a bare instance you simply do:
+您也可以启动 *裸* Vert.x实例--即最初没有运行任何verticle的实例，它们也将针对集群中的节点进行故障转移。 要启动一个裸实例，您只需执行以下操作：
 
-```
+```bash
 vertx run -ha
 ```
 
-When using the `-ha` switch you do not need to provide the `-cluster` switch, as a cluster is assumed if you want HA.
+当使用`-ha`开关时，您不需要提供`-cluster`开关，因为如果您想要HA，则假定为集群。
 
-| NOTE | depending on your cluster configuration, you may need to customize the cluster manager configuration (Hazelcast by default), and/or add the `cluster-host` and `cluster-port` parameters. |
-| ---- | ------------------------------------------------------------ |
-|      |                                                              |
+------
+> **注意:** 根据您的集群配置，您可能需要自定义集群管理器配置（默认为Hazelcast）和/或添加`cluster-host`和`cluster-port`参数。
+>
+------
 
-### HA groups
-When running a Vert.x instance with HA you can also optional specify a *HA group*. A HA group denotes a logical group of nodes in the cluster. Only nodes with the same HA group will failover onto one another. If you don’t specify a HA group the default group `__DEFAULT__` is used.
+### HA 组
+当使用HA运行Vert.x实例时，您还可以可选地指定*HA组*。 HA组表示集群中节点的逻辑组。 只有具有相同HA组的节点才能彼此故障转移。 如果您未指定HA组，则使用默认组`__DEFAULT__`。
 
-To specify an HA group you use the `-hagroup` switch when running the verticle, e.g.
+要指定HA组，请在运行verticle时使用`-group`开关，例如:
 
-```
+```bash
 vertx run my-verticle.js -ha -hagroup my-group
 ```
 
-Let’s look at an example:
+让我们看一个例子：
 
-In a first terminal:
+在第一个终端中：
 
-```
+```bash
 vertx run my-verticle.js -ha -hagroup g1
 ```
 
-In a second terminal, let’s run another verticle using the same group:
+在第二个终端中，让我们使用相同的组运行另一个verticle：
 
-```
+```bash
 vertx run my-other-verticle.js -ha -hagroup g1
 ```
 
-Finally, in a third terminal, launch another verticle using a different group:
+最后，在第三个终端中，使用不同的组启动另一个verticle：
 
-```
+```bash
 vertx run yet-another-verticle.js -ha -hagroup g2
 ```
 
-If we kill the instance in terminal 1, it will fail over to the instance in terminal 2, not the instance in terminal 3 as that has a different group.
+如果我们杀死终端1中的实例，它将故障转移到终端2中的实例，而不是终端3中的实例，因为该实例具有不同的组。
 
-If we kill the instance in terminal 3, it won’t get failed over as there is no other vert.x instance in that group.
+如果我们在终端3杀死了该实例，则该实例将不会进行故障转移，因为该组中没有其他vert.x实例。
 
-### Dealing with network partitions - Quora
-The HA implementation also supports quora. A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system.
+### 处理网络分区-Quora
+HA实现还支持法定人数。 quorum (法定人数)是为了允许在分布式系统中执行操作而必须获得的分布式事务的最小投票数。
 
-When starting a Vert.x instance you can instruct it that it requires a `quorum` before any HA deployments will be deployed. In this context, a quorum is a minimum number of nodes for a particular group in the cluster. Typically you chose your quorum size to `Q = 1 + N/2` where `N` is the number of nodes in the group. If there are less than `Q` nodes in the cluster the HA deployments will undeploy. They will redeploy again if/when a quorum is re-attained. By doing this you can prevent against network partitions, a.k.a. *split brain*.
+启动Vert.x实例时，您可以指示它要求`quorum`，然后才能部署任何HA。 在这种情况下，quorum是集群中特定组的最小节点数。 通常，您将quorum大小选择为`Q = 1 + N/2`，其中`N`是组中的节点数。 如果集群中的节点少于`Q`个，则HA部署将取消。 如果重新达到法定人数，他们将重新部署。 这样可以防止网络分区，也就是“split brain(裂脑)”。
 
-There is more information on quora [here](https://en.wikipedia.org/wiki/Quorum_(distributed_computing)).
+有关quora的更多信息，请参见[此处](https://en.wikipedia.org/wiki/Quorum_(distributed_computing))。
 
-To run vert.x instances with a quorum you specify `-quorum` on the command line, e.g.
+要使用quorum运行vert.x实例，请在命令行上指定`-quorum'，例如
 
-In a first terminal:
+在第一个终端中：
 
-```
+```bash
 vertx run my-verticle.js -ha -quorum 3
 ```
 
-At this point the Vert.x instance will start but not deploy the module (yet) because there is only one node in the cluster, not 3.
+此时，Vert.x实例将启动，但尚未部署模块（尚未），因为集群中只有一个节点，而不是3个。
 
-In a second terminal:
+在第二个终端中：
 
-```
+```bash
 vertx run my-other-verticle.js -ha -quorum 3
 ```
 
-At this point the Vert.x instance will start but not deploy the module (yet) because there are only two nodes in the cluster, not 3.
+此时，Vert.x实例将启动，但尚未部署模块，因为集群中只有两个节点，而不是3个。
 
-In a third console, you can start another instance of vert.x:
+在第三个终端中，您可以启动vert.x的另一个实例：
 
-```
+```bash
 vertx run yet-another-verticle.js -ha -quorum 3
 ```
 
-Yay! - we have three nodes, that’s a quorum. At this point the modules will automatically deploy on all instances.
+好极了！ --我们有三个节点，这是一个法定人数。 此时，模块将自动部署在所有实例上。
 
-If we now close or kill one of the nodes the modules will automatically undeploy on the other nodes, as there is no longer a quorum.
+如果现在关闭或杀死其中一个节点，则模块将自动在其他节点上取消部署，因为不再有仲裁。
 
-Quora can also be used in conjunction with ha groups. In that case, quora are resolved for each particular group.
+Quora也可以与ha组结合使用。 在这种情况下，将为每个特定组解决法定人数。
 
-## Native transports
-Vert.x can run with [native transports](http://netty.io/wiki/native-transports.html) (when available) on BSD (OSX) and Linux:
+## 本地传输
+Vert.x可以与[本地传输](http://netty.io/wiki/native-transports.html)（如果可用）一起在BSD（OSX）和Linux上运行：
 
-Unresolved directive in index.adoc - include::override/configuring-native.adoc[]
+### 本地Linux传输
+您需要在类路径中添加以下依赖项：
 
-### Native Linux Transport
-You need to add the following dependency in your classpath:
-
-```
+```xml
 <dependency>
  <groupId>io.netty</groupId>
  <artifactId>netty-transport-native-epoll</artifactId>
@@ -6307,14 +6282,14 @@ You need to add the following dependency in your classpath:
 </dependency>
 ```
 
-Native on Linux gives you extra networking options:
+Linux上的Native可以为您提供额外的联网选项：
 
 - `SO_REUSEPORT`
 - `TCP_QUICKACK`
 - `TCP_CORK`
 - `TCP_FASTOPEN`
 
-```
+```groovy
 // Available on Linux
 vertx.createHttpServer([
   tcpFastOpen:fastOpen,
@@ -6324,10 +6299,10 @@ vertx.createHttpServer([
 ])
 ```
 
-### Native BSD Transport
-You need to add the following dependency in your classpath:
+### 本地BSDLinuxNative
+您需要在类路径中添加以下依赖项：
 
-```
+```xml
 <dependency>
  <groupId>io.netty</groupId>
  <artifactId>netty-transport-native-kqueue</artifactId>
@@ -6336,32 +6311,32 @@ You need to add the following dependency in your classpath:
 </dependency>
 ```
 
-MacOS Sierra and above are supported.
+支持MacOS Sierra及更高版本。
 
-Native on BSD gives you extra networking options:
+BSD上的Native可以为您提供其他网络选项：
 
 - `SO_REUSEPORT`
 
-```
+```groovy
 // Available on BSD
 vertx.createHttpServer([
   reusePort:reusePort
 ])
 ```
 
-### Domain sockets
-Natives provide domain sockets support for servers:
+### 域套接字
+本机为服务器提供域套接字支持:
 
-```
+```groovy
 // Only available on BSD and Linux
 vertx.createNetServer().connectHandler({ so ->
   // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"))
 ```
 
-or for http:
+或者http:
 
-```
+```groovy
 vertx.createHttpServer().requestHandler({ req ->
   // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"), { ar ->
@@ -6373,9 +6348,9 @@ vertx.createHttpServer().requestHandler({ req ->
 })
 ```
 
-As well as clients:
+以及客户端:
 
-```
+```groovy
 def netClient = vertx.createNetClient()
 
 // Only available on BSD and Linux
@@ -6391,9 +6366,9 @@ netClient.connect(addr, { ar ->
 })
 ```
 
-or for http:
+或者http:
 
-```
+```groovy
 def httpClient = vertx.createHttpClient()
 
 // Only available on BSD and Linux
@@ -6405,49 +6380,49 @@ httpClient.request(HttpMethod.GET, addr, 8080, "localhost", "/", { resp ->
 }).end()
 ```
 
-## Security notes
-Vert.x is a toolkit, not an opinionated framework where we force you to do things in a certain way. This gives you great power as a developer but with that comes great responsibility.
+## 安全提示
+Vert.x是一个工具包，而不是一个固执己见的框架，我们在其中强迫您以某种方式做事。 这为您提供了强大的开发能力，但随之而来的是巨大的责任。
 
-As with any toolkit, it’s possible to write insecure applications, so you should always be careful when developing your application especially if it’s exposed to the public (e.g. over the internet).
+与任何工具包一样，也可以编写不安全的应用程序，因此在开发应用程序时应特别小心，尤其是在公开（例如通过互联网）的应用程序中。
 
-### Web applications
-If writing a web application it’s highly recommended that you use Vert.x-Web instead of Vert.x core directly for serving resources and handling file uploads.
+### Web 应用程序
+如果编写网络应用程序，强烈建议您直接使用Vert.x-Web而不是Vert.x core来提供资源和处理文件上传。
 
-Vert.x-Web normalises the path in requests to prevent malicious clients from crafting URLs to access resources outside of the web root.
+Vert.x-Web规范了请求中的路径，以防止恶意客户端制作URL来访问Web根以外的资源。
 
-Similarly for file uploads Vert.x-Web provides functionality for uploading to a known place on disk and does not rely on the filename provided by the client in the upload which could be crafted to upload to a different place on disk.
+同样，对于文件上载，Vert.x-Web提供了用于上载到磁盘上已知位置的功能，并且不依赖于客户端在上载中提供的文件名，可以将其设计成上载到磁盘上的其他位置。
 
-Vert.x core itself does not provide such checks so it would be up to you as a developer to implement them yourself.
+Vert.x核心本身不提供此类检查，因此，作为开发人员，您可以自己实施这些检查。
 
-### Clustered event bus traffic
-When clustering the event bus between different Vert.x nodes on a network, the traffic is sent un-encrypted across the wire, so do not use this if you have confidential data to send and your Vert.x nodes are not on a trusted network.
+### 集群事件总线流量
+在网络上不同Vert.x节点之间对事件总线进行集群时，流量将以非加密方式通过网络发送，因此，如果要发送的机密数据且Vert.x节点不在受信任的网络上，请不要使用此功能 。
 
-### Standard security best practices
-Any service can have potentially vulnerabilities whether it’s written using Vert.x or any other toolkit so always follow security best practice, especially if your service is public facing.
+### 标准安全最佳做法
+无论是使用Vert.x或任何其他工具包编写的任何服务，都可能存在潜在的漏洞，因此请始终遵循最佳安全实践，尤其是当您的服务面向公众时。
 
-For example you should always run them in a DMZ and with an user account that has limited rights in order to limit the extent of damage in case the service was compromised.
+例如，您应该始终在DMZ中使用具有有限权限的用户帐户运行它们，以限制服务受到损害时的损坏程度。
 
-## Vert.x Command Line Interface API
-Vert.x Core provides an API for parsing command line arguments passed to programs. It’s also able to print help messages detailing the options available for a command line tool. Even if such features are far from the Vert.x core topics, this API is used in the `Launcher` class that you can use in *fat-jar* and in the `vertx` command line tools. In addition, it’s polyglot (can be used from any supported language) and is used in Vert.x Shell.
+## Vert.x命令行界面API
+Vert.x Core提供了一个API，用于解析传递给程序的命令行参数。 它还可以打印帮助消息，其中详细说明了命令行工具可用的选项。 即使这些功能与Vert.x核心主题相距甚远，该API仍可以在`Launcher`类中使用，您可以在*fat-jar*和`vertx`命令行工具中使用。 此外，它是多语言的（可以从任何受支持的语言中使用），并在Vert.x Shell中使用。
 
-Vert.x CLI provides a model to describe your command line interface, but also a parser. This parser supports different types of syntax:
+Vert.x CLI提供了一个模型来描述您的命令行界面，还提供了一个解析器。 该解析器支持不同类型的语法：
 
-- POSIX like options (ie. `tar -zxvf foo.tar.gz`)
-- GNU like long options (ie. `du --human-readable --max-depth=1`)
-- Java like properties (ie. `java -Djava.awt.headless=true -Djava.net.useSystemProxies=true Foo`)
-- Short options with value attached (ie. `gcc -O2 foo.c`)
-- Long options with single hyphen (ie. `ant -projecthelp`)
+- POSIX类型的选项（例如: `tar -zxvf foo.tar.gz`）
+- GNU类型的长选项（例如: `du --human-readable --max-depth=1`）
+- Java类型的属性 (例如: `java -Djava.awt.headless=true -Djava.net.useSystemProxies=true Foo`)
+- 附带值的短选项 (例如: `gcc -O2 foo.c`)
+- 单连字符的长选项 (例如: `ant -projecthelp`)
 
-Using the CLI api is a 3-steps process:
+使用CLI api的过程分为3个步骤：
 
-1. The definition of the command line interface
-2. The parsing of the user command line
-3. The query / interrogation
+1. 命令行界面的定义
+2. 用户命令行解析
+3. 查询/询问
 
-### Definition Stage
-Each command line interface must define the set of options and arguments that will be used. It also requires a name. The CLI API uses the `Option` and `Argument` classes to describe options and arguments:
+### 定义阶段
+每个命令行界面必须定义将要使用的选项和参数集。 它还需要一个名称。 CLI API使用`Option`和`Argument`类来描述选项和参数：
 
-```
+```groovy
 def cli = CLI.create("copy").setSummary("A command line interface to copy files.").addOption([
   longName:"directory",
   shortName:"R",
@@ -6464,12 +6439,13 @@ def cli = CLI.create("copy").setSummary("A command line interface to copy files.
 ])
 ```
 
-As you can see, you can create a new `CLI` using `CLI.create`. The passed string is the name of the CLI. Once created you can set the summary and description. The summary is intended to be short (one line), while the description can contain more details. Each option and argument are also added on the `CLI` object using the `addArgument` and `addOption` methods.
+如您所见，您可以使用`CLI.create`创建一个新的`CLI`。 传递的字符串是CLI的名称。 创建后，您可以设置摘要和描述。 摘要旨在简短（一行），而描述可以包含更多详细信息。 每个选项和参数也使用`addArgument`和`addOption`方法添加到CLI对象。
 
-#### Options
-An `Option` is a command line parameter identified by a *key* present in the user command line. Options must have at least a long name or a short name. Long name are generally used using a `--` prefix, while short names are used with a single `-`. Options can get a description displayed in the usage (see below). Options can receive 0, 1 or several values. An option receiving 0 values is a `flag`, and must be declared using `setFlag`. By default, options receive a single value, however, you can configure the option to receive several values using `setMultiValued`:
+#### 选项
+“ Option”是一个命令行参数，由用户命令行中的*key*标识。 选项必须至少具有长名或短名。 长名称通常使用`--`前缀，而短名称则使用单个`-`。 选项可以在用法中显示说明（请参阅下文）。 选项可以接收0、1或几个值。 接收到0个值的选项是一个`flag`，必须使用`setFlag`声明。 默认情况下，选项接收单个值，但是，您可以使用`setMultiValued`将选项配置为接收多个值：
 
-```
+
+```groovy
 def cli = CLI.create("some-name").setSummary("A command line interface illustrating the options valuation.").addOption([
   longName:"flag",
   shortName:"f",
@@ -6487,9 +6463,9 @@ def cli = CLI.create("some-name").setSummary("A command line interface illustrat
 ])
 ```
 
-Options can be marked as mandatory. A mandatory option not set in the user command line throws an exception during the parsing:
+选项可以标记为强制性。 用户命令行中未设置的强制选项在解析过程中会引发异常：
 
-```
+```groovy
 def cli = CLI.create("some-name").addOption([
   longName:"mandatory",
   required:true,
@@ -6497,9 +6473,9 @@ def cli = CLI.create("some-name").addOption([
 ])
 ```
 
-Non-mandatory options can have a *default value*. This value would be used if the user does not set the option in the command line:
+非强制选项可以具有*默认值*。 如果用户未在命令行中设置选项，则将使用此值：
 
-```
+```groovy
 def cli = CLI.create("some-name").addOption([
   longName:"optional",
   defaultValue:"hello",
@@ -6507,11 +6483,11 @@ def cli = CLI.create("some-name").addOption([
 ])
 ```
 
-An option can be *hidden* using the `setHidden` method. Hidden option are not listed in the usage, but can still be used in the user command line (for power-users).
+可以使用`setHidden`方法将选项“隐藏”。 用法中未列出“隐藏”选项，但仍可以在用户命令行中使用（对于高级用户）。
 
-If the option value is contrained to a fixed set, you can set the different acceptable choices:
+如果选项值限制为固定值，则可以设置不同的可接受选项：
 
-```
+```groovy
 def cli = CLI.create("some-name").addOption([
   longName:"color",
   defaultValue:"green",
@@ -6524,14 +6500,14 @@ def cli = CLI.create("some-name").addOption([
 ])
 ```
 
-Options can also be instantiated from their JSON form.
+还可以从JSON格式实例化选项。
 
-#### Arguments
-Unlike options, arguments do not have a *key* and are identified by their *index*. For example, in `java com.acme.Foo`, `com.acme.Foo` is an argument.
+#### 参数
+与选项不同，参数没有*key*，而是由*index*标识。 例如，在`java com.acme.Foo`中，`com.acme.Foo`是一个参数。
 
-Arguments do not have a name, there are identified using a 0-based index. The first parameter has the index `0`:
+参数没有名称，使用基于0的索引进行标识。 第一个参数的索引为`0`：
 
-```
+```groovy
 def cli = CLI.create("some-name").addArgument([
   index:0,
   description:"the first argument",
@@ -6543,9 +6519,9 @@ def cli = CLI.create("some-name").addArgument([
 ])
 ```
 
-If you don’t set the argument indexes, it computes it automatically by using the declaration order.
+如果您未设置参数索引，它将使用声明顺序自动计算。
 
-```
+```groovy
 def cli = CLI.create("some-name").addArgument([
   description:"the first argument",
   argName:"arg1"
@@ -6555,21 +6531,21 @@ def cli = CLI.create("some-name").addArgument([
 ])
 ```
 
-The `argName` is optional and used in the usage message.
+`argName`是可选的，在用法消息中使用。
 
-As options, `Argument` can:
+`Argument`可以有一下选项：
 
-- be hidden using `setHidden`
-- be mandatory using `setRequired`
-- have a default value using `setDefaultValue`
-- receive several values using `setMultiValued` - only the last argument can be multi-valued.
+- 被`setHidden`隐藏
+- 使用`setRequired`说明是强制性的
+- 使用`setDefaultValue`设置默认值
+- 使用`setMultiValued`接收多个值--只有最后一个参数可以是多值的。
 
-Arguments can also be instantiated from their JSON form.
+还可以从JSON格式实例化选项。
 
-#### Usage generation
-Once your `CLI` instance is configured, you can generate the *usage* message:
+#### 用法生成
+一旦您的`CLI`实例被配置，您可以生成*usage*消息：
 
-```
+```groovy
 def cli = CLI.create("copy").setSummary("A command line interface to copy files.").addOption([
   longName:"directory",
   shortName:"R",
@@ -6589,9 +6565,9 @@ def builder = new java.lang.StringBuilder()
 cli.usage(builder)
 ```
 
-It generates an usage message like this one:
+它生成如下用法消息：
 
-```
+```bash
 Usage: copy [-R] source target
 
 A command line interface to copy files.
@@ -6599,32 +6575,32 @@ A command line interface to copy files.
  -R,--directory   enables directory support
 ```
 
-If you need to tune the usage message, check the `UsageMessageFormatter` class.
+如果需要调整用法消息，请查看`UsageMessageFormatter`类。
 
-### Parsing Stage
-Once your `CLI` instance is configured, you can parse the user command line to evaluate each option and argument:
+### 解析阶段
+配置完`CLI`实例后，您可以解析用户命令行以评估每个选项和参数：
 
-```
+```groovy
 def commandLine = cli.parse(userCommandLineArguments)
 ```
 
-The `parse` method returns a `CommandLine` object containing the values. By default, it validates the user command line and checks that each mandatory options and arguments have been set as well as the number of values received by each option. You can disable the validation by passing `false` as second parameter of `parse`. This is useful if you want to check an argument or option is present even if the parsed command line is invalid.
+`parse`方法返回一个包含值的`CommandLine`对象。 默认情况下，它会验证用户命令行，并检查是否已设置每个强制性选项和参数以及每个选项接收的值数量。 您可以通过传递`false`作为parse的第二个参数来禁用验证。 如果您想检查参数或选项是否存在，即使已解析的命令行无效，这也很有用。
 
-You can check whether or not the `CommandLine` is valid using `isValid`.
+您可以使用`isValid`检查`CommandLine`是否有效。
 
-### Query / Interrogation Stage
-Once parsed, you can retrieve the values of the options and arguments from the `CommandLine` object returned by the `parse` method:
+### 查询/讯问阶段
+解析后，您可以从parse方法返回的CommandLine对象中检索选项和参数的值：
 
-```
+```groovy
 def commandLine = cli.parse(userCommandLineArguments)
 def opt = commandLine.getOptionValue("my-option")
 def flag = commandLine.isFlagEnabled("my-flag")
 def arg0 = commandLine.getArgumentValue(0)
 ```
 
-One of your option can have been marked as "help". If a user command line enabled a "help" option, the validation won’t failed, but give you the opportunity to check if the user asks for help:
+您的选项之一可以被标记为“help”。 如果用户命令行启用了“help”选项，则验证不会失败，但是可以让您检查用户是否寻求帮助：
 
-```
+```groovy
 def cli = CLI.create("test").addOption([
   longName:"help",
   shortName:"h",
@@ -6645,34 +6621,34 @@ if (!line.isValid() && line.isAskingForHelp()) {
 }
 ```
 
-## The vert.x Launcher
-The vert.x `Launcher` is used in *fat jar* as main class, and by the `vertx` command line utility. It executes a set of *commands* such as *run*, *bare*, *start*…
+## vert.x启动器
+vert.x的`Launcher`在*fat jar*中用作主类，并由`vertx`命令行实用程序使用。 它执行一组*命令*，例如*run*，*bare*，*start* ...
 
-### Extending the vert.x Launcher
-You can extend the set of command by implementing your own `Command` (in Java only):
+### 扩展vert.x启动器
+您可以通过实现自己的`Command`（仅适用于Java）来扩展命令集：
 
-```
-&#64;Name("my-command")
-&#64;Summary("A simple hello command.")
+```groovy
+@Name("my-command")
+@Summary("A simple hello command.")
 public class MyCommand extends DefaultCommand {
 
  private String name;
 
- &#64;Option(longName = "name", required = true)
+ @Option(longName = "name", required = true)
  public void setName(String n) {
    this.name = n;
  }
 
- &#64;Override
+ @Override
  public void run() throws CLIException {
    System.out.println("Hello " + name);
  }
 }
 ```
 
-You also need an implementation of `CommandFactory`:
+您还需要实现`CommandFactory`：
 
-```
+```groovy
 public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
  public HelloCommandFactory() {
   super(HelloCommand.class);
@@ -6680,62 +6656,64 @@ public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
 }
 ```
 
-Then, create the `src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory` and add a line indicating the fully qualified name of the factory:
+然后，创建`src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory`并添加一行指示工厂的全限定名称：
 
-```
+```groovy
 io.vertx.core.launcher.example.HelloCommandFactory
 ```
 
-Builds the jar containing the command. Be sure to includes the SPI file (`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`).
+构建包含命令的jar。 确保包含SPI文件(`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`)。
 
-Then, place the jar containing the command into the classpath of your fat-jar (or include it inside) or in the `lib` directory of your vert.x distribution, and you would be able to execute:
+然后，将包含命令的jar放入fat-jar的类路径（或将其包含在里面）或vert.x发行版的`lib`目录中，您将可以执行：
 
-```
+```bash
 vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ```
 
-### Using the Launcher in fat jars
-To use the `Launcher` class in a *fat-jar* just set the `Main-Class` of the *MANIFEST* to `io.vertx.core.Launcher`. In addition, set the `Main-Verticle` *MANIFEST* entry to the name of your main verticle.
+### 在fat jars中使用启动器
+要在*fat-jar*中使用`Launcher`类，只需将*MANIFEST*的`Main-Class`设置为`io.vertx.core.Launcher`。 另外，将`Main-Verticle`  *MANIFEST*条目设置为主verticle的名称。
 
-By default, it executed the `run` command. However, you can configure the default command by setting the `Main-Command` *MANIFEST* entry. The default command is used if the *fat jar* is launched without a command.
+默认情况下，它执行`run`命令。 但是，您可以通过设置`Main-Command` *MANIFEST*条目来配置默认命令。 如果在没有命令的情况下启动*fat jar*，则使用默认命令。
 
-### Sub-classing the Launcher
-You can also create a sub-class of `Launcher` to start your application. The class has been designed to be easily extensible.
+### 对启动器进行子类化
+您也可以创建`Launcher`的子类来启动您的应用程序。 该类已被设计为易于扩展。
 
-A `Launcher` sub-class can:
+`Launcher`子类可以：
 
-- customize the vert.x configuration in `beforeStartingVertx`
-- retrieve the vert.x instance created by the "run" or "bare" command by overriding `afterStartingVertx`
-- configure the default verticle and command with `getMainVerticle` and `getDefaultCommand`
-- add / remove commands using `register` and `unregister`
+- 在`beforeStartingVertx`中自定义vert.x配置
+- 通过覆盖`afterStartingVertx`来检索由“run”或“bare”命令创建的vert.x实例。
+- 使用`getMainVerticle`和`getDefaultCommand`配置默认的verticle和命令
+- 使用`register`和`unregister`添加/删除命令
 
-### Launcher and exit code
-When you use the `Launcher` class as main class, it uses the following exit code:
+<a name="319____启动器和退出代码"></a>
+### 启动器和退出代码
+当您使用`Launcher`类作为主类时，它使用以下退出代码：
 
-- `0` if the process ends smoothly, or if an uncaught error is thrown
-- `1` for general purpose error
-- `11` if Vert.x cannot be initialized
-- `12` if a spawn process cannot be started, found or stopped. This error code is used by the `start` and `stop` command
-- `14` if the system configuration is not meeting the system requirement (shc as java not found)
-- `15` if the main verticle cannot be deployed
+- `0` 如果过程顺利结束，或者抛出未捕获的错误
+- `1` 对于通用错误
+- `11` 如果Vert.x无法初始化
+- `12` 如果无法启动、查找或停止衍生进程。这个错误代码由`start`和`stop`命令使用
+- `14` 如果系统配置不符合系统要求（找不到java的shc）
+- `15` 如果主verticle无法部署
 
-## Configuring Vert.x cache
-When Vert.x needs to read a file from the classpath (embedded in a fat jar, in a jar form the classpath or a file that is on the classpath), it copies it to a cache directory. The reason behind this is simple: reading a file from a jar or from an input stream is blocking. So to avoid to pay the price every time, Vert.x copies the file to its cache directory and reads it from there every subsequent read. This behavior can be configured.
+## 配置Vert.x缓存
+当Vert.x需要从类路径中读取文件时（嵌入在一个 fat jar中，以类路径的jar形式或位于类路径中的文件），它将把它复制到缓存目录中。 这背后的原因很简单：从jar或从输入流读取文件是阻塞的。 因此，为避免每次都付出代价，Vert.x将该文件复制到其缓存目录，并在以后每次读取时从该目录读取该文件。 此行为可以配置。
 
-First, by default, Vert.x uses `$CWD/.vertx` as cache directory. It creates a unique directory inside this one to avoid conflicts. This location can be configured by using the `vertx.cacheDirBase` system property. For instance if the current working directory is not writable (such as in an immutable container context), launch your application with:
+首先，默认情况下，Vert.x使用`$CWD/.vertx`作为缓存目录。 它在此目录内创建一个唯一目录，以避免冲突。 这个位置可以通过使用`vertx.cacheDirBase`系统属性来配置。 例如，如果当前工作目录不可写（例如在不可变的容器上下文中），请使用以下命令启动应用程序：
 
-```
+```bash
 vertx run my.Verticle -Dvertx.cacheDirBase=/tmp/vertx-cache
 # or
 java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
 ```
 
-| IMPORTANT | the directory must be **writable**. |
-| --------- | ----------------------------------- |
-|           |                                     |
+------
+> **重要:** 该目录必须是“可写的”。
+>
+------
 
-When you are editing resources such as HTML, CSS or JavaScript, this cache mechanism can be annoying as it serves only the first version of the file (and so you won’t see your edits if you reload your page). To avoid this behavior, launch your application with `-Dvertx.disableFileCaching=true`. With this setting, Vert.x still uses the cache, but always refresh the version stored in the cache with the original source. So if you edit a file served from the classpath and refresh your browser, Vert.x reads it from the classpath, copies it to the cache directory and serves it from there. Do not use this setting in production, it can kill your performances.
+当您编辑HTML，CSS或JavaScript之类的资源时，此缓存机制可能很烦人，因为它仅提供文件的第一个版本（因此，如果重新加载页面，您将看不到编辑内容）。 为了避免这种情况，请使用`-Dvertx.disableFileCaching=true`启动您的应用程序。 有了这个设置，Vert.x仍然使用缓存，但总是使用原始源刷新缓存中存储的版本。因此，如果您编辑来自类路径的文件并刷新浏览器，那么Vert.x从类路径中读取它，将它复制到缓存目录并从那里提供服务。不要在生产中使用这种设置，它会扼杀你的表现。
 
-Finally, you can disable completely the cache by using `-Dvertx.disableFileCPResolving=true`. This setting is not without consequences. Vert.x would be unable to read any files from the classpath (only from the file system). Be very careful when using this settings.
+最后，您可以使用`-Dvertx.disableFileCPResolving=true`完全禁用高速缓存。 此设置并非没有后果。 Vert.x将无法从类路径（仅从文件系统）读取任何文件。 使用此设置时要非常小心。
 
