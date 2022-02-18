@@ -1,4 +1,6 @@
-# VertX核心手册 Java版
+# Vert.x 3 核心手册 Java版
+
+> 翻译: 白石(https://github.com/wjw465150/Vert.x-Core-Manual)
 
 Vert.x的核心是一组Java API，我们称为**Vert.x Core**
 
@@ -65,7 +67,6 @@ Vertx vertx = Vertx.vertx();
 
 ------
 > **注意:**  大多数应用程序只需要一个Vert.x实例，但是如果您需要隔离事件总线或不同组的服务器和客户端，则可以创建多个Vert.x实例。
->
 ------
 
 <a name="2____创建Vertx对象时指定选项"></a>
@@ -80,7 +81,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(40));
 
 <a name="3____创建集群的Vert_x对象"></a>
 ### 创建集群的Vert.x对象
-如果您要创建**集群Vert.x**（请参阅[事件总线]](https://vertx.io/docs/vertx-core/java/#event_bus)上的部分，以获得关于集群事件总线的更多信息），然后您将通常使用异步变量来创建Vertx对象。
+如果您要创建**集群Vert.x**（请参阅[事件总线](https://vertx.io/docs/vertx-core/java/#event_bus)上的部分，以获得关于集群事件总线的更多信息），然后您将通常使用异步变量来创建Vertx对象。
 
 这是因为群集中的不同Vert.x实例通常需要花费一些时间（可能是几秒钟）来组合在一起。 在此期间，我们不想阻塞调用线程，因此我们将结果异步地提供给您。
 

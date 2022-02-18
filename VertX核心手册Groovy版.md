@@ -1,4 +1,6 @@
-# VertX核心手册 Groovy版
+# Vert.x 3 核心手册 Groovy版
+
+> 翻译: 白石(https://github.com/wjw465150/Vert.x-Core-Manual)
 
 Vert.x的核心是一组Java API，我们称为**Vert.x Core**
 
