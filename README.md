@@ -70,7 +70,7 @@ Vert.x必须运行在JDK8上，JDK8提供了lambda表达式，可以简化匿名
 
 Vert.x有一个口号大概是：“我们不去评判那个编程语言更好，你只要选择你想要使用的语言就可以了”。也就是说，在Vert.x上，可以使用JavaScript，Java，Scala，Ruby等等，下面是官网的一个截图
 
-![image-20220218092424509](README.assets/image-20220218092424509.png)
+![image-20220218092424509](assets/image-20220218092424509.png)
 
 ## **（3）不依赖中间件**
 
@@ -80,7 +80,7 @@ Vert.x的底层依赖Netty，因此在使用Vert.x构建Web项目时，不依赖
 
 Vert.x和Spring的对比，有一种使用MacOS和Windows对比的感觉。Vert.x和庞大的Spring家族体系不同，Vert.x提供数据库操作，Redis操作，Web客户端操作，NoSQL数据库的一些操作等常用的结构，很清新，很简洁，但足够使用。下面是从官网截取的一个提供的客户端工具。
 
-![image-20220218092459401](README.assets/image-20220218092459401.png)
+![image-20220218092459401](assets/image-20220218092459401.png)
 
 ## **（5）为微服务而生**
 
