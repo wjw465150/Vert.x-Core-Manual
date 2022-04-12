@@ -1,5 +1,7 @@
 # Vert.x 4 Web Manual中文版
 
+> 翻译: 白石(https://github.com/wjw465150/Vert.x-Core-Manual)
+
 Vert.x-Web 是一组构建块，用于使用 Vert.x 构建 Web 应用程序。 将其视为构建现代、可扩展的 Web 应用程序的瑞士军刀。
 
 Vert.x 核心提供了一组相当低级的功能来处理 HTTP，并且对于某些应用程序来说已经足够了。

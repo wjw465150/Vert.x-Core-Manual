@@ -1,5 +1,7 @@
 # Vert.x 4 Web-Client Manual中文版
 
+> 翻译: 白石(https://github.com/wjw465150/Vert.x-Core-Manual)
+
 Vert.x Web Client 是一个异步 HTTP 和 HTTP/2 客户端。
 
 Web 客户端可以轻松地与 Web 服务器进行 HTTP 请求/响应交互，并提供高级功能，例如：

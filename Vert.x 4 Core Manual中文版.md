@@ -3341,14 +3341,12 @@ MultiMap headers = HttpHeaders.set("content-type", "application/json").set("othe
 
 client.request(HttpMethod.GET, "some-uri", ar1 -> {
   if (ar1.succeeded()) {
-    if (ar1.succeeded()) {
-      HttpClientRequest request = ar1.result();
-      request.headers().addAll(headers);
-      request.send(ar2 -> {
-        HttpClientResponse response = ar2.result();
-        System.out.println("Received response with status code " + response.statusCode());
-      });
-    }
+    HttpClientRequest request = ar1.result();
+    request.headers().addAll(headers);
+    request.send(ar2 -> {
+      HttpClientResponse response = ar2.result();
+      System.out.println("Received response with status code " + response.statusCode());
+    });
   }
 });
 ```
