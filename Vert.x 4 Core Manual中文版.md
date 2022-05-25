@@ -175,17 +175,17 @@ server.requestHandler(request -> {
 
 你可能以前听说过这个 - 例如 Node.js 实现了这个模式.
 
-在标准的反应器实现中,有一个**single event loop(单个事件循环)**线程,该线程在一个循环中运行,将所有事件到达时的所有事件传递给所有处理器.
+在标准的反应器实现中,有一个 **single event loop(单个事件循环)** 线程,该线程在一个循环中运行,将所有事件到达时的所有事件传递给所有处理器.
 
 单线程的问题是它在任何时候都只能在单核上运行,所以如果你想让你的单线程反应器应用程序(例如你的 Node.js 应用程序)在你的多核服务器上扩展,你必须启动并管理许多不同的进程.
 
 Vert.x 在这里的工作方式不同. 每个 Vert.x 实例都维护**几个事件循环**,而不是单个事件循环. 默认情况下,我们根据机器上可用内核的数量来选择,但这可以被覆盖.
 
-这意味着与 Node.js 不同,单个 Vertx 进程可以跨服务器扩展.
+这意味着与 Node.js 不同,单个 Vert.x 进程可以跨服务器扩展.
 
 我们将此模式称为**Multi-Reactor Pattern(多反应器模式)**,以将其与单线程反应器模式区分开.
 
-> **🏷注意:** 尽管Vertx实例维护多个事件循环,但任何特定的处理器永远不会并发执行,并且在大多数情况下(除了 [worker verticles](#Worker_verticles))总是使用**完全相同的事件循环**调用.
+> <mark>**🏷注意:**</mark> 尽管Vertx实例维护多个事件循环,但任何特定的处理器永远不会并发执行,并且在大多数情况下(除了 [worker verticles](#Worker_verticles))总是使用**完全相同的事件循环**调用.
 
 <a name="golden_rule"></a>
 
@@ -224,7 +224,7 @@ Thread vertx-eventloop-thread-3 has been blocked for 20458 ms
 
 Vert.x还将提供堆栈跟踪,以精确定位阻塞发生的位置.
 
-如果您想关闭这些警告或更改设置,您可以在创建 Vert.x 对象之前在 `VertxOptions` 对象中来改变缺省设置.
+如果您想关闭这些警告或更改设置,您可以在创建 Vert.x 对象之前在 `VertxOptions` 对象s改变缺省设置.
 
 ## Future的结果
 
@@ -942,11 +942,11 @@ eb.consumer("news.uk.sport", message -> {
 
 当消息到达您的处理器时,您的处理器将被调用,并传入"消息".
 
-调用 consumer() 返回的对象是 `MessageConsumer` 的一个实例.
+调用 `consumer()` 返回的对象是 `MessageConsumer` 的一个实例.
 
 该对象随后可用于取消注册处理器,或将处理器用作流.
 
-或者,您可以使用 `consumer` 返回没有设置处理器的 MessageConsumer,然后在其上设置处理器. 例如:
+或者,您可以使用 `consumer` 返回没有设置处理器的 `MessageConsumer`,然后在其上设置处理器. 例如:
 
 ```java
 EventBus eb = vertx.eventBus();
@@ -1430,7 +1430,7 @@ socket.write(buff);
 
 #### 随机存取Buffer写入
 
-你也可以通过使用`setXXX`方法在特定的索引处写入缓冲区.Set方法适用于各种不同的数据类型.所有set方法都以索引作为第一个参数--它表示缓冲区中开始写入数据的位置.
+你也可以通过使用`setXXX`方法在特定的索引处写入缓冲区.set方法适用于各种不同的数据类型.所有set方法都以索引作为第一个参数--它表示缓冲区中开始写入数据的位置.
 
 缓冲区将始终根据需要扩展以容纳数据.
 
@@ -1620,13 +1620,47 @@ socket.closeHandler(v -> {
 
 您可以设置一个 `exceptionHandler` 来接收在连接传递给 `connectHandler` 之前发生的任何异常,例如在 TLS 握手期间.
 
-### 事件总线写处理器
+### 事件总线写处理器(writeHandlerID)
 
-每个套接字都会自动在事件总线上注册一个处理器,并且当在此处理器中接收到任何缓冲区时,它会将它们写入自己. 这些是未在集群上路由的本地订阅.
+每个套接字都会自动在事件总线上注册一个处理器,并且当在此处理器中接收到任何`Buffer`时,它会将自动将`Buffer`里的数据写回客户端. 这些是未在集群上路由的**本地消息订阅**.
 
-这使您可以通过将缓冲区发送到该处理器的地址来将数据写入可能位于完全不同的verticle中的套接字.
+这使您可以通过`vertx.eventBus().publish`方法,将`Buffer`发送到该处理器的地址来将数据写入可能位于完全不同的Verticle中的套接字.
 
 处理器的地址由 `writeHandlerID` 给出
+
+例子代码:
+```java
+@Test
+// This tests using NetSocket.writeHandlerID (on the server side)
+// Send some data and make sure it is fanned out to all connections
+public void testFanout() throws Exception {
+ int numConnections = 10;
+ Set<String> connections = new ConcurrentHashSet<>();
+ server.connectHandler(socket -> {
+  connections.add(socket.writeHandlerID());
+  if (connections.size() == numConnections) {
+   for (String actorID : connections) {
+    vertx.eventBus().publish(actorID, Buffer.buffer("some data"));
+   }
+  }
+  socket.closeHandler(v -> {
+   connections.remove(socket.writeHandlerID());
+  });
+ });
+ startServer();
+  
+ CountDownLatch receivedLatch = new CountDownLatch(numConnections);
+ for (int i = 0; i < numConnections; i++) {
+  client.connect(testAddress, onSuccess(socket -> {
+   socket.handler(data -> {
+    receivedLatch.countDown();
+   });
+  }));
+ }
+ assertTrue(receivedLatch.await(10, TimeUnit.SECONDS));
+ testComplete();
+}
+```
 
 ### 本地和远程地址
 
@@ -1785,7 +1819,57 @@ NetServerOptions options = new NetServerOptions().setLogActivity(true);
 NetServer server = vertx.createNetServer(options);
 ```
 
-对于客户端
+这是一个简单的 HTTP 服务器的输出
+
+```
+id: 0x359e3df6, L:/127.0.0.1:8080 - R:/127.0.0.1:65351] READ: 78B
+        +-------------------------------------------------+
+        |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |
++--------+-------------------------------------------------+----------------+
+|00000000| 47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a |GET / HTTP/1.1..|
+|00000010| 48 6f 73 74 3a 20 6c 6f 63 61 6c 68 6f 73 74 3a |Host: localhost:|
+|00000020| 38 30 38 30 0d 0a 55 73 65 72 2d 41 67 65 6e 74 |8080..User-Agent|
+|00000030| 3a 20 63 75 72 6c 2f 37 2e 36 34 2e 31 0d 0a 41 |: curl/7.64.1..A|
+|00000040| 63 63 65 70 74 3a 20 2a 2f 2a 0d 0a 0d 0a       |ccept: */*....  |
++--------+-------------------------------------------------+----------------+
+[id: 0x359e3df6, L:/127.0.0.1:8080 - R:/127.0.0.1:65351] WRITE: 50B
+        +-------------------------------------------------+
+        |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |
++--------+-------------------------------------------------+----------------+
+|00000000| 48 54 54 50 2f 31 2e 31 20 32 30 30 20 4f 4b 0d |HTTP/1.1 200 OK.|
+|00000010| 0a 63 6f 6e 74 65 6e 74 2d 6c 65 6e 67 74 68 3a |.content-length:|
+|00000020| 20 31 31 0d 0a 0d 0a 48 65 6c 6c 6f 20 57 6f 72 | 11....Hello Wor|
+|00000030| 6c 64                                           |ld              |
++--------+-------------------------------------------------+----------------+
+[id: 0x359e3df6, L:/127.0.0.1:8080 - R:/127.0.0.1:65351] READ COMPLETE
+[id: 0x359e3df6, L:/127.0.0.1:8080 - R:/127.0.0.1:65351] FLUSH
+```
+
+默认情况下，二进制数据以十六进制格式记录。
+
+您可以通过设置日志数据格式来减少数据格式的详细程度，只打印缓冲区长度而不是整个数据。
+
+```java
+NetServerOptions options = new NetServerOptions()
+  .setLogActivity(true)
+  .setActivityLogDataFormat(ByteBufFormat.SIMPLE);
+
+NetServer server = vertx.createNetServer(options);
+```
+
+下面是简单缓冲区格式的相同输出
+
+```
+[id: 0xda8d41dc, L:/127.0.0.1:8080 - R:/127.0.0.1:65399] READ: 78B
+[id: 0xda8d41dc, L:/127.0.0.1:8080 - R:/127.0.0.1:65399] WRITE: 50B
+[id: 0xda8d41dc, L:/127.0.0.1:8080 - R:/127.0.0.1:65399] READ COMPLETE
+[id: 0xda8d41dc, L:/127.0.0.1:8080 - R:/127.0.0.1:65399] FLUSH
+[id: 0xda8d41dc, L:/127.0.0.1:8080 - R:/127.0.0.1:65399] READ COMPLETE
+[id: 0xda8d41dc, L:/127.0.0.1:8080 ! R:/127.0.0.1:65399] INACTIVE
+[id: 0xda8d41dc, L:/127.0.0.1:8080 ! R:/127.0.0.1:65399] UNREGISTERED
+```
+
+客户端也可以记录网络活动
 
 ```java
 NetClientOptions options = new NetClientOptions().setLogActivity(true);
@@ -1798,9 +1882,8 @@ Netty 使用 `DEBUG` 级别和 `io.netty.handler.logging.LoggingHandler` 名称�
 - 日志不是由 Vert.x 日志执行的,而是由 Netty 执行的
 - 这**不是**一个产品特性
 
-You should read the [Netty logging](#netty-logging) section.
+您应该阅读 [Netty logging](#netty-logging) 部分。
 
-<a name="ssl"></a>
 <a name="ssl"></a>
 ### 配置服务器和客户端以使用 SSL/TLS
 
@@ -4882,7 +4965,7 @@ Buffer buff = map2.get("eek");
 
 ### 异步共享 maps
 
-`异步共享地图`允许将数据放入map在本地或从任何其他节点检索.
+`异步共享Map`允许将数据放入map在本地或从任何其他节点检索.
 
 这使得它们对于诸如将会话状态存储在托管 Vert.x Web 应用程序的服务器场中非常有用.
 
@@ -5273,11 +5356,11 @@ vertx.fileSystem().open("target/classes/les_miserables.txt", new OpenOptions(), 
 <a name="classpath"></a>
 #### [从classpath(类路径)访问文件](#classpath)
 
-当vert.x无法在文件系统中找到该文件时,它将尝试从类路径解析该文件.请注意,类路径资源路径不能以`/`开头.
+当vert.x无法在文件系统中找到该文件时,它将尝试从类路径解析该文件.<mark>**请注意,类路径资源路径不能以`/`开头.**</mark>
 
 由于Java没有提供对类路径资源的异步访问,当第一次访问类路径资源时,文件会被复制到工作线程中的文件系统中,并从那里异步地提供服务.当第二次访问相同的资源时,文件系统中的文件将直接从文件系统中提供.即使类路径资源发生了变化(例如在开发系统中),也只会最初内容被提供.
 
-此缓存行为可以在 `setFileCachingEnabled` 选项上设置. 此选项的默认值为 `true`,除非定义了系统属性 `vertx.disableFileCaching`.
+此缓存行为可以在 `FileSystemOptions.setFileCachingEnabled()` 选项上设置. 此选项的默认值为 `true`,除非定义了系统属性 `vertx.disableFileCaching`.
 
 文件缓存的路径默认是`/tmp/vertx-cache-UUID`,可以通过设置系统属性`vertx.cacheDirBase`来自定义. 使用此属性时,它应该指向进程可读/可写位置中的目录前缀,例如:`-Dvertx.cacheDirBase=/tmp/my-vertx-cache`(请注意,没有 UUID).
 
@@ -5845,7 +5928,7 @@ client.lookup("nonexisting.vert.xio", ar -> {
 
 不难看出,如果您写入对象的速度比它实际将数据写入其底层资源的速度快,那么写入队列可能会无限增长 - 最终导致内存耗尽.
 
-To solve this problem aVert.x API 中的一些对象提供了简单的流量控制(*背压*)功能.
+为了解决这个问题 Vert.x API 中的一些对象提供了简单的流量控制(*背压*)功能.
 
 任何可以*写入*的流控制感知对象都实现了`WriteStream`,而任何可以*读取*的流控制对象都被称为实现了`ReadStream`.
 
@@ -6368,7 +6451,7 @@ WorkerExecutor executor = vertx.createSharedWorkerExecutor("my-worker-pool", poo
 
 默认情况下,Vert.x 不记录任何指标. 相反,它提供了一个 SPI 供其他人实现,可以将其添加到类路径中. 指标 SPI 是一项高级功能,它允许实施者从 Vert.x 捕获事件以收集指标. 有关这方面的更多信息,请参阅"API 文档".
 
-如果使用' setFactory '嵌入Vert.x,你也可以通过编程方式指定一个度量工厂.
+如果使用 `setFactory` 嵌入Vert.x,你也可以通过编程方式指定一个度量工厂.
 
 ## `vertx` 命令行
 
@@ -6672,6 +6755,7 @@ Vert.x 使用其内部日志 API 进行日志记录,并支持各种日志后端.
 
 Vert.x 还提供了一种更方便的方式来指定配置文件,而无需设置系统属性. 只需在你的类路径(例如在你的 fatjar 中)提供一个名为 `vertx-default-jul-logging.properties` 的 JUL 配置文件,Vert.x 将使用它来配置 JUL.
 
+<a name="netty-logging"></a>
 ### Netty 日志记录
 
 Netty 不依赖于外部日志配置(例如系统属性). 相反,它基于 Netty 类中可见的日志库实现了日志配置:
@@ -6683,7 +6767,7 @@ Netty 不依赖于外部日志配置(例如系统属性). 相反,它基于 Netty
 
 > **🏷注意:** 你们中的鹰眼可能已经注意到 Vert.x 遵循相同的优先顺序.
 
-通过直接在 io.netty.util.internal.logging.InternalLoggerFactory 上设置 Netty 的内部日志记录器实现,可以将日志记录器实现强制为特定实现:
+通过直接在 `io.netty.util.internal.logging.InternalLoggerFactory` 上设置 Netty 的内部日志记录器实现,可以将日志记录器实现强制为特定实现:
 
 ```java
 // Force logging to Log4j 2
@@ -7489,8 +7573,7 @@ java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
 > **⚠重要:** 此目录必须是**可写的**.
 
 当您编辑 HTML,CSS 或 JavaScript 等资源时,这种缓存机制可能很烦人,因为它只提供文件的第一个版本(因此,如果您重新加载页面,您将看不到您的编辑).
-要避免这种行为,请使用 `-Dvertx.disableFileCaching=true` 启动您的应用程序.使用此设置,Vert.x仍然使用缓存,但总是用原始源刷新缓存中存储的版本.因此,如果编辑从类路径提供的文件并刷新浏览器,Vert.x将从类路径读取该文件,将其复制到缓存目录并从那里提供该文件.不要在生产中使用此设置,它会扼杀性能.
+要避免这种行为,请使用 `-Dvertx.disableFileCaching=true` 启动您的应用程序.使用此设置,Vert.x仍然使用缓存,但总是用原始源刷新缓存中存储的版本.因此,如果编辑从类路径提供的文件并刷新浏览器,Vert.x将从类路径读取该文件,将其复制到缓存目录并从那里提供该文件.<mark>**不要在生产中使用此设置,它会扼杀性能.**</mark>
 
 最后,您可以使用 `-Dvertx.disableFileCPResolving=true` 完全禁用缓存. 这种设置并非没有后果. Vert.x 将无法从类路径中读取任何文件(只能从文件系统中读取). 使用此设置时要非常小心.
-
 
