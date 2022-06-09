@@ -403,7 +403,7 @@ client
     System.out.println("Something went wrong " + err.getMessage()));
 ```
 
-> **⚠小心:** 默认情况下，仅当网络级别发生错误时，Vert.x Web 客户端请求才会以错误结束。 换句话说，`404 Not Found`响应，或内容类型错误的响应，**不**被视为失败。 如果您希望 Web 客户端自动执行健全性检查，请使用 [response predicates](#response-predicates)。
+> **⚠小心:** 默认情况下，仅当网络级别发生错误时，Vert.x Web 客户端请求才会以错误结束。 换句话说，`404 Not Found`响应，或内容类型错误的响应，**不**被视为失败。 如果您希望 Web 客户端自动执行健全性检查，请使用 [response predicates(响应谓词)](#response-predicates)。
 
 > **☢警告:** 响应是完全buffered，使用 `BodyCodec.pipe` 将响应通过管道传输到写入流
 

@@ -129,9 +129,9 @@ cs
   });
 ```
 
-这里我们将字符串结果转换为大写，在它前面加上一个字符串，最终调用了`whenComplete`。 请注意，这是一个 `BiConsumer`，需要测试哪些值或异常参数为 `null`，才能知道 promise 是否成功完成。 同样重要的是要注意，除非您调用异步的 `CompletionStage` 方法，否则调用将在 Vert.x 线程上执行。
+这里我们将字符串结果转换为大写，在它前面加上一个字符串，最终调用了*whenComplete*。 请注意，这是一个 *BiConsumer*，需要测试哪些值或异常参数为 *null*，才能知道 promise 是否成功完成。 同样重要的是要注意，除非您调用异步的 *CompletionStage* 方法，否则调用将在 Vert.x 线程上执行。
 
-最后但同样重要的是，您也可以将 `CompletionStage` 转换为 Vert.x `Future`，如下所示。
+最后但同样重要的是，您也可以将 *CompletionStage* 转换为 Vert.x `Future`，如下所示。
 
 **清单 5.18 从 CompletionStage 到 Vert.x Future**
 

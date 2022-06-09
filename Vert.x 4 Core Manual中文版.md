@@ -503,11 +503,11 @@ public class MyVerticle extends AbstractVerticle {
 
 - 标准 Verticles
 
-  这些是最常见和最有用的类型-它们总是使用事件循环线程执行. 我们将在下一节中对此进行更多讨论.
+  这些是最常见和最有用的类型-它们总是使用<mark>**事件循环线程**</mark>执行. 我们将在下一节中对此进行更多讨论.
 
 - 工作 Verticles
 
-  这些使用工作池中的线程运行. 一个Verticle实例永远不会被多个线程同时执行.
+  这些使用<mark>**工作池中的线程**</mark>运行. 一个Verticle实例永远不会被多个线程同时执行.
 
 ### 标准 verticles
 
@@ -535,6 +535,15 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 ```
 
 Worker verticle实例**永远不会**被Vert.x的多个线程并发执行,但可以在不同的时间由不同的线程执行.
+> 译者的备注: worker verticle处理事件的方式与event-loop verticle处理事件的方式基本相同，不同之处在于它可以花费任意长的时间来完成这一操作。重要的是要了解：
+> 1. worker verticle不绑定到单个工作线程，因此与event-loop verticle 不同，后续事件可能不会在同一个线程上执行
+> 2. worker verticles在给定的时间内只能通过一个工作线程【worker thread】访问到
+> 
+> 简单地说：
+> 
+> + 相同点：与event-loop verticle 相同的是， worker verticle是单线程的
+> + 不同点：与event-loop verticle 不同的是，线程可能不总是相同的
+
 
 ### 以编程方式部署Verticle
 
@@ -5175,7 +5184,7 @@ fs.copy("foo.txt", "bar.txt", res -> {
 });
 ```
 
-阻塞版本被命名为 `xxxBlocking` 并直接返回结果或抛出异常. 在许多情况下,根据操作系统和文件系统,一些潜在的阻塞操作可能会很快返回,这就是我们提供它们的原因,但强烈建议您在从事件循环中使用它们之前测试它们在特定应用程序中返回所需的时间,以免违反黄金法则.
+阻塞版本被命名为 `xxxBlocking` 并直接返回结果或抛出异常. 在许多情况下,根据操作系统和文件系统,一些潜在的阻塞操作可能会很快返回,这就是我们提供它们的原因,但强烈建议您在从事件循环中使用它们之前测试它们在特定应用程序中返回所需的时间,以免违反<mark>**黄金法则**</mark>.
 
 这是使用阻塞 API 的`copy`:
 
@@ -5233,7 +5242,7 @@ vertx.fileSystem().exists("target/classes/junk.txt", result -> {
 
 Vert.x 提供了一种异步文件抽象,允许您操作文件系统上的文件.
 
-You open an `AsyncFile` as follows:
+如下所示打开一个`AsyncFile`:
 
 ```java
 OpenOptions options = new OpenOptions();
@@ -6117,7 +6126,7 @@ src.pipe()
 
 读取流处于 *flowing* 或 *fetch* 模式
 
-- 最初,流处于 <i>flowing</i> 模式
+- 最初,流处于 *flowing* 模式
 - 当流处于 *flowing* 模式时,元素被传递给处理器
 - 当流处于 *fetch* 模式时,只会将请求的元素数量传递给处理器
 
@@ -6139,11 +6148,11 @@ src.pipe()
 - `exceptionHandler`:如果`WriteStream`发生异常,将被调用.
 - `drainHandler`:如果`WriteStream`被认为不再满,处理器将被调用.
 
-## Record Parser(记录解析器)
+## 记录解析器(Record Parser)
 
 记录解析器允许您轻松解析由字节序列或固定大小记录分隔的协议. 它将输入缓冲区序列转换为按配置结构化的缓冲区序列(固定大小或分隔记录).
 
-例如,如果您有一个由 '\n' 分隔的简单 ASCII 文本协议,并且输入如下:
+例如,如果您有一个由 `\n` 分隔的简单 ASCII 文本协议,并且输入如下:
 
 ```
 buffer1:HELLO\nHOW ARE Y
@@ -6183,7 +6192,7 @@ RecordParser.newFixed(4, h -> {
 
 有关更多详细信息,请查看 `RecordParser` 类.
 
-## Json Parser
+## Json解析器(Json Parser)
 
 您可以轻松地解析 JSON 结构,但这需要一次提供 JSON 内容,但是当您需要解析非常大的结构时可能不方便.
 
@@ -6398,7 +6407,7 @@ vertx.executeBlocking(promise -> {
 });
 ```
 
-> **☢警告:** 阻塞代码应该阻塞一段合理的时间(即不超过几秒钟).长时间的阻塞操作或轮询操作(即以阻塞方式循环轮询事件的线程)要被坚决杜绝.当阻塞操作持续超过 10 秒时,阻塞线程检查器将在控制台上打印一条消息. 长阻塞操作应该使用由应用程序管理的专用线程,该线程可以使用 `事件总线` 或 `runOnContext`与verticles交互
+> **☢警告:** 阻塞代码应该阻塞一段合理的时间(即不超过几秒钟).长时间的阻塞操作或轮询操作(即以阻塞方式循环轮询事件的线程)要被坚决杜绝.当阻塞操作持续超过 10 秒时,阻塞线程检查器将在控制台上打印一条消息. 长阻塞操作应该使用由应用程序管理的专用线程,该线程可以使用 `event-bus(事件总线)` 或 `runOnContext`与verticles交互
 
 默认情况下,如果从同一个上下文(例如,同一个verticle实例)多次调用executeBlocking,那么不同的executeBlocking将*连续*执行(即一个接一个).
 
