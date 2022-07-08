@@ -23,7 +23,7 @@
 - Gradle (在你的 `build.gradle` ):
 
 ```groovy
-compile 'io.vertx:vertx-service-proxy:4.3.1'
+implementation 'io.vertx:vertx-service-proxy:4.3.1'
 ```
 
 要 **实现** 服务代理，还要添加：
@@ -48,6 +48,9 @@ compileOnly 'io.vertx:vertx-codegen:4.3.1'
 - Gradle >= 5 (在你的 `build.gradle` file):
 
 ```groovy
+implementation 'io.vertx:vertx-codegen:4.3.1'
+implementation 'io.vertx:vertx-service-proxy:4.3.1'
+
 annotationProcessor 'io.vertx:vertx-codegen:4.3.1:processor'
 annotationProcessor 'io.vertx:vertx-service-proxy:4.3.1'
 ```
@@ -102,7 +105,7 @@ public interface SomeDatabaseService {
 }
 ```
 
-您还需要在定义接口的包中（或上面）的某个位置有一个“package-info.java”文件。该包需要用“@ModuleGen”注释，以便 Vert.x CodeGen 可以识别您的接口并生成 适当的 EventBus 代理代码。
+您还需要在定义接口的包中（或上面）的某个位置有一个`package-info.java`文件。该包需要用`@ModuleGen`注释，以便 Vert.x CodeGen 可以识别您的接口并生成 适当的 EventBus 代理代码。
 
 `package-info.java`文件内容
 
@@ -129,7 +132,7 @@ service.save(
   });
 ```
 
-你也可以将`@ProxyGen` 和语言API代码生成(`@VertxGen`)结合起来，以Vert.x支持的任何语言来创建服务存根——这意味着你可以只在Java中编写一次服务，然后通过一个习惯的其他语言API与它交互，而不管服务是在本地还是完全在事件总线的其他地方。为此，不要忘记在构建描述符中添加对语言的依赖:
+你也可以将`@ProxyGen` 和语言API代码生成(`@VertxGen`)结合起来，以Vert.x支持的任何语言来创建服务存根——这意味着你可以只在Java中编写一次服务，然后通过一个习惯的其他语言API与它交互，而不管服务是在本地还是完全在事件总线的其他地方。为此，不要忘记在构建描述符中添加对其它语言的依赖:
 
 ```java
 @ProxyGen // 生成服务代理
@@ -138,6 +141,8 @@ public interface SomeDatabaseService {
  // ...
 }
 ```
+
+> **💡提示:** 当`@VertxGen`注解存在时，Vert.x Java 注解处理器的代码生成将在构建时启用所有合适的其它语言绑定的代码生成器。要生成 其它语言的 绑定，我们需要添加对其它语言的依赖项。
 
 ## 异步接口
 
@@ -149,24 +154,23 @@ public interface SomeDatabaseService {
 @ProxyGen
 public interface SomeDatabaseService {
 
-// 几个工厂方法来创建实例和代理
+ // 几个工厂方法来创建实例和代理
+  static SomeDatabaseService create(Vertx vertx) {
+    return new SomeDatabaseServiceImpl(vertx);
+  }
 
-static SomeDatabaseService create(Vertx vertx) {
-  return new SomeDatabaseServiceImpl(vertx);
-}
+  static SomeDatabaseService createProxy(Vertx vertx, String address) {
+    return new SomeDatabaseServiceVertxEBProxy(vertx, address);
+  }
 
-static SomeDatabaseService createProxy(Vertx vertx, String address) {
-  return new SomeDatabaseServiceVertxEBProxy(vertx, address);
-}
+  // 通知完成但没有结果的方法（void）
+  Future<Void> save(String collection, JsonObject document);
 
-// 通知完成但没有结果的方法（void）
-Future<Void> save(String collection, JsonObject document);
+  // 提供结果的方法（一个 json 对象）
+  Future<JsonObject> findOne(String collection, JsonObject query);
 
-// 提供结果的方法（一个 json 对象）
-Future<JsonObject> findOne(String collection, JsonObject query);
-
-// 创建连接
-Future<MyDatabaseConnection> createConnection(String shoeSize);
+  // 创建连接
+  Future<MyDatabaseConnection> createConnection(String shoeSize);
 
 }
 ```
@@ -178,12 +182,12 @@ Future<MyDatabaseConnection> createConnection(String shoeSize);
 @VertxGen
 public interface MyDatabaseConnection {
 
-void insert(JsonObject someData);
+  void insert(JsonObject someData);
 
-Future<Void> commit();
+  Future<Void> commit();
 
-@ProxyClose
-void close();
+  @ProxyClose
+  void close();
 }
 ```
 
@@ -212,14 +216,14 @@ package io.vertx.example;
 @ProxyGen
 public interface SomeDatabaseService {
 
- // 通知完成但没有结果的方法（void）
- void save(String collection, JsonObject document, Handler<AsyncResult<Void>> result);
+  // 通知完成但没有结果的方法（void）
+  void save(String collection, JsonObject document, Handler<AsyncResult<Void>> result);
 
- // 提供结果的方法（一个 json 对象）
- void findOne(String collection, JsonObject query, Handler<AsyncResult<JsonObject>> result);
+  // 提供结果的方法（一个 json 对象）
+  void findOne(String collection, JsonObject query, Handler<AsyncResult<JsonObject>> result);
 
- // 创建连接
- void createConnection(String shoeSize, Handler<AsyncResult<MyDatabaseConnection>> resultHandler);
+  // 创建连接
+  void createConnection(String shoeSize, Handler<AsyncResult<MyDatabaseConnection>> resultHandler);
 
 }
 ```
@@ -272,7 +276,7 @@ new ServiceBinder(vertx)
 - 服务代理：编译时生成的代理，它使用 `EventBus` 通过消息与服务进行交互
 - 服务处理程序：编译时生成的`EventBus`处理程序，它对代理发送的事件做出反应
 
-生成的代理和处理程序以服务类命名，例如，如果服务名为`MyService`，则处理程序称为`MyServiceProxyHandler`，代理称为`MyServiceEBProxy`。
+生成的代理和处理程序以服务类命名，例如，如果服务名为`MyService`，则处理程序称为`MyServiceVertxProxyHandler`，代理称为`MyServiceVertxEBProxy`。
 
 此外，Vert.x Core 提供了一个生成器，用于创建数据对象转换器，以简化服务代理中数据对象的使用。 这种转换器为在服务代理中使用数据对象所必需的`JsonObject`构造函数和`toJson()`方法提供了基础。
 
@@ -299,8 +303,11 @@ new ServiceBinder(vertx)
 这个特性也可以在 Gradle 中使用：
 
 ```groovy
-compile "io.vertx:vertx-codegen:4.3.1:processor"
-compile "io.vertx:vertx-service-proxy:4.3.1"
+implementation 'io.vertx:vertx-codegen:4.3.1'
+implementation 'io.vertx:vertx-service-proxy:4.3.1'
+
+annotationProcessor 'io.vertx:vertx-codegen:4.3.1:processor'
+annotationProcessor 'io.vertx:vertx-service-proxy:4.3.1'
 ```
 
 IDE 也通常为注释处理器提供支持。
@@ -331,8 +338,9 @@ new ServiceBinder(vertx)
   .setAddress("database-service-address")
   .register(SomeDatabaseService.class, service);
 ```
+> **💡提示:** 译者注: 为了提高处理速度,可以在同一个地址上重复注册异步服务.其实内部就是在相同的EvenBus地址上添加了新的consumer!
 
-这可以verticle里完成，也可以在代码中的任何地方完成。
+这可以在verticle里完成，也可以在代码中的任何地方完成。
 
 一旦注册，服务就可以访问。如果您在集群上运行应用程序，那么任何主机都可以提供该服务。
 
@@ -372,7 +380,7 @@ SomeDatabaseService service2 = builder.setOptions(options)
 
 或者，您可以使用生成的代理类。 代理类名是 *service interface* 类名，后跟 `VertxEBProxy`。 例如，如果您的 *service interface* 命名为 `SomeDatabaseService`，则代理类命名为 `SomeDatabaseServiceVertxEBProxy`。
 
-通常，*service interface* 包含一个`createProxy` 静态方法来创建代理。 但这不是必需的：
+通常，*service interface* 包含一个`createProxy` 静态方法来创建代理。 
 
 ```java
 @ProxyGen
@@ -563,7 +571,7 @@ public Future<JsonObject> foo(String shoeSize) {
 格式非常简单：
 
 - 应该有一个名为`action`的标题，它给出了要执行的操作的名称。
-- 消息的主体应该是一个`JsonObject`'，在对象中应该有一个字段用于操作所需的每个参数。
+- 消息的主体应该是一个`JsonObject`，在对象中应该有一个字段用于操作所需的每个参数。
 
 例如，调用一个名为 `save` 的操作，它需要一个字符串集合和一个 JsonObject 文档：
 
@@ -581,7 +589,7 @@ Body:
 
 无论是否使用服务代理来创建服务，都应使用上述约定，因为它允许与服务进行一致的交互。
 
-在使用服务代理的情况下，“action”值应该映射到服务接口中的操作方法的名称，并且正文中的每个 `[key, value]` 应该映射到 `[arg_name, arg_value]` 动作方法。
+在使用服务代理的情况下，`action`值应该映射到服务接口中的操作方法的名称，并且正文中的每个 `[key, value]` 应该映射到 `[arg_name, arg_value]` 动作方法。
 
 对于返回值，服务应该使用 `message.reply(...)` 方法来发回一个返回值 - 这可以是事件总线支持的任何类型。 要发出失败信号，应该使用方法 `message.fail(...)`。
 

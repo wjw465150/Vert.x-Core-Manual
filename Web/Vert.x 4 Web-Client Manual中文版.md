@@ -559,7 +559,7 @@ client
     System.out.println("Something went wrong " + err.getMessage()));
 ```
 
-您可以使用*响应谓词*来交换灵活性以获得清晰和简洁。
+您可以使用 **响应谓词** 来交换灵活性以获得清晰和简洁。
 
 当响应与条件不匹配时，“响应谓词”可能会使请求失败。
 
