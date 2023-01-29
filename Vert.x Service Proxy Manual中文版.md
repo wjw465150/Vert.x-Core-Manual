@@ -113,6 +113,12 @@ public interface SomeDatabaseService {
 @io.vertx.codegen.annotations.ModuleGen(groupPackage = "io.vertx.example", name = "services", useFutures = true)
 package io.vertx.example;
 ```
+> **💡提示:** `ModuleGen` 声明一个Codegen模块，则注解包或其子包中包含的所有处理过的元素都将是同一模块的一部分。模块的标识扮演着重要的角色，因为运行时可以使用它来加载模块。
+>
+> `name`属性声明模块的名称：非分层名称(不能是个空字符串)。 JavaScript 或 Ruby 语言使用此类名称为其运行时生成模块。 Java 或 Groovy 运行时不使用此信息。
+>
+> `groupPackage`属性声明了模块的组名(可以是个空字符串)：用于生成**生成包名的组的包**(用于 Groovy 或 RxJava的生成). 如果定义了此属性,那么组包必须是注解的模块包的前缀，它定义了属于同一组的模块的生成包的命名.
+> 例如:`@ModuleGen(name = "acme", groupPackage="com.acme")` 对于Groovy API生成包名`com.acme.groovy`,对于RxJava  API生成包名`com.acme.rxjava`.
 
 有了这个接口，Vert.x将生成通过事件总线访问您的服务所需的所有样板代码，它还将为您的服务生成一个**客户端代理**，因此您的客户端可以为您的服务使用一个丰富的惯用API，而不必手动编写事件总线消息来发送。无论您的服务在事件总线的哪个位置(可能在另一台机器上)，客户端代理都可以工作。
 
@@ -276,7 +282,7 @@ new ServiceBinder(vertx)
 - 服务代理：编译时生成的代理，它使用 `EventBus` 通过消息与服务进行交互
 - 服务处理程序：编译时生成的`EventBus`处理程序，它对代理发送的事件做出反应
 
-生成的代理和处理程序以服务类命名，例如，如果服务名为`MyService`，则处理程序称为`MyServiceVertxProxyHandler`，代理称为`MyServiceVertxEBProxy`。
+生成的代理和处理程序以服务类命名，例如，如果服务名为`MyService`，则 **服务处理程序** 称为`MyServiceVertxProxyHandler`，**服务代理** 称为`MyServiceVertxEBProxy`。
 
 此外，Vert.x Core 提供了一个生成器，用于创建数据对象转换器，以简化服务代理中数据对象的使用。 这种转换器为在服务代理中使用数据对象所必需的`JsonObject`构造函数和`toJson()`方法提供了基础。
 

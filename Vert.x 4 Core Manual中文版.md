@@ -23,9 +23,9 @@ Vert.x核心为以下事情提供功能:
 
 核心功能相当低级-在这里找不到数据库访问,授权或高级Web功能之类的东西-在**Vert.x ext**(扩展)中可以找到.
 
-Vert.x 内核小巧轻便. 你只需使用你想要的部分. 它还可以完全嵌入到您现有的应用程序中--我们不会强迫您以特殊的方式构建应用程序,以便您可以使用 Vert.x.
+Vert.x 内核小巧轻便. 你只需使用你想要的部分. 它还可以完全嵌入到您现有的应用程序中 - 我们不会强迫您以特殊的方式构建应用程序,以便您可以使用 Vert.x.
 
-您可以使用Vert.x支持的任何其他语言的core. 但这很酷-我们不会强迫您直接从JavaScript或Ruby中使用Java API-毕竟,不同的语言具有不同的约定和惯用语,而在Ruby上强制使用Java惯用语是很奇怪的 开发人员(例如). 相反,我们会为每种语言自动生成等效于核心Java API的"惯用语言".
+您可以使用来自Vert.x支持的任何其他语言的核心. 但这很酷-我们不会强迫您直接从JavaScript或Ruby中使用Java API-毕竟,不同的语言有不同的约定和惯用语，例如如果将 Java 惯用语强加给 Ruby 开发人员就会很奇怪的. 相反,我们会为每种语言自动生成等效于核心Java API的"惯用语言".
 
 从现在开始,我们将仅使用**core**一词来指代Vert.x核心.
 
@@ -95,7 +95,7 @@ request.response().putHeader("Content-Type", "text/plain").end("some text");
 
 这是整个Vert.x API的通用模式,因此请习惯使用它.
 
-像这样的链接调用允许您编写稍微不那么冗长的代码.当然,如果您不喜欢fluent方法**我们不会强迫您**这样做,如果您愿意,您可以愉快地忽略它,并像这样编写您的代码:
+像这样的链式调用允许您编写稍微不那么冗长的代码.当然,如果您不喜欢fluent方法**我们不会强迫您**这样做,如果您愿意,您可以愉快地忽略它,并像这样编写您的代码:
 
 ```java
 HttpServerResponse response = request.response();
@@ -106,7 +106,7 @@ response.end();
 
 ## 别Call我们,我们会Call你.
 
-Vert.x API在很大程度上是*事件驱动*的. 这意味着当您感兴趣的Vert.x中发生任何事情时,Vert.x会通过向您发送事件来呼叫您.
+Vert.x API在很大程度上是**事件驱动**的. 这意味着当您感兴趣的Vert.x中发生任何事情时,Vert.x会通过向您发送事件来呼叫您.
 
 一些示例事件是:
 
@@ -165,13 +165,13 @@ server.requestHandler(request -> {
 
 我们之前提到过Vert.x API是事件驱动的 - Vert.x在事件可用时将事件传递给处理器.
 
-在大多数情况下,Vert.x使用称为**event loop(事件循环)**的线程调用处理器.
+在大多数情况下,Vert.x使用称为 **event loop(事件循环)** 的线程调用处理器.
 
 由于 Vert.x 或您的应用程序块中没有任何内容,事件循环可以愉快地运行,在事件到达时连续将事件传递给不同的处理器.
 
 因为没有阻塞,事件循环可能会在短时间内传递大量事件. 例如,单个事件循环可以非常快速地处理数千个 HTTP 请求.
 
-我们称之为 [Reactor Pattern(反应堆模式)](https://en.wikipedia.org/wiki/Reactor_pattern).
+我们称之为 [Reactor Pattern(反应器模式)](https://en.wikipedia.org/wiki/Reactor_pattern).
 
 你可能以前听说过这个 - 例如 Node.js 实现了这个模式.
 
@@ -179,11 +179,11 @@ server.requestHandler(request -> {
 
 单线程的问题是它在任何时候都只能在单核上运行,所以如果你想让你的单线程反应器应用程序(例如你的 Node.js 应用程序)在你的多核服务器上扩展,你必须启动并管理许多不同的进程.
 
-Vert.x 在这里的工作方式不同. 每个 Vert.x 实例都维护**几个事件循环**,而不是单个事件循环. 默认情况下,我们根据机器上可用内核的数量来选择,但这可以被覆盖.
+Vert.x 在这里的工作方式不同. 每个 Vert.x 实例都维护 **几个事件循环** ,而不是单个事件循环. 默认情况下,我们根据机器上可用内核的数量来选择,但这可以被覆盖.
 
 这意味着与 Node.js 不同,单个 Vert.x 进程可以跨服务器扩展.
 
-我们将此模式称为**Multi-Reactor Pattern(多反应器模式)**,以将其与单线程反应器模式区分开.
+我们将此模式称为 **Multi-Reactor Pattern(多反应器模式)** ,以将其与单线程反应器模式区分开.
 
 > <mark>**🏷注意:**</mark> 尽管Vertx实例维护多个事件循环,但任何特定的处理器永远不会并发执行,并且在大多数情况下(除了 [worker verticles](#Worker_verticles))总是使用**完全相同的事件循环**调用.
 
@@ -224,7 +224,7 @@ Thread vertx-eventloop-thread-3 has been blocked for 20458 ms
 
 Vert.x还将提供堆栈跟踪,以精确定位阻塞发生的位置.
 
-如果您想关闭这些警告或更改设置,您可以在创建 Vert.x 对象之前在 `VertxOptions` 对象s改变缺省设置.
+如果您想关闭这些警告或更改设置,您可以在创建 Vert.x 对象之前在 `VertxOptions` 对象改变缺省设置.
 
 ## Future的结果
 
@@ -312,7 +312,7 @@ CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
 CompositeFuture.all(Arrays.asList(future1, future2, future3));
 ```
 
-虽然 `all` 组合 * 等待* 直到所有future都成功(或一个失败),但 `any` 组合 * 等待* 第一个成功的future.
+虽然 `all` 组合 *等待* 直到所有future都成功(或一个失败),但 `any` 组合 *等待*  第一个成功的future.
 
 `CompositeFuture.any` 接受多个future作为参数(最多 6 个)并返回一个future,当其中一个future成功时成功,当所有future都失败时失败:
 
@@ -332,7 +332,7 @@ CompositeFuture.any(future1, future2).onComplete(ar -> {
 CompositeFuture.any(Arrays.asList(f1, f2, f3));
 ```
 
-`join` 组合 * 等待 * 直到所有future都完成,无论是成功还是失败. `CompositeFuture.join` 接受多个future作为参数(最多 6 个)并返回一个future,当所有future都成功时成功,当所有future,都完成且至少其中一个失败时失败:
+`join` 组合 *等待* 直到所有future都完成,无论是成功还是失败. `CompositeFuture.join` 接受多个future作为参数(最多 6 个)并返回一个future,当所有future都成功时成功,当所有future,都完成且至少其中一个失败时失败:
 
 ```java
 CompositeFuture.join(future1, future2, future3).onComplete(ar -> {
@@ -352,7 +352,7 @@ CompositeFuture.join(Arrays.asList(future1, future2, future3));
 
 ### 与JDK自带的CompletionStage的互操作性
 
-Vert.x `Future` API 提供兼容性 *from* 和 *to* `CompletionStage`,CompletionStage是用于可组合异步操作的 JDK 接口.
+Vert.x `Future` API 提供兼容性 *from* 和 *to*  `CompletionStage`,CompletionStage是用于可组合异步操作的 JDK 接口.
 
 我们可以使用 `toCompletionStage` 方法从 Vert.x `Future` 转到 `CompletionStage`,如下所示:
 
@@ -402,7 +402,7 @@ Vert.x 带有一个简单的,可扩展的,*actor-like* 部署和开箱即用的�
 
 要使用此模型,您将代码编写为一组 **verticles**.
 
-Verticle 是由 Vert.x 部署和运行的代码块. 一个 Vert.x 实例默认维护 N 个事件循环线程(其中 N 默认为 core*2). Verticle 可以用 Vert.x 支持的任何语言编写,单个应用程序可以包含用多种语言编写的 Verticle.
+Verticle 是由 Vert.x 部署和运行的代码块. 一个 Vert.x 实例默认维护 N 个事件循环线程(其中 N 默认为 `core*2`). Verticle 可以用 Vert.x 支持的任何语言编写,单个应用程序可以包含用多种语言编写的 Verticle.
 
 您可以将verticle视为有点像 [Actor Model] (https://en.wikipedia.org/wiki/Actor_model) 中的演员.
 
@@ -507,7 +507,7 @@ public class MyVerticle extends AbstractVerticle {
 
 - 工作 Verticles
 
-  这些使用<mark>**工作池中的线程**</mark>运行. 一个Verticle实例永远不会被多个线程同时执行.
+  这些使用<mark>**工作池中的线程**</mark>运行. 一个Verticle实例永远不会被多个线程同时执行,但可以在不同的时间由不同的线程执行.
 
 ### 标准 verticles
 
@@ -534,8 +534,8 @@ DeploymentOptions options = new DeploymentOptions().setWorker(true);
 vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 ```
 
-Worker verticle实例**永远不会**被Vert.x的多个线程并发执行,但可以在不同的时间由不同的线程执行.
-> 译者的备注: worker verticle处理事件的方式与event-loop verticle处理事件的方式基本相同，不同之处在于它可以花费任意长的时间来完成这一操作。重要的是要了解：
+Worker verticle实例 **永远不会** 被Vert.x的多个线程并发执行,但可以在不同的时间由不同的线程执行.
+> **译者注:** worker verticle处理事件的方式与event-loop verticle处理事件的方式基本相同，不同之处在于它可以花费任意长的时间来完成这一操作。重要的是要了解：
 > 1. worker verticle不绑定到单个工作线程，因此与event-loop verticle 不同，后续事件可能不会在同一个线程上执行
 > 2. worker verticles在给定的时间内只能通过一个工作线程【worker thread】访问到
 > 
@@ -657,7 +657,7 @@ DeploymentOptions options = new DeploymentOptions().setConfig(config);
 vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 ```
 
-然后可以通过 `Context` 对象或直接使用 `config` 方法获得此配置. 配置作为 JSON 对象返回,因此您可以按如下方式检索数据:
+然后在verticle里可以通过 `AbstractVerticle.context` 对象或直接使用 `AbstractVerticle.config()` 方法获得此配置. 配置作为 JSON 对象返回,因此您可以按如下方式检索数据:
 
 ```java
 System.out.println("Configuration: " + config().getString("name"));
@@ -725,7 +725,7 @@ Vert.x 将在运行之前即时编译 Java 源文件. 这对于快速制作 Vert
 
 Vert.x 实例维护的线程不是守护线程,因此它们会阻止 JVM 退出.
 
-如果你正在嵌入 Vert.x 并且你已经完成了它,你可以调用 `close` 来关闭它.
+如果你正在嵌入 Vert.x 并且你已经完成了它,你可以调用Vert.x 的 `close` 方法来关闭它.
 
 这将关闭所有内部线程池并关闭其他资源,并允许 JVM 退出.
 
@@ -747,11 +747,13 @@ if (context.isEventLoopContext()) {
   System.out.println("Context attached to Event Loop");
 } else if (context.isWorkerContext()) {
   System.out.println("Context attached to Worker Thread");
-} else if (! Context.isOnVertxThread()) {
+} else if (! Context.isOnVertxThread()) {  //That's either a worker thread or an event loop thread
   System.out.println("Context not attached to a thread managed by vert.x");
 }
 ```
+> **译者注:** 当使用 `Vertx.executeBlocking(Handler, Handler)` 从标准（非 worker）verticle 运行阻塞代码时，上下文仍将是事件循环上下文，并且此 `this#isWorkerContext()` 将返回 `false`。参见: [运行阻塞代码](#Running_blocking_code)
 
+  
 检索到上下文对象后,您可以在此上下文中异步运行代码. 换句话说,您提交的任务最终将在相同的上下文中运行(有可能会在稍后的时间里):
 
 ```java
@@ -802,7 +804,7 @@ System.out.println("First this is printed");
 
 将有一个与周期相等的初始延迟.
 
-`setPeriodic` 的返回值是一个唯一的计时器 ID(long). 如果需要取消计时器,这可以在以后使用.
+`setPeriodic` 的返回值是一个唯一的计时器 `ID(long)`. 如果需要取消计时器,这可以在以后使用.
 
 传递给定时器事件处理器的参数也是唯一的定时器 id:
 
@@ -845,7 +847,7 @@ vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("
 
 ## The Event Bus(事件总线)
 
-`event bus` 是 Vert.x 的**神经系统**.
+`event bus` 是 Vert.x 的 **神经系统** .
 
 每个 Vert.x 实例都有一个事件总线实例,它是使用 `eventBus` 方法获得的.
 
@@ -855,7 +857,7 @@ vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("
 
 事件总线形成了一个跨越多个服务器节点和多个浏览器的分布式peer-to-peer(端到端)的消息传递系统.
 
-事件总线支持发布/订阅,点对点和请求-响应消息传递.
+事件总线支持`发布/订阅`, `点对点` 和 `请求-响应` 消息传递.
 
 事件总线 API 非常简单. 它主要涉及注册处理器,取消注册处理器以及发送和发布消息.
 
@@ -865,7 +867,7 @@ vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("
 
 #### Addressing(寻址)
 
-消息通过事件总线发送到的目的**地址**.
+消息通过事件总线发送到的目的 **地址**.
 
 Vert.x 不做任何花哨的寻址方案. 在 Vert.x 中,地址只是一个字符串. 任何字符串都是有效的. 然而,使用某种方案是明智的,*例如*使用句点来划分命名空间.
 
@@ -881,7 +883,7 @@ Vert.x 不做任何花哨的寻址方案. 在 Vert.x 中,地址只是一个字�
 
 #### 发布/订阅消息
 
-事件总线支持**发布**消息.
+事件总线支持 **发布** 消息.
 
 消息被发布到一个地址. 发布意味着将消息传递给在该地址注册的所有处理器.
 
@@ -893,7 +895,7 @@ Vert.x 不做任何花哨的寻址方案. 在 Vert.x 中,地址只是一个字�
 
 消息被发送到一个地址. 然后 Vert.x 会将它们路由到在该地址注册的处理器之一.
 
-如果在该地址注册了多个处理器,则将使用非严格的循环算法选择一个.
+如果在该地址注册了多个处理器,则将使用非严格的循环算法 **选择一个** .
 
 使用点对点消息传递时,可以在发送消息时指定可选的回复处理器.
 
@@ -905,7 +907,7 @@ Vert.x 不做任何花哨的寻址方案. 在 Vert.x 中,地址只是一个字�
 
 #### Best-effort delivery(尽最大努力交付)
 
-Vert.x 尽最大努力传递消息,不会有意识地丢弃它们. 这称为**best-effort**交付.
+Vert.x 尽最大努力传递消息,不会有意识地丢弃它们. 这称为 **best-effort** 交付.
 
 但是,如果事件总线的全部或部分发生故障,则消息可能会丢失.
 
@@ -913,7 +915,7 @@ Vert.x 尽最大努力传递消息,不会有意识地丢弃它们. 这称为**be
 
 #### 消息类型
 
-开箱即用的 Vert.x 允许任何原始/简单类型,字符串或`buffers`作为消息发送.
+开箱即用的 Vert.x 允许任何 原始/简单类型,字符串 或 `buffers`作为消息发送.
 
 但是,在 Vert.x 中,将消息发送为 [JSON](https://json.org/) 是一种惯例
 
@@ -1891,7 +1893,7 @@ Netty 使用 `DEBUG` 级别和 `io.netty.handler.logging.LoggingHandler` 名称�
 - 日志不是由 Vert.x 日志执行的,而是由 Netty 执行的
 - 这**不是**一个产品特性
 
-您应该阅读 [Netty logging](#netty-logging) 部分。
+您应该阅读 [Netty logging](#netty_logging) 部分。
 
 <a name="ssl"></a>
 ### 配置服务器和客户端以使用 SSL/TLS
@@ -6456,6 +6458,27 @@ WorkerExecutor executor = vertx.createSharedWorkerExecutor("my-worker-pool", poo
 
 > **🏷注意:** 配置是在创建工作池时设置的
 
+### executeBlocking方法详解
+<mark>**译者注:** 为了更好的理解executeBlocking方法详解,译者自己添加的!</mark>
+
+Vertx类和Context类上的 `<T> void executeBlocking(Handler<Promise<T>> blockingCodeHandler,
+                         boolean ordered,
+                         Handler<AsyncResult<T>> resultHandler)` 方法详解如下:
+
+安全地执行一些阻塞代码。
+
+使用工作池中的线程执行处理程序 `blockingCodeHandler` 中的阻塞代码。
+
+代码完成后，处理程序 `resultHandler` 将在原始上下文中（例如，在调用方的原始事件循环中）使用结果调用。
+
+一个 `Future` 实例被传递到 `blockingCodeHandler`。当阻塞代码成功完成时，处理程序应调用 `Promise.complete(T)` 或 `Promise.complete(Object)` 方法，如果失败则调用 `Promise.fail(java.lang.Throwable)` 方法。
+
+当使用 `Vertx.executeBlocking(Handler, Handler)` 从标准（非 worker）verticle 运行阻塞代码时, 在 `blockingCodeHandler` 中，当前上下文仍然是原始上下文，因此在 `blockingCodeHandler` 中调度的任何任务都将在该上下文中执行，而不是在工作线程中执行。
+
+阻塞代码应该阻塞一段合理的时间(即不超过几秒钟)。禁止长时间的阻塞操作或轮询操作(即以阻塞方式在循环中轮询事件的线程)。
+当阻塞操作持续超过 10 秒时，阻塞的线程检查器将在控制台上打印一条消息。
+长阻塞操作应该使用由应用程序管理的专用线程，该线程可以使用 event-bus 或 `runOnContext(Handler)` 与 Verticles 交互
+
 ## 度量指标 SPI
 
 默认情况下,Vert.x 不记录任何指标. 相反,它提供了一个 SPI 供其他人实现,可以将其添加到类路径中. 指标 SPI 是一项高级功能,它允许实施者从 Vert.x 捕获事件以收集指标. 有关这方面的更多信息,请参阅"API 文档".
@@ -6764,7 +6787,7 @@ Vert.x 使用其内部日志 API 进行日志记录,并支持各种日志后端.
 
 Vert.x 还提供了一种更方便的方式来指定配置文件,而无需设置系统属性. 只需在你的类路径(例如在你的 fatjar 中)提供一个名为 `vertx-default-jul-logging.properties` 的 JUL 配置文件,Vert.x 将使用它来配置 JUL.
 
-<a name="netty-logging"></a>
+<a name="netty_logging"></a>
 ### Netty 日志记录
 
 Netty 不依赖于外部日志配置(例如系统属性). 相反,它基于 Netty 类中可见的日志库实现了日志配置:

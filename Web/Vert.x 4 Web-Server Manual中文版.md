@@ -160,7 +160,7 @@ server.requestHandler(router).listen(8080);
 
 传递给处理程序的对象是一个 `RoutingContext` - 它包含标准的 Vert.x `HttpServerRequest` 和 `HttpServerResponse` 以及其他各种使 Vert.x-Web 工作更简单的有用的东西。
 
-对于每个被路由的请求，都有一个唯一的路由上下文实例，并且相同的实例被传递给该请求的所有处理程序。
+对于每个被路由的请求，都有一个唯一的`RoutingContext`实例，并且相同的实例被传递给该请求的所有处理程序。
 
 设置处理程序后，我们设置 HTTP 服务器的请求处理程序以将所有传入请求传递给 `handle`。
 
@@ -185,7 +185,7 @@ route.handler(ctx -> {
 
   response.write("route1\n");
 
-  // Call the next matching route after a 5 second delay
+  // 延迟 5 秒后调用下一条匹配路由
   ctx.vertx().setTimer(5000, tid -> ctx.next());
 });
 
@@ -194,7 +194,7 @@ route.handler(ctx -> {
   HttpServerResponse response = ctx.response();
   response.write("route2\n");
 
-  // Call the next matching route after a 5 second delay
+  // 延迟 5 秒后调用下一条匹配路由
   ctx.vertx().setTimer(5000, tid -> ctx.next());
 });
 
@@ -203,7 +203,7 @@ route.handler(ctx -> {
   HttpServerResponse response = ctx.response();
   response.write("route3");
 
-  // Now end the response
+  // 现在结束响应
   ctx.response().end();
 });
 ```
@@ -217,8 +217,8 @@ route.handler(ctx -> {
 处理程序非常强大，因为它们允许您构建非常复杂的应用程序。 对于简单的响应，例如，直接从 vert.x API 返回异步响应，router 包含一个处理程序的快捷方式，以确保：
 
 1. 响应以 JSON 格式返回。
-2. 如果处理处理程序发生错误，则返回相应的错误。
-3. 如果序列化对 JSON 的响应出错，则返回相应的错误。
+2. 如果处理程序发生错误，则返回相应的错误。
+3. 如果将响应序列化到JSON时出现错误，则返回正确的错误。
 
 ```java
 router
@@ -235,6 +235,15 @@ router
   .respond(
     ctx -> Future.succeededFuture(new Pojo()));
 ```
+> **译者注:** 对Route.respond方法的详解: 
+> `default <T> Route respond(java.util.function.Function<RoutingContext,Future<T>> function)`
+> 将函数请求处理程序附加到路由处理程序列表。 该函数期望接收路由上下文，并且期望用户返回 Future。使用此函数式接口允许用户快速将来自其他 vert.x API 或客户端的响应直接链接到处理程序。如果上下文响应已结束，例如，已调用 `RoutingContext.end()`，则什么也不会发生。 对于其余情况，以下规则适用：
+  > 1. 当 body 为空时，响应的状态代码应为 204（无内容）
+  > 2. 当 body 的类型为 `Buffer` 且未设置 `Content-Type` 时，`Content-Type` 为 `application/octet-stream`
+  > 3. 当 body 为 `String` 类型且未设置 `Content-Type` 时，`Content-Type` 为 `text/html`
+  > 4. 否则，future的响应将被传递给方法 `RoutingContext.json(Object)` 以执行结果的JSON序列化
+  >
+> 在内部，该函数被包装为一个处理程序，它也为用户处理错误情况。 例如，如果函数抛出异常，错误将被捕获，并且适当的错误将传播到router。 此外，如果在对响应进行编码时发生同样的情况，则会捕获错误并将其传播到router。
 
 但是，如果提供的函数调用 `write` 或 `end`，您也可以将其用于非 JSON 响应：
 
@@ -278,6 +287,9 @@ router.route().blockingHandler(ctx -> {
 
 });
 ```
+> **译者注:** 工作池的线程参数设置可以使用如下2种方式:
+  > 1. 共用Vertx的工作线程池,使用`VertxOptions`来设置工作线程池
+  > 2. 部署Verticle时使用`DeploymentOptions`来指定单独的工作线程池
 
 默认情况下，在同一个上下文（例如同一个 Verticle 实例）上执行的任何阻塞处理程序都是 *ordered* - 这意味着在前一个完成之前不会执行下一个。 如果您不关心排序并且不介意并行执行的阻塞处理程序，您可以使用 `blockingHandler` 将指定 `ordered` 的阻塞处理程序设置为 false。
 
@@ -2056,7 +2068,7 @@ Vert.x-Web 设置标题 `cache-control`、`last-modified` 和 `date`。
 
 Vert.x-Web 包含一个处理程序`CorsHandler`，它为您处理 CORS 协议。
 
-Here’s an example:
+下面是一个例子:
 
 ```java
 router.route()
@@ -2663,7 +2675,7 @@ router.mountSubRouter("/myapp", sockJSHandler.socketHandler(sockJSSocket -> {
 
 > **🏷注意:** 默认情况下，处理程序仅在本地注册。 可以使用 `setLocalWriteHandler` 使其在集群范围内。
 
-然后您可以通过事件总线将 `[Buffer](https://vertx.io/docs/apidocs/io/vertx/core/buffer/Buffer.html)` 写入 SockJS 套接字。
+然后您可以通过事件总线将 [Buffer](https://vertx.io/docs/apidocs/io/vertx/core/buffer/Buffer.html) 写入 SockJS 套接字。
 
 ```java
 eventBus.send(writeHandlerID, Buffer.buffer("foo"));
@@ -2803,34 +2815,32 @@ Router router = Router.router(vertx);
 SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
 
 
-// Let through any messages sent to 'demo.orderMgr' from the client
+// 让从客户端发送到“demo.orderMgr”的任何消息通过
 PermittedOptions inboundPermitted1 = new PermittedOptions()
   .setAddress("demo.orderMgr");
 
-// Allow calls to the address 'demo.persistor' from the client as
-// long as the messages have an action field with value 'find'
-// and a collection field with value 'albums'
+// 只要消息具有值为“find”的操作字段和值为“albums”的集合字段，
+// 就允许从客户端调用地址“demo.persistor”
 PermittedOptions inboundPermitted2 = new PermittedOptions()
   .setAddress("demo.persistor")
   .setMatch(new JsonObject().put("action", "find")
     .put("collection", "albums"));
 
-// Allow through any message with a field `wibble` with value `foo`.
+// 允许通过字段为“wibble”且值为“foo”的任何消息。
 PermittedOptions inboundPermitted3 = new PermittedOptions()
   .setMatch(new JsonObject().put("wibble", "foo"));
 
-// First let's define what we're going to allow from server -> client
+// 首先让我们定义我们将允许从 服务器 -> 客户端
 
-// Let through any messages coming from address 'ticker.mystock'
+// 让来自地址“ticker.mystock”的任何消息通过
 PermittedOptions outboundPermitted1 = new PermittedOptions()
   .setAddress("ticker.mystock");
 
-// Let through any messages from addresses starting with "news."
-// (e.g. news.europe, news.usa, etc)
+// 允许来自以“news”开头的地址的任何消息。 （例如 news.europe、news.usa 等）
 PermittedOptions outboundPermitted2 = new PermittedOptions()
   .setAddressRegex("news\\..+");
 
-// Let's define what we're going to allow from client -> server
+// 让我们定义一下 客户端->服务器允许的内容
 SockJSBridgeOptions options = new SockJSBridgeOptions().
   addInboundPermitted(inboundPermitted1).
   addInboundPermitted(inboundPermitted1).
@@ -2838,7 +2848,7 @@ SockJSBridgeOptions options = new SockJSBridgeOptions().
   addOutboundPermitted(outboundPermitted1).
   addOutboundPermitted(outboundPermitted2);
 
-// mount the bridge on the router
+// 将网桥安装到router上
 router.mountSubRouter("/eventbus", sockJSHandler.bridge(options));
 ```
 
@@ -2856,7 +2866,7 @@ router.mountSubRouter("/eventbus", sockJSHandler.bridge(options));
 PermittedOptions inboundPermitted = new PermittedOptions()
   .setAddress("demo.orderService");
 
-// But only if the user is logged in and has the authority "place_orders"
+// 但前提是用户已登录并具有权限“place_orders”
 inboundPermitted.setRequiredAuthority("place_orders");
 
 SockJSBridgeOptions options = new SockJSBridgeOptions()
@@ -2870,16 +2880,16 @@ SockJSBridgeOptions options = new SockJSBridgeOptions()
 ```java
 Router router = Router.router(vertx);
 
-// Let through any messages sent to 'demo.orderService' from the client
+// 让客户端发送到“demo.orderService”的任何消息通过
 PermittedOptions inboundPermitted = new PermittedOptions()
   .setAddress("demo.orderService");
 
-// But only if the user is logged in and has the authority "place_orders"
+// 但前提是用户已登录并具有权限“place_orders”
 inboundPermitted.setRequiredAuthority("place_orders");
 
 SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
 
-// Now set up some basic auth handling:
+// 现在设置一些基本的身份验证处理：
 
 router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
@@ -2973,7 +2983,7 @@ router.mountSubRouter(
 ```java
 Router router = Router.router(vertx);
 
-// Let through any messages sent to 'demo.orderMgr' from the client
+// 让从客户端发送到“demo.orderMgr”的任何消息通过
 PermittedOptions inboundPermitted = new PermittedOptions()
   .setAddress("demo.someService");
 
@@ -2981,7 +2991,7 @@ SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
 SockJSBridgeOptions options = new SockJSBridgeOptions()
   .addInboundPermitted(inboundPermitted);
 
-// mount the bridge on the router
+// 在router上安装网桥
 router
   .mountSubRouter("/eventbus", sockJSHandler
     .bridge(options, be -> {
