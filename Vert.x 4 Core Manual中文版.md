@@ -4596,7 +4596,7 @@ Vert.x http 客户端将在 TLS 握手期间将实际主机名显示为 *server 
 
 [WebSockets](https://en.wikipedia.org/wiki/WebSocket) 是一种 Web 技术,它允许在 HTTP 服务器和 HTTP 客户端(通常是浏览器)之间建立类似全双工套接字的连接.
 
-Vert.x supports WebSockets on both the client and server-side.
+Vert.x 在客户端和服务器端都支持 WebSockets。
 
 #### 服务器上的 WebSockets
 
@@ -4739,7 +4739,7 @@ webSocket.writeTextMessage(message);
 
 #### 将帧写入 WebSocket
 
-一个 WebSocket 消息可以由多个帧组成. 在这种情况下,第一帧是 *binary* 或 *text* 帧,后跟零个或多个 *continuation* 帧.
+一个 WebSocket 消息可以由多个帧组成. 在这种情况下,第一帧是 *binary*  或 *text*  帧,后跟零个或多个 *continuation* 帧.
 
 消息中的最后一帧被标记为 *final*.
 

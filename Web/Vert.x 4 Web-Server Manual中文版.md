@@ -2681,7 +2681,7 @@ router.mountSubRouter("/myapp", sockJSHandler.socketHandler(sockJSSocket -> {
 eventBus.send(writeHandlerID, Buffer.buffer("foo"));
 ```
 
-## SockJS 事件总线桥
+## SockJS 事件总线桥(vertx-eventbus.js)
 
 Vert.x-Web 带有一个内置的 SockJS 套接字处理程序，称为事件总线桥，它有效地将服务器端 Vert.x 事件总线扩展到客户端 JavaScript。
 
@@ -2746,21 +2746,21 @@ var eb = new EventBus('http://localhost:8080/eventbus');
 ```javascript
 var eb = new EventBus('http://localhost:8080/eventbus');
 eb.enableReconnect(true);
-eb.onopen = function() {}; // Set up handlers here, will be called on initial connection and all reconnections
-eb.onreconnect = function() {}; // Optional, will only be called on reconnections
+eb.onopen = function() {}; // 在此处设立处理器，每次建立连接或重连时候调用
+eb.onreconnect = function() {}; // 可选，仅在重连时被调用
 
-// Alternatively, pass in an options object
+// 或者，传入一个 options 对象
 var options = {
-   vertxbus_reconnect_attempts_max: Infinity, // Max reconnect attempts
-   vertxbus_reconnect_delay_min: 1000, // Initial delay (in ms) before first reconnect attempt
-   vertxbus_reconnect_delay_max: 5000, // Max delay (in ms) between reconnect attempts
-   vertxbus_reconnect_exponent: 2, // Exponential backoff factor
-   vertxbus_randomization_factor: 0.5 // Randomization factor between 0 and 1
+   vertxbus_reconnect_attempts_max: Infinity, // 重连尝试最多次数
+   vertxbus_reconnect_delay_min: 1000, // 在第一次尝试重连之前的初始延迟（单位为毫秒）
+   vertxbus_reconnect_delay_max: 5000, // 尝试重连之间的最大延迟（单位为毫秒）
+   vertxbus_reconnect_exponent: 2, // 指数退避因子
+   vertxbus_randomization_factor: 0.5 // 介于0和1之间的随机因子
 };
 
 var eb2 = new EventBus('http://localhost:8080/eventbus', options);
 eb2.enableReconnect(true);
-// Set up handlers...
+// 创建处理器……
 ```
 
 ### 保护桥接
