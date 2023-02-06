@@ -18,11 +18,11 @@ Vert.x EventBus Client 是一个 Java 客户端，允许应用程序通过 TCP �
 
 ## 使用 Vert.x Event Bus 客户端
 
-To use this project, add the following dependency to the *dependencies* section of your build descriptor:
+要使用此项目，请将以下依赖项添加到构建描述符的 *dependencies* 部分：
 
-- Maven (in your `pom.xml`):
+- Maven (在你的 `pom.xml`):
 
-```
+```xml
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-eventbus-bridge-client</artifactId>
@@ -35,20 +35,20 @@ To use this project, add the following dependency to the *dependencies* section 
 </dependency>
 ```
 
-- Gradle (in your `build.gradle` file):
+- Gradle (在你的 `build.gradle`):
 
-```
+```groovy
 compile 'io.vertx:vertx-eventbus-bridge-client:1.0.1'
 compile 'com.google.code.gson:gson:${gson.version}'
 ```
 
-## Creating the Vert.x EventBus Client
+## 创建 Vert.x EventBus 客户端
 
-There are 2 ways to create a Vert.x EventBus client, depending on what type of the bridge to interact with:
+有两种创建 Vert.x EventBus 客户端的方法，具体取决于要与之交互的桥的类型：
 
-### Create a TCP event bus bridge client
+### 创建 TCP 事件总线桥客户端
 
-```
+```java
 EventBusClient tcpEventBusClient = EventBusClient.tcp();
 
 // Create a bus client with specified host and port and TLS enabled
@@ -60,13 +60,13 @@ EventBusClientOptions options = new EventBusClientOptions()
 EventBusClient sslTcpEventBusClient = EventBusClient.tcp(options);
 ```
 
-This example can be used to create a client to connect to a [Vert.x EventBus TCP bridge](https://vertx.io/docs/vertx-tcp-eventbus-bridge/java/).
+此示例可用于创建连接到 [Vert.x EventBus TCP 桥](https://vertx.io/docs/vertx-tcp-eventbus-bridge/java/) 的客户端。
 
-With default options, the client will connect to `localhost:7000` via plain TCP. It is also possible to configure the client to connect to different host and port with TLS/SSL enabled for security TCP connections.
+使用默认选项，客户端将通过纯 TCP 连接到 `localhost:7000`。还可以将客户端配置为连接到不同的主机和端口，并为安全 TCP 连接启用 TLS/SSL。
 
-### Create a WebSocket SockJS bridge client
+### 创建 WebSocket SockJS 桥接客户端
 
-```
+```java
 EventBusClient webSocketEventBusClient = EventBusClient.webSocket();
 
 // Create a bus client with specified host and port, TLS enabled and WebSocket path.
@@ -80,32 +80,32 @@ EventBusClientOptions options = new EventBusClientOptions()
 EventBusClient sslWebSocketEventBusClient = EventBusClient.webSocket(options);
 ```
 
-This example can be used to create a client to connect to a [SockJS EventBus Bridge](https://vertx.io/docs/vertx-web/java/#_sockjs_event_bus_bridge) using WebSocket.
+此示例可用于创建客户端以使用 WebSocket 连接到 [SockJS EventBus Bridge](https://vertx.io/docs/vertx-web/java/#_sockjs_event_bus_bridge)。
 
-With default options, the client will connect to `http://localhost/eventbus/websocket` using WebSocket. It is also possible to connect to different host and port with TLS/SSL enabled for security HTTP connections. `options.setWebSocketPath("/eventbus/message")` can be used to specify the WebSocket path corresponding to the one specified in the SockJS bridge.
+使用默认选项，客户端将使用 WebSocket 连接到 `http://localhost/eventbus/websocket`。还可以连接到不同的主机和端口，为安全 HTTP 连接启用 TLS/SSL。 `options.setWebSocketPath("/eventbus/message")` 可用于指定与 SockJS 桥中指定的路径对应的 WebSocket 路径。
 
-## Communicate with the EventBus Bridge
+## 与 EventBus 桥通信
 
-No matter what type of the bridge it connects to, after connection, the client can be used to communicate with the bridge in the following ways:
+不管连接的是什么类型的网桥，连接后，客户端可以通过以下方式与网桥通信：
 
-> **📝注意:** Any of the following method leads to connect automatically if no connection established yet.
+> **📝注意:** 如果尚未建立连接，以下任何一种方法都会导致自动连接。
 
-### Sending messages to an address of the EventBus
+### 发送消息到 EventBus 的地址
 
-Messages can be sent to an address of the EventBus.
+消息可以发送到 EventBus 的地址。
 
-```
+```java
 EventBusClient busClient = EventBusClient.tcp();
 
-// Send a message to the bus, this will connect the client to the server
+// 向总线发送消息，这会将客户端连接到服务器
 busClient.send("newsfeed", "Breaking news: something great happened");
 ```
 
-### Sending messages to an address of the EventBus and expect a reply
+### 向 EventBus 的地址发送消息并期待回复
 
-Messages can be sent to an address of the EventBus with an expected reply handler specified.
+可以将消息发送到 EventBus 的地址，并指定预期的回复处理程序。
 
-```
+```java
 busClient.request("newsfeed", "Breaking news: something great happened", new Handler<AsyncResult<Message<String>>>() {
   @Override
   public void handle(AsyncResult<Message<String>> reply) {
@@ -114,19 +114,19 @@ busClient.request("newsfeed", "Breaking news: something great happened", new Han
 });
 ```
 
-### Publishing messages to an address of the EventBus
+### 发布消息到 EventBus 的地址
 
-Messages can be published to an address of the EventBus.
+消息可以发布到 EventBus 的地址。
 
-```
+```java
 busClient.publish("newsfeed", "Breaking news: something great happened");
 ```
 
-### Creating a consumer and register it against an address
+### 创建消费者并将其注册到地址
 
-You can create a consumer and register it on an address of the EventBus, it will be called when there are any messages sent to that address.
+您可以创建一个消费者并将其注册到 EventBus 的地址，当有任何消息发送到该地址时将调用它。
 
-```
+```java
 busClient.consumer("newsfeed", new Handler<Message<String>>() {
   @Override
   public void handle(Message<String> message) {
@@ -135,19 +135,19 @@ busClient.consumer("newsfeed", new Handler<Message<String>>() {
 });
 ```
 
-### Unregistering a consumer from its address
+### 从其地址注销消费者
 
-You can unregister the consumer from its address when it does not need to listen on that anymore.
+当消费者不再需要收听时，您可以从其地址中注销消费者。
 
-```
+```java
 consumer.unregister();
 ```
 
-## Closing the Client
+## 关闭客户端
 
-You can close the client to release the connection to the bridge server.
+您可以关闭客户端以释放与桥接服务器的连接。
 
-```
+```java
 busClient.closeHandler(new Handler<Void>() {
   @Override
   public void handle(Void event) {
@@ -158,55 +158,60 @@ busClient.closeHandler(new Handler<Void>() {
 busClient.close();
 ```
 
-## JSON format encoding
+## JSON格式编码
 
-The client and the bridge exchange messages in a custom JSON format encoded using an implementation of `JsonCodec`. The client ships two `JsonCodec` implementations.
+客户端和桥接器以使用`JsonCodec`的实现编码的自定义 JSON 格式交换消息。 客户端提供了两个`JsonCodec`实现。
 
-When creating a new `EventBusClient` instance without specifying `JsonCodec`, it tries to load `GsonCodec` first, if Gson is not in the classpath, it tries to load `JacksonCodec`, if FasterXML Jackson data-bind is not in classpath either, it fails to create the client instance.
+在不指定 JsonCodec 创建新的 EventBusClient 实例时，它首先尝试加载 `GsonCodec`，如果 Gson 不在类路径中，它会尝试加载 `JacksonCodec`，如果 FasterXML Jackson 数据绑定也不在类路径中 ，它无法创建客户端实例。
 
-You can specify a custom instance of `JsonCodec` when creating a new `EventBusClient` instance as well.
+您也可以在创建新的`EventBusClient`实例时指定`JsonCodec`的自定义实例。
 
 ### GsonCodec
 
-The `JsonCodec` implementation based on [Google Gson project](https://github.com/google/gson). The dependency of `com.google.code.gson:gson` is optional, you need to add this dependency explicitly to use this implementation.
+基于[Google Gson 项目](https://github.com/google/gson) 的`JsonCodec` 实现。 `com.google.code.gson:gson` 的依赖是可选的，您需要显式添加此依赖才能使用此实现。
 
 ### JacksonCodec
 
-The `JsonCodec` implementation based on [FasterXML Jackson databind](https://github.com/FasterXML/jackson-databind). The dependency of `com.fasterxml.jackson.core:jackson-databind` is optional, you need to add this dependency explicitly to use this implementation.
+基于 [FasterXML Jackson 数据绑定](https://github.com/FasterXML/jackson-databind) 的 `JsonCodec` 实现。 `com.fasterxml.jackson.core:jackson-databind` 的依赖是可选的，您需要显式添加此依赖才能使用此实现。
 
-## EventBus Client Options
+## EventBus 客户端选项
 
-There are 2 main options in Vert.x EventBus Client.
+Vert.x EventBus Client 中有 2 个主要选项。
 
 ### EventBusClientOptions
 
-The `EventBusClientOptions` is used to configure the EventBusClient during creation, it has the following properties:
+`EventBusClientOptions` 用于在创建期间配置 EventBusClient，它具有以下属性：
 
-- `host`: String, the host of the bridge to connect to, defaults to `localhost`.
-- `port`: int, the port of the bridge to connect to, defaults to `-1`, which means `7000` for TCP bridge and `80` for WebSocket SockJS bridge.
-- `webSocketPath`: String, the path connect the WebSocket client to, defaults to `/eventbus/websocket`. It is used only by the WebSocket EventBus Client.
-- `maxWebSocketFrameSize`: int, the maximum WebSocket frame size, defaults to `65536`. It is used only by the WebSocket EventBus Client.
-- `ssl`: boolean, indicates if SSL is enabled, defaults to `false`, which means SSL is not enabled.
-- `trustStorePath`: String, the path of the trust store. It is used only when `ssl` is true.
-- `trustStorePassword`: String, the password of the trust store. It is used only when `ssl` is true.
-- `trustStoreType`: String, the trust store type, one of `jks`, `pfx`, `pem`, defaults to `jks`. It is used only when `ssl` is true.
-- `verifyHost`: boolean, if hostname verification (for SSL/TLS) is enabled, defaults to `true`. It is used only when `ssl` is true.
-- `trustAll`: boolean, if all servers (SSL/TLS) should be trusted, defaults to `false`. It is used only when `ssl` is true.
-- `pingInterval`: int, ping interval, in milliseconds, defaults to `5000` ms.
-- `autoReconnectInterval`: int, the length of the pause between auto reconnect tries, in milliseconds, defaults to `3000` ms.
-- `maxAutoReconnectTries`: int, the maximum number of auto reconnect tries, defaults to `0`, which means no limit.
-- `connectTimeout`: int, the connect timeout, in milliseconds, defaults to `60000` ms.
-- `idleTimeout`: int, the idle timeout, in milliseconds, defaults to `0` which means no timeout.
-- `autoReconnect`: boolean, whether auto reconnects is enabled, even if the client does not try to send a message, defaults to `true`.
-- `proxyHost`: String, the proxy host.
-- `proxyPort`: int, the proxy port.
-- `proxyUsername`: String, the proxy username if the proxy requires authentication.
-- `proxyPassword`: String, the proxy password if the proxy requires authentication.
-- `proxyType`: ProxyType, one of `ProxyType.HTTP`, `ProxyType.SOCKS4`, `ProxyType.SOCKS5`.
+- `host`: String, 要连接的网桥主机地址，默认为“localhost”。
+- `port`: int, 要连接的网桥端口，默认为`-1`，即 TCP 网桥为`7000`，WebSocket SockJS 网桥为`80`。
+- `webSocketPath`: String, WebSocket客户端连接路径，默认为`/eventbus/websocket`。 它仅供 WebSocket EventBus Client 使用。
+- `maxWebSocketFrameSize`: int, 最大 WebSocket 帧大小，默认为 65536。 它仅供 WebSocket EventBus Client 使用。
+- `ssl`: boolean, 指示是否启用 SSL，默认为 `false`，表示未启用 SSL。
+- `trustStorePath`: String, 信任库的路径。 它仅在 `ssl` 为true时使用。
+- `trustStorePassword`: String, 信任库的密码。 它仅在 `ssl` 为true时使用。
+- `trustStoreType`: String, 信任库类型，`jks`、`pfx`、`pem` 之一，默认为 `jks`。 它仅在 `ssl` 为true时使用。
+- `verifyHost`: boolean, 如果启用主机名验证（用于 SSL/TLS），则默认为`true`。 它仅在 `ssl` 为true时使用。
+- `trustAll`: boolean, 如果应该信任所有服务器 (SSL/TLS)，则默认为`false`。 它仅在 `ssl` 为true时使用。
+- `pingInterval`: int, ping 间隔，以毫秒为单位，默认为`5000`毫秒。
+- `autoReconnectInterval`: int, 自动重新连接尝试之间的暂停长度，以毫秒为单位，默认为`3000`毫秒。
+- `maxAutoReconnectTries`: int, 自动重新连接尝试的最大次数，默认为`0`，表示没有限制。
+- `connectTimeout`: int, 连接超时，以毫秒为单位，默认为`60000`毫秒。
+- `idleTimeout`: int, 空闲超时，以毫秒为单位，默认为`0`，表示没有超时。
+- `autoReconnect`: boolean, 是否启用自动重新连接，即使客户端不尝试发送消息，默认为`true`。
+- `proxyHost`: String, 代理服务器地址。
+- `proxyPort`: int, 代理服务器端口。
+- `proxyUsername`: String, 如果代理需要身份验证，则为代理用户名。
+- `proxyPassword`: String, 如果代理需要身份验证，则为代理密码。
+- `proxyType`: ProxyType, `ProxyType.HTTP`、`ProxyType.SOCKS4`、`ProxyType.SOCKS5` 之一。
 
 ### DeliveryOptions
 
-`DeliveryOptions` is used when sending messages to the bridge, it has following properties:
+`DeliveryOptions` 用于向桥发送消息时，它具有以下属性：
 
-- `timeout`: long, the send timeout, in milliseconds, defaults to `30 * 1000` ms. If there is no response received within the timeout the handler will be called with a failure.
-- `headers`: Map, the headers sent to the bridge EventBus.
+- `timeout`: long, 发送超时，以毫秒为单位，默认为 `30 * 1000` 毫秒。 如果在超时时间内没有收到响应，则将调用处理程序失败。
+- `headers`: Map, 发送到桥 EventBus 的标头。
+
+------
+
+<<<<<< [完] >>>>>>
+
