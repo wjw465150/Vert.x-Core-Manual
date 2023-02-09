@@ -116,6 +116,12 @@ var sockjs = new SockJS(url, _reserved, options);
 
   指定用于传输连接的最小超时时间（以毫秒为单位）。默认情况下，这是根据测量的 RTT 和预期往返次数动态计算的。此设置将建立一个最小值，但如果计算出的超时值更高，则会使用该值。
 
+> 例如:   A WebSocket was created,uri: `/eventbus/843/zsqys1m5/websocket`,其中:
+>
+> - `843` 是 server 
+> - `zsqys1m5` 是 sessionId 
+> - `websocket` 是 transports 
+
 虽然 `SockJS` 对象试图模拟 `WebSocket` 行为，但不可能支持它的所有功能。SockJS 的一个重要限制是您不允许一次打开一个以上的 SockJS 连接到一个域。此限制是由传出连接的浏览器内限制引起的 - 通常[浏览器不允许打开两个以上的传出连接到单个域](https://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser)。一个 SockJS 会话需要这两个连接 - 一个用于下载数据，另一个用于发送消息。同时打开第二个 SockJS 会话很可能会阻塞，并可能导致两个会话超时。
 
 一次打开多个 SockJS 连接通常是一种不好的做法。如果你绝对必须这样做，你可以使用多个子域，为每个SockJS连接使用不同的子域。
@@ -295,10 +301,9 @@ frontend all 0.0.0.0:8888
 
 
 backend sockjs
-    # Load-balance according to hash created from first two
-    # directories in url path. For example requests going to /1/
-    # should be handled by single server (assuming resource prefix is
-    # one-level deep, like "/echo").
+    # 根据从 url 路径中的前两个目录创建的哈希进行负载平衡。 
+    # 例如，去往 `/1/` 的请求应该由单个服务器处理（假设资源前缀是一级深度，如“/eventbus”）。  
+    # 例如SockJS的URL `/eventbus/843/zsqys1m5/websocket`
     balance uri depth 2
     timeout server  120s
     server srv_sockjs1 127.0.0.1:9999
@@ -314,55 +319,6 @@ backend stats
 ```
 
 该配置还展示了如何使用 HAproxy 平衡在多个 Node.js 服务器之间拆分流量。 您还可以使用 DNS 名称进行平衡。
-
-再看看一个生产上的支持 Websocket 的 HAProxy 配置(`haproxy.cfg`):
-
-```ini
-global
-  maxconn     4096 # Total Max Connections. This is dependent on ulimit
-  nbproc      2
-  log         127.0.0.1 local1 notice
-
-defaults
-  mode        http
-  log         global
-
-frontend all 0.0.0.0:80
-  timeout client 86400000
-  default_backend www_backend
-  acl is_websocket hdr(Upgrade) -i WebSocket
-  acl is_websocket hdr_beg(Host) -i ws
-  acl host_bibliaolvaso hdr_sub(Host) -i bibliaolvaso.hu
-  acl host_todomvc hdr_sub(Host) -i todomvc
-
-  use_backend bibliaolvaso_backend if is_websocket host_bibliaolvaso
-  use_backend todomvc_backend if is_websocket host_todomvc
-
-backend www_backend
-  balance roundrobin
-  option forwardfor # This sets X-Forwarded-For
-  timeout server 86400000
-  timeout connect 4000
-  server nginx localhost:81
-
-backend bibliaolvaso_backend
-  balance roundrobin
-  option forwardfor # This sets X-Forwarded-For
-  timeout queue 5000
-  timeout server 86400000
-  timeout connect 5000
-  server bibliaolvaso localhost:7777
-
-backend todomvc_backend
-  balance roundrobin
-  option forwardfor # This sets X-Forwarded-For
-  timeout queue 5000
-  timeout server 86400000
-  timeout connect 5000
-  server todomvc localhost:3003
-```
-
-
 
 ## 粘性会话
 
