@@ -10,6 +10,7 @@
 
 /.project
 vx.json
+Sql/vx.json
 
 # IDE support files
 /.classpath
@@ -19,4 +20,4 @@ vx.json
 /*.launch
 /*.tmproj
 /ivy*
-/eclipse 
+/eclipse
