@@ -2640,6 +2640,8 @@ router.route("/myapp/*")
 ```
 
 > **📝注意:** 默认情况下，处理器仅在本地注册。 集群可通过配置 `setLocalWriteHandler` 为false启用。
+> <mark>**译者注:**</mark> 如果在 `SockJSHandlerOptions` 中禁用了 `writeHandler` 注册，则 `writeHandlerID` 为 `null`。
+> <mark>**译者注:**</mark> 如果用了下面的`eventbus bridge`方式就不能再使用`writeHandler`
 
 随后将数据写入 `Buffer` 便可发送给 SockJS 套接字。
 
@@ -2657,9 +2659,12 @@ Vert.x Web 提供了一个内置的被称为事件总线桥（event bus bridge�
 
 这些是通过 Vert.x 提供的一个简单的客户端 JavaScript 库 `vertx-eventbus.js` 来实现的。 它提供了一系列与服务器端的 Vert.x event-bus 极为类似的 API。 通过这些 API 您可以发送或发布消息，或注册处理器来接收消息。
 
-该 JavaScript 库使用了 JavaScript 的 SockJS 客户端，与另外一端的 `SockJS 处理器` 建立起 SockJS 连接， 并将事件总线上的流量通过管道（tunnel）传送至该客户端。
+该 JavaScript 库使用了 JavaScript 的 SockJS 客户端，与服务端的 `SockJS 处理器` 建立起 SockJS 连接， 并将事件总线上的流量通过管道（tunnel）传送至该客户端。
 
 一个特殊的 SockJS 套接字处理器因此被安装到 `SockJS 处理器` 上， 而该处理器将会处理 SockJS 的数据，并将建立起与服务器端的事件总线的连接桥。
+
+![](Vert.x 4 Web-Server Manual中文版.assets/image-20230210111417229.png)
+
 
 启用该连接桥您只需要在 SockJS 处理器中调用 `bridge`。
 

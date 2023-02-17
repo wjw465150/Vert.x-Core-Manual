@@ -3,6 +3,8 @@
 > 翻译: 白石(https://github.com/wjw465150/Vert.x-Core-Manual)
 >
 > 项目地址: https://github.com/vert-x3/vertx-eventbus-bridge-clients
+>
+> Maven地址: (https://jarcasting.de/artifacts/io.vertx/vertx-eventbus-bridge-client/)
 
 Vert.x EventBus Client 是一个 Java 客户端，允许应用程序通过 TCP 或 WebSocket 传输与 Vert.x EventBus 桥交互。 连接后，它允许：
 
@@ -31,7 +33,7 @@ Vert.x EventBus Client 是一个 Java 客户端，允许应用程序通过 TCP �
 <dependency>
  <groupId>com.google.code.gson</groupId>
  <artifactId>gson</artifactId>
- <version>${gson.version}</version>
+ <version>2.2.4</version>
 </dependency>
 ```
 
@@ -39,7 +41,7 @@ Vert.x EventBus Client 是一个 Java 客户端，允许应用程序通过 TCP �
 
 ```groovy
 compile 'io.vertx:vertx-eventbus-bridge-client:1.0.1'
-compile 'com.google.code.gson:gson:${gson.version}'
+compile 'com.google.code.gson:gson:2.2.4'
 ```
 
 ## 创建 Vert.x EventBus 客户端

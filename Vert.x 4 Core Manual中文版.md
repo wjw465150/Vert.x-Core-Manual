@@ -753,7 +753,7 @@ if (context.isEventLoopContext()) {
 ```
 > **译者注:** 当使用 `Vertx.executeBlocking(Handler, Handler)` 从标准（非 worker）verticle 运行阻塞代码时，上下文仍将是事件循环上下文，并且此 `this#isWorkerContext()` 将返回 `false`。参见: [运行阻塞代码](#Running_blocking_code)
 
-  
+
 检索到上下文对象后,您可以在此上下文中异步运行代码. 换句话说,您提交的任务最终将在相同的上下文中运行(有可能会在稍后的时间里):
 
 ```java
@@ -860,6 +860,8 @@ vertx.deployVerticle("the-verticle", new DeploymentOptions().setWorkerPoolName("
 事件总线支持`发布/订阅`, `点对点` 和 `请求-响应` 消息传递.
 
 事件总线 API 非常简单. 它主要涉及注册处理器,取消注册处理器以及发送和发布消息.
+
+![](Vertx4_Core_Manual.assets/image-20230210112104707.png)
 
 首先是一些理论:
 
@@ -1128,6 +1130,8 @@ eventBus.send("orders", new MyPOJO());
 #### 集群的事件总线
 
 事件总线不仅仅存在于单个 Vert.x 实例中. 通过在您的网络上将不同的 Vert.x 实例聚集在一起,它们可以形成一个单一的分布式事件总线.
+
+![](Vertx4_Core_Manual.assets/image-20230210111712808.png)
 
 #### 以编程方式的集群
 

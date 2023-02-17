@@ -114,9 +114,9 @@ var sockjs = new SockJS(url, _reserved, options);
 
 - **timeout (数字)**
 
-  指定用于传输连接的最小超时时间（以毫秒为单位）。默认情况下，这是根据测量的 RTT 和预期往返次数动态计算的。此设置将建立一个最小值，但如果计算出的超时值更高，则会使用该值。
+  指定用于传输连接的最小超时时间（以毫秒为单位, 默认是 5 毫秒）。默认情况下，这是根据测量的 RTT 和预期往返次数动态计算的。此设置将建立一个最小值，但如果计算出的超时值更高，则会使用该值。
 
-> 例如:   A WebSocket was created,uri: `/eventbus/843/zsqys1m5/websocket`,其中:
+> <mark>**译者白石注**</mark> 例如:   A WebSocket was created,uri: `/eventbus/843/zsqys1m5/websocket`,其中:
 >
 > - `843` 是 server 
 > - `zsqys1m5` 是 sessionId 
