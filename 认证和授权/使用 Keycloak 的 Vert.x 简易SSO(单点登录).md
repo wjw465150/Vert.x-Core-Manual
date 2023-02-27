@@ -15,7 +15,6 @@
 
 这是我在 Vert.x 博客上的第一篇文章，我必须承认，到目前为止，我从未在实际项目中使用 Vert.x。“你为什么在这里？”，你可能会问...好吧，我目前有两个主要爱好，学习新事物和使用[Key­cloak](https://www.keycloak.org/)保护应用程序。所以几天前，我在YouTube上偶然发现了Deven Phillips的[Vert.x简介视频系列](https://www.youtube.com/watch?v=LsaXy7SRXMY&list=PLkeCJDaCC2ZsnySdg04Aq9D9FpAZY6K5D)，我立即被迷住了。Vert.x对我来说是一件新鲜事，所以下一个合乎逻辑的步骤是弄清楚如何使用Keycloak保护Vert.x应用程序。
 
-For this ex­am­ple I build a small web app with Vert.x that shows how to im­ple­ment Sin­gle Sign-on (SSO) with Key­cloak and OpenID Con­nect, ob­tain in­for­ma­tion about the cur­rent user, check for roles, call bearer pro­tected ser­vices and prop­erly han­dling lo­gout.
 在本例中，我使用 Vert.x 构建了一个小型 Web 应用程序，该应用程序演示如何使用 Keycloak 和 OpenID Connect 实现单点登录 （SSO）、获取有关当前用户的信息、检查角色、调用承载保护服务和正确处理注销。
 
 ## Keycloak
@@ -53,27 +52,19 @@ docker run \
 ## Vert.x Web App Vert.x 网页应用
 
 The sim­ple web app con­sists of a sin­gle `Verticle`, runs on `http://localhost:8090` and pro­vides a few routes with pro­tected re­sources. [You can find the com­plete ex­am­ple here](https://github.com/thomasdarimont/vertx-playground/blob/master/keycloak-vertx/src/main/java/demo/MainVerticle.java).
-简单的 Web 应用程序由单个 `Verticle` 组成，在 `http://localhost:8090` 上运行，并提供一些具有受保护资源的路由。 您可以在此处找到完整的示例。
+简单的 Web 应用程序由单个 `Verticle` 组成，在 `http://localhost:8090` 上运行，并提供一些具有受保护资源的路由。 您可以在[此处](https://github.com/thomasdarimont/vertx-playground/blob/master/keycloak-vertx/src/main/java/demo/MainVerticle.java))找到完整的示例。
 
-The web app con­tains the fol­low­ing routes with han­dlers:
 Web 应用包含以下带有处理程序的路由：
 
-- `/` - The un­pro­tected index page
-  `/` - 未受保护的索引页
-- `/protected` - The pro­tected page, which shows a greet­ing mes­sage, users need to login to ac­cess pages be­neath this path.
-  `/protected` - 显示问候消息的受保护页面，用户需要登录才能访问此路径下的页面。
-- `/protected/user` - The pro­tected user page, which shows some in­for­ma­tion about the user.
-  `/protected/user` - 受保护的用户页面，显示有关用户的一些信息。
-- `/protected/admin` - The pro­tected admin page, which shows some in­for­ma­tion about the admin, only users with role `admin` can ac­cess this page.
-  `/protected/admin` - 受保护的管理员页面，其中显示有关管理员的一些信息，只有角色为 `admin` 的用户才能访问此页面。
-- `/protected/userinfo` - The pro­tected user­info page, ob­tains user in­for­ma­tion from the bearer token pro­tected user­info end­point in Key­cloak.
-  `/protected/userinfo` - 受保护的用户信息页面，从 Keycloak 中的持有者令牌保护的用户信息端点获取用户信息。
-- `/logout` - The pro­tected lo­gout re­source, which trig­gers the user lo­gout.
-  `/logout` - 受保护的注销资源，用于触发用户注销。
+- `/` - 未受保护的索引页
+- `/protected` - 显示问候消息的受保护页面，用户需要登录才能访问此路径下的页面。
+- `/protected/user` - 受保护的用户页面，显示有关用户的一些信息。
+- `/protected/admin` - 受保护的管理员页面，其中显示有关管理员的一些信息，只有角色为 `admin` 的用户才能访问此页面。
+- `/protected/userinfo` - 受保护的用户信息页面，从 Keycloak 中的持有者令牌保护的用户信息端点获取用户信息。
+- `/logout` - 受保护的注销资源，用于触发用户注销。
 
-### Running the app 运行应用
+### 运行应用
 
-To run the app, we need to build our app via:
 要运行应用程序，我们需要通过以下方式构建应用程序：
 
 ```bash

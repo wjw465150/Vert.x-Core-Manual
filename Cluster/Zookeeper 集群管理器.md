@@ -95,6 +95,7 @@ java -Dvertx.zookeeper.config=./config/my-zookeeper-conf.json -jar ... -cluster
 # Or use a custom configuration from the classpath
 java -Dvertx.zookeeper.config=classpath:my/package/config/my-cluster-config.json -jar ... -cluster
 ```
+> <mark>**🔔重要:**</mark> 翻译者白石发现不能加`classpath:`前缀
 
 `vertx.zookeeper.config` 系统属性，如果存在，会覆盖类路径中的任何 `zookeeper.json`，但如果从该系统属性加载失败，则加载回退到 `zookeeper.json` 或 Zookeeper的 默认配置 .
 
