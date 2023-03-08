@@ -6532,6 +6532,7 @@ vertx run groovy:io.vertx.example.MyGroovyVerticle
 
 - `-options <options>` - 提供 Vert.x 选项. `options` 是表示 Vert.x 选项的 JSON 文件的名称,或 JSON 字符串. 这是可选的.
 - `-conf <config>` - 为verticle提供一些配置. `config` 是一个 JSON 文件的名称,它代表了 Verticle 的配置,或者一个 JSON 字符串. 这是可选的.
+  > 参见: `io.vertx.core.impl.launcher.commands.BareCommand` 类的 `getJsonFromFileOrString`方法
 - `-cp <path>` - 搜索 Verticle 和 Verticle 使用的任何其他资源的路径. 这默认为 `.` (当前目录). 如果您的 Verticle 引用了其他脚本,类或其他资源(例如 jar 文件),请确保它们在此路径上. 路径可以包含多个路径条目,由 `:`(冒号)或 `;`(分号)分隔,具体取决于操作系统. 每个路径条目可以是包含脚本的目录的绝对或相对路径,或者是 jar 或 zip 文件的绝对或相对文件名.一个示例路径可能是 `-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`. 始终使用路径来引用您的 Verticle 所需的任何资源. 不要**不要**将它们放在系统类路径中,因为这可能会导致部署的 Verticle 之间出现隔离问题.
 - `-instances <instances>` - 要实例化的verticle的实例数. 每个 Verticle 实例都是严格的单线程的,因此要跨可用内核扩展您的应用程序,您可能需要部署多个实例. 如果省略,将部署单个实例.
 - `-worker` - 这个选项决定了这个verticle是否是一个worker Verticle.

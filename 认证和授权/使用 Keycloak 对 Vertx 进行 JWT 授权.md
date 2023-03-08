@@ -2,31 +2,23 @@
 
 > 原文: https://vertx.io/blog/jwt-authorization-for-vert-x-with-keycloak/
 
-In this blog post you’ll learn:
 在这篇博文中，您将了解：
 
-- JWT foun­da­tions 智威汤逊基金会
-- How to pro­tect routes with a JWT Au­tho­riza­tion
-  如何使用 JWT 授权保护路由
-- How to ex­tract claims from a JWT en­coded token
-  如何从 JWT 编码令牌中提取声明
-- How to apply RBAC with Key­cloak Realm roles
-  如何将 RBAC 与 Keycloak Realm 角色一起应用
+- JWT foun­da­tions
+- 如何使用 JWT 授权保护路由
+- 如何从 JWT 编码令牌中提取**声明(claims)**
+- 如何将RBAC应用于Keycloak Realm roles
 
-## Hello again 再次问好
+## 再次问好
 
-Hi there! In my last blog post [Easy SSO for Vert.x with Key­cloak](https://vertx.io/blog/easy-sso-for-vert-x-with-keycloak/), we learned how to con­fig­ure sin­gle sign-on for a Vert.x web ap­pli­ca­tion with Key­cloak and OpenID con­nect. This time, we’ll see how we can pro­tect an ap­pli­ca­tion with Vert.x’s [JWT Au­tho­riza­tion](https://vertx.io/docs/vertx-web/java/#_jwt_authorisation) sup­port and Key­cloak.
-嘿，你好！在我的上一篇博客文章Easy SSO for Vert.x with Keycloak 中，我们学习了如何使用Keycloak和OpenID connect为Vert.x Web应用程序配置单点登录。这一次，我们将看到如何使用 Vert.x 的 JWT 授权支持和 Keycloak 保护应用程序。
+嘿，你好！在我的上一篇博客文章[Easy SSO for Vert.x with Keycloak](https://vertx.io/blog/easy-sso-for-vert-x-with-keycloak/) 中，我们学习了如何使用Keycloak和OpenID connect为Vert.x Web应用程序配置单点登录。这一次，我们将看到如何使用 Vert.x 的 [JWT 授权](https://vertx.io/docs/vertx-web/java/#_jwt_authorisation)支持 用 Keycloak 来保护应用程序。
 
-## Keycloak Setup 钥匙斗篷设置
+## Keycloak 设置
 
-To se­cure our Vert.x app, we need to use a Key­cloak server for ob­tain­ing JWT to­kens. Al­though [Key­cloak has a great get­ting started guide](https://www.keycloak.org/docs/latest/getting_started/) I wanted to make it a bit eas­ier to put every­thing to­gether, there­fore I pre­pared a local Key­cloak docker con­tainer [as de­scribed here](https://github.com/thomasdarimont/vertx-playground/tree/master/jwt-service-vertx#start-keycloak-with-the-vertx-realm), which comes with all the re­quired con­fig­u­ra­tion in place, that you can start eas­ily.
-为了保护我们的 Vert.x 应用程序，我们需要使用 Keycloak 服务器来获取 JWT 令牌。虽然Keycloak有一个很好的入门指南，但我想让把所有东西放在一起更容易一些，因此我准备了一个本地的Keycloak docker容器，如此处所述，它配备了所有必需的配置，您可以轻松开始。
+为了保护我们的 Vert.x 应用程序，我们需要使用 Keycloak 服务器来获取 JWT 令牌。虽然 [Keycloak有一个很好的入门指南](https://www.keycloak.org/docs/latest/getting_started/)，但我想让把所有东西放在一起更容易一些，因此我准备了一个本地的Keycloak docker容器，如[此处](https://github.com/thomasdarimont/vertx-playground/tree/master/jwt-service-vertx#start-keycloak-with-the-vertx-realm)所述，它配备了所有必需的配置，您可以轻松开始。
 
-The pre­con­fig­ured Key­cloak realm `vertx` con­tains a `vertx-service` OpenID con­nect client for our Vert.x app and a set of users for test­ing. To ease test­ing, the `vertx-service` is con­fig­ured with `Direct Access Grant` en­abled in Key­cloak, which en­ables sup­port for the OAuth2 re­source owner pass­word cre­den­tials grant (ROPC) flow.
-预配置的 Keycloak 领域 `vertx` 包含一个用于 Vert.x 应用程序的 `vertx-service` OpenID 连接客户端和一组用于测试的用户。为了简化测试， `vertx-service` 配置为在 Keycloak 中启用 `Direct Access Grant` ，从而支持 OAuth2 资源所有者密码凭据授予 （ROPC） 流。
+预配置的 Keycloak 领域`vertx`包含一个`vertx-service` OpenID 连接客户端，用于我们的 Vert.x 应用程序和一组用于测试的用户。 为了简化测试，`vertx-service`配置为在 Keycloak 中启用了`Direct Access Grant`，从而支持 OAuth2 资源所有者密码凭证授予 (ROPC) 流程。
 
-To start Key­cloak with the pre­con­fig­ured realm, just start the docker con­tainer with the fol­low­ing com­mand:
 要使用预配置的领域启动 Keycloak，只需使用以下命令启动 docker 容器：
 
 ```bash
